@@ -1,7 +1,11 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<div class="container d-flex justify-content-center text-light">
-    {{ cart }}
+<div class="container d-flex flex-column text-light">
+    {% for product in products %}
+        <div class="row">
+            {{ product.name }}
+        </div>
+    {% endfor %}
 </div>
 {% endblock %}

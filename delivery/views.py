@@ -73,7 +73,9 @@ def register(request):
                 user=user,
                 user_type=request.POST["user-type"]
             )
-            user.save()
+            if user.save():
+                cart = Cart.objects.create(user_id=user.id)
+                cart.save()
         except IntegrityError:
             return render(request, "register.html", {
                 "message": "Username already taken."
@@ -271,6 +273,7 @@ def product(request, product_id):
         "product": product,
         "category": category,
         "wishlist": wishlist,
+        "image_url": "../static/icon.png"
     })
 
 
@@ -290,8 +293,38 @@ def add_to_wishlist(request, product_id):
     return product(request, product_id)
 
 
+def add_to_cart(request):
+    if request.method == 'POST':
+        user = request.user
+        product_id = int(request.POST['product-id'])
+        quantity = int(request.POST['quantity'])
+
+        cart = Cart.objects.filter(user_id=user.id).first()
+
+        old_cart_item = CartItem.objects.filter(
+            cart_id = cart.id,
+            product_id = product_id
+        ).first()
+        if old_cart_item:
+            old_cart_item.quant += quantity
+            old_cart_item.save()
+        else:
+            cart_item = CartItem.objects.create(
+                cart_id = cart.id,
+                product_id = product_id,
+                quant = quantity
+            )
+            cart_item.save()
+
+        return product(request, product_id)
+
+
 def my_cart(request):
     user = request.user
-    cart = Cart.objects.filter(user_id=user.id)
+    cart = Cart.objects.get(user_id=user.id)
+    cart_items = CartItem.objects.filter(cart_id=cart.id)
+    products = []
+    for cart_item in cart_items:
+        products.append(Product.objects.get(id=cart_item.id))
 
-    return render(request, "shopping/my-cart.html", {'cart': cart})
+    return render(request, "shopping/my-cart.html", {'products': products})
