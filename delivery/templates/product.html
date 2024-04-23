@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="container">
+    <div class="row d-flex justify-content-center">
+        <div class="col-xm-12 col-sm-10 col-md-8 col-lg-6">
+            <div class="text-light border border-1 rounded-5 p-5">
+                <div class="bg-secondary d-flex">
+                    <img src="../static/icon.png" alt="">
+                </div>
+                <div class="d-flex justify-content-between mt-3">
+                    <span>
+                        <div>{{ product.name }}</div>
+                        <div>{{ product.price }}</div>
+                        <div>{{ category }}</div>
+                    </span>
+                    <a href="{% url 'add_to_wishlist' product_id=product.id %}" class="link-danger" data-bs-toggle="tooltip" data-bs-title="Add to my favorites">
+                        {% if wishlist|first %}
+                            <i class="bi bi-heart-fill"></i>
+                        {% else %}
+                            <i class="bi bi-heart"></i>
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

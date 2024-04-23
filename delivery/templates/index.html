@@ -3,11 +3,11 @@
 {% block sales_nav %}
     {% if user.is_authenticated and user_type == 'seller' %}
         <li class="nav-item text-light">
-            <a class="nav-link" href="{% url 'seller' %}">My sales</a>
+            <a class="nav-link link-danger" href="{% url 'seller' %}">My sales</a>
         </li>
     {% elif user_type != 'client' %}
         <li class="nav-item text-light">
-            <a class="nav-link" href="admin">Admin</a>
+            <a class="nav-link link-danger" href="admin">Admin</a>
         </li>
     {% endif %}
 {% endblock %}
@@ -25,12 +25,12 @@
     <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6">
         {% for product in products %}
             <div class="p-2">
-                <div class=" d-flex justify-content-between border border-1 rounded-2 px-3">
+                <a href="{% url 'product' product_id=product.id %}" class="d-flex justify-content-between border border-1 rounded-2 px-3 text-light link-underline link-underline-opacity-0">
                     <span>
                         <div>{{ product.name }}</div>
                         <div>{{ product.price }}</div>
                     </span>
-                </div>
+                </a>
             </div>
         {% endfor %}
     </div>

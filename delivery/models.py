@@ -97,6 +97,5 @@ class DeliveryRecord(models.Model):
 
 class WishList(models.Model):
     id = models.AutoField(primary_key=True)
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-    produto = models.ForeignKey(Product, on_delete=models.CASCADE)
-    data_adicionado = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
