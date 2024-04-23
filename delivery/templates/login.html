@@ -10,7 +10,7 @@
         <h1>Log in</h1>
 
         {% if message %}
-            <div class="text-danger">{{ message }}</div>
+            <div class="text-warning">{{ message }}</div>
         {% endif %}
 
         {% csrf_token %}
@@ -31,7 +31,7 @@
                 placeholder="Password"
             />
         </div>
-        <input class="btn btn-primary" type="submit" value="Login" />
+        <input class="btn btn-warning" type="submit" value="Login" />
 
         <span>
             Don't have an account?

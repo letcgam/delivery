@@ -10,7 +10,7 @@
         <h1>Register</h1>
 
         {% if message %}
-        <div class="text-danger">{{ message }}</div>
+        <div class="text-warning">{{ message }}</div>
         {% endif %}
 
         {% csrf_token %}
@@ -57,7 +57,7 @@
             </div>
         </div>
         <span>
-            <input class="btn btn-primary" type="submit" value="Register" />
+            <input class="btn btn-warning" type="submit" value="Register" />
         </span>
 
         <span>

@@ -33,7 +33,7 @@ def login_view(request):
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
 
-        # Check if authentication successful
+        # Check if authentication warningful
         if user is not None:
             login(request, user)
             return HttpResponseRedirect(reverse("index"))
@@ -103,13 +103,13 @@ def add_product(request):
             product.save()
         except:
             message = {
-                'class': 'text-danger',
+                'class': 'text-warning',
                 'text': 'Failed to register product. Make sure to fill in every field.'
             }
         else:
             message = {
-                'class': 'text-success',
-                'text': 'Successfully registered product!'
+                'class': 'text-warning',
+                'text': 'warningfully registered product!'
             }
     categories = Category.objects.all().order_by("name")
     return render(request, "seller/add-product.html", {
@@ -167,7 +167,7 @@ def login_view(request):
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
 
-        # Check if authentication successful
+        # Check if authentication warningful
         if user is not None:
             login(request, user)
             return HttpResponseRedirect(reverse("index"))
@@ -237,13 +237,13 @@ def add_product(request):
             product.save()
         except:
             message = {
-                "class": "text-danger",
+                "class": "text-warning",
                 "text": "Failed to register product. Make sure to fill in every field."
             }
         else:
             message = {
-                "class": "text-success",
-                "text": "Successfully registered product!"
+                "class": "text-warning",
+                "text": "warningfully registered product!"
             }
     categories = Category.objects.all().order_by("name")
     return render(request, "seller/add-product.html", {

@@ -14,21 +14,21 @@
             <ul class="nav d-flex align-items-end">
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'index' %}">
-                        <h1 class="text-danger">title</h1>
+                        <h1 class="text-warning">title</h1>
                     </a>
                 </li>
                 {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link link-danger" href="{% url 'logout' %}">Log Out</a>
+                        <a class="nav-link link-warning" href="{% url 'logout' %}">Log Out</a>
                     </li>
                     {% block sales_nav %}
                     {% endblock %}
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-link link-danger" href="{% url 'login' %}">Log In</a>
+                        <a class="nav-link link-warning" href="{% url 'login' %}">Log In</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link link-danger" href="{% url 'register' %}">Register</a>
+                        <a class="nav-link link-warning" href="{% url 'register' %}">Register</a>
                     </li>
                 {% endif %}
             </ul>
