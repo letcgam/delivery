@@ -1,20 +1,23 @@
 var totalPrice = document.getElementById("total-price");
 var quantityInput = document.getElementById("quantity-input");
 var productPrice = document.getElementById("product-price");
+const productUnitPrice = document.getElementById("product-unit-price");
 
 quantityInput.addEventListener("change", () => {
-    const accounting = require('../../static/accounting');
-    const formattedPrice = productPrice.innerHTML;
-    const numberValue = accounting.unformat(formattedPrice);
-
-    price = quantityInput.value * numberValue;
-    console.log(productPrice.innerHTML)
+    price = quantityInput.value * productUnitPrice.innerHTML;
     totalPrice.innerHTML = formatPrice(price);
 });
 
+
 document.addEventListener("DOMContentLoaded", () => {
-    productPrice.innerHTML = formatPrice(productPrice.innerHTML);
+    productPrice.innerHTML = formatPrice(productUnitPrice.innerHTML);
+    totalPrice.innerHTML = productPrice.innerHTML
 });
+
+function formatTotalPrice() {
+    price = quantityInput.value * productPrice.innerHTML;
+    totalPrice.innerHTML = formatPrice(price);
+}
 
 function formatPrice(price) {
     return Intl.NumberFormat("pt-BR", {

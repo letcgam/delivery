@@ -5,7 +5,6 @@ const productUnitPrice = document.getElementById("product-unit-price");
 
 quantityInput.addEventListener("change", () => {
     price = quantityInput.value * productUnitPrice.innerHTML;
-    console.log(productPrice.name)
     totalPrice.innerHTML = formatPrice(price);
 });
 
