@@ -4,8 +4,8 @@ from django.contrib.auth.models import User
 
 class User(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    phone = models.CharField(max_length=20, blank=True)
-    adress = models.CharField(max_length=255, blank=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    adress = models.CharField(max_length=255, blank=True, null=True)
     birth = models.DateField(blank=True, null=True)
     user_type = models.CharField(max_length=20)
     exclude_fields = [id]

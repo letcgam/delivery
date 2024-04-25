@@ -1,8 +1,9 @@
 
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.urls import reverse
 
 from django.contrib.auth.models import User
@@ -11,19 +12,26 @@ from .models import User as UserInfo, Product, Category, WishList, Cart, CartIte
 
 def index(request):
     products = Product.objects.all()
-    context = {"products": products}
 
-    if request.user is not None:
-        try:
-            user_type = UserInfo.objects.get(user_id=request.user.id).user_type
-            context = {
-                "user_type": user_type,
-                "products": products
-            }
-        except:
-            pass
+    context = get_layout_context(request)
+    context.update({"products": products})
 
     return render(request, "index.html", context)
+
+
+def get_layout_context(request):
+    # get user_type
+    try:
+        user_type = UserInfo.objects.get(user_id=request.user.id).user_type
+    except:
+        user_type = None
+
+    # get all categories
+    categories = Category.objects.all().order_by('name')
+
+    context = {'user_type': user_type, 'categories': categories}
+
+    return context
 
 
 def login_view(request):
@@ -87,10 +95,13 @@ def register(request):
         return render(request, "register.html")
 
 
-def seller(request):
-    return render(request, "seller/seller.html")
+@login_required
+def seller(request):    
+    context = get_layout_context(request)
+    return render(request, "seller/seller.html", context)
 
 
+@login_required
 def add_product(request):
     message = None
     if request.method == "POST":
@@ -114,18 +125,21 @@ def add_product(request):
                 "class": "text-warning",
                 "text": "warningfully registered product!"
             }
-    categories = Category.objects.all().order_by("name")
-    return render(request, "seller/add-product.html", {
-        "categories": categories,
-        "message": message
-    })
+
+    context = get_layout_context(request)
+    context.update({"message": message})
+
+    return render(request, "seller/add-product.html", context)
 
 
+@login_required
 def my_products(request):
     products = Product.objects.filter(owner=request.user.id)
-    return render(request, "seller/my-products.html", {
-        "products": products,
-    })
+
+    context = get_layout_context(request)
+    context.update({"products": products})
+
+    return render(request, "seller/my-products.html", context)
 
 
 def product(request, product_id):
@@ -136,14 +150,18 @@ def product(request, product_id):
         user_id = request.user.id
     )
 
-    return render(request, "product.html", {
+    context = get_layout_context(request)
+    context.update({
         "product": product,
         "category": category,
         "wishlist": wishlist,
         "image_url": "../static/icon.png"
     })
 
+    return render(request, "product.html", context)
 
+
+@login_required
 def add_to_wishlist(request, product_id):
     wishlist = WishList.objects.filter(
         product_id = product_id,
@@ -160,11 +178,30 @@ def add_to_wishlist(request, product_id):
     return product(request, product_id)
 
 
+@login_required
+def my_wishlist(request):
+    user = request.user
+    wishlist = WishList.objects.filter(user_id = user.id)
+    products = []
+    for item in wishlist:
+        product = Product.objects.get(pk = item.product_id)
+        products.append(product)
+
+    if len(products) == 0:
+        products = None
+    
+    context = get_layout_context(request)
+    context.update({"products": product})
+
+    return render(request, "shopping/my-wishlist.html", context)
+
+
+@login_required
 def add_to_cart(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         user = request.user
-        product_id = int(request.POST['product-id'])
-        quantity = int(request.POST['quantity'])
+        product_id = int(request.POST["product-id"])
+        quantity = int(request.POST["quantity"])
 
         cart = Cart.objects.filter(user_id=user.id).first()
 
@@ -186,6 +223,35 @@ def add_to_cart(request):
         return product(request, product_id)
 
 
+@login_required
+def remove_from_cart(request, product_id):
+    user = request.user
+    cart = Cart.objects.filter(user_id = user.id).first()
+    product = CartItem.objects.filter(cart_id = cart.id, product_id = product_id)
+    product.delete()
+
+    return my_cart(request)
+
+
+@login_required
+def move_to_wishlist(request, product_id):
+    wishlist = WishList.objects.filter(
+        product_id = product_id,
+        user_id = request.user.id
+    )
+    if len(wishlist):
+        wishlist.delete()
+    else:
+        wishlist_item = WishList.objects.create(
+            product_id = product_id,
+            user_id = request.user.id
+        )
+        wishlist_item.save()
+    
+    return remove_from_cart(request, product_id)
+
+
+@login_required
 def my_cart(request):
     user = request.user
     cart = Cart.objects.filter(user_id = user.id).first()
@@ -193,9 +259,15 @@ def my_cart(request):
     products = []
     for item in items:
         product = {
-            'product': Product.objects.get(pk = item.product_id),
-            'quantity': item.quant
+            "product": Product.objects.get(pk = item.product_id),
+            "quantity": item.quant
         }
         products.append(product)
+    
+    if len(products) == 0:
+        products = None
+    
+    context = get_layout_context(request)
+    context.update({"products": product})
 
-    return render(request, "shopping/my-cart.html", {'products': products})
+    return render(request, "shopping/my-cart.html", context)
