@@ -11,15 +11,14 @@
     </head>
     <body class="bg-dark">
         <div class="bg-black">
-            <div id="header" class="container d-flex justify-content-between align-items-end py-4 mb-5">
-                <ul class="nav d-flex align-items-end">
+            <div id="header" class="container d-flex justify-content-between align-items-center py-4 mb-5">
+                <ul class="nav d-flex align-items-center">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'index' %}">
-                            <h1 class="text-warning">title</h1>
+                            <h1 class="text-warning fw-5">title</h1>
                         </a>
                     </li>
-                    {% if user.is_authenticated %}
-                    {% else %}
+                    {% if not user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link link-warning" href="{% url 'login' %}">Log In</a>
                         </li>
@@ -27,6 +26,21 @@
                             <a class="nav-link link-warning" href="{% url 'register' %}">Register</a>
                         </li>
                     {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link link-warning" href="{% url 'categories_filter' category_id=0 %}">Filter products</a>
+                    </li>
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <strong class="link link-light">Categories</strong>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            {% for category in categories %}
+                                <li>
+                                    <a href="{% url 'categories_filter' category_id=category.id %}" class="dropdown-item">{{ category.name }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </ul>
                 <div class="text-light">
                     {% if user.is_authenticated %}
@@ -46,7 +60,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{% url 'my-cart' %}" class="dropdown-item">
+                                    <a href="" class="dropdown-item">
                                         <i class="bi bi-person me-2"></i>My account
                                     </a>
                                 </li>

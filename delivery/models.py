@@ -60,7 +60,7 @@ class CartItem(models.Model):
 
 class PaymentType(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=20, choices=[('CARTAO_CREDITO', 'Cartão de Crédito'), ('CARTAO_DEBITO', 'Cartão de Débito'), ('BOLETO', 'Boleto')])
+    name = models.CharField(max_length=20)
 
 
 class Payment(models.Model):
@@ -70,13 +70,18 @@ class Payment(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
 
+class OrderStatus(models.Model):
+    id = models.AutoField(primary_key=True)
+    description = models.CharField(max_length=25)
+
+
 class Order(models.Model):
     id = models.AutoField(primary_key=True)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     creation_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=20, choices=[('AGUARDANDO_PAGAMENTO', 'Aguardando Pagamento'),('PAGO', 'Pago'),('PROCESSANDO', 'Processando'),('ENVIADO', 'Enviado'),('CONCLUIDO', 'Concluído'),('CANCELADO', 'Cancelado')])
+    status = models.ForeignKey(OrderStatus, on_delete=models.CASCADE)
     payment = models.ForeignKey(Payment, on_delete=models.CASCADE, blank=True)
     delivery_postal_code = models.CharField(max_length=8)
     delivery_adress = models.CharField(max_length=255)
@@ -85,7 +90,7 @@ class Order(models.Model):
 class OrderItem(models.Model):
     id = models.AutoField(primary_key=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    amount = models.PositiveIntegerField()
+    quant = models.PositiveIntegerField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
 
@@ -99,3 +104,14 @@ class WishList(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+
+class ProductRating(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.FloatField()
+
+
+class ProductComment(models.Model):
+    id = models.AutoField(primary_key=True)
+    rating = models.ForeignKey(ProductRating, on_delete=models.CASCADE)

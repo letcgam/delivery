@@ -2,6 +2,19 @@
     color: white;
 }
 
+
+::-webkit-scrollbar-track {
+    background-color: #696969;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #fff;
+}
+
 a:hover {
     cursor: pointer;
 }
@@ -16,6 +29,13 @@ a:hover {
 
 .product-section {
     background-color: rgb(19, 19, 20);
+}
+
+.product-name {
+    text-wrap: nowrap;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .product-section img {
@@ -48,4 +68,30 @@ a:hover {
 
 #message {
     width: 100%;
+}
+
+/* category filter */
+
+#filter-sidebar {
+    height: fit-content;
+}
+
+#category-scroll {
+    --bs-scroll-height: 300px;
+    overflow-x: hidden;
+}
+
+#category-scroll::-webkit-scrollbar-track {
+    width: 2px;
+    background-color: #696969;
+}
+
+#category-scroll::-webkit-scrollbar {
+    width: 2px;
+    width: 5px;
+}
+
+#category-scroll::-webkit-scrollbar-thumb {
+    width: 2px;
+    background: #fff;
 }

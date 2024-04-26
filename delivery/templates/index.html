@@ -6,8 +6,8 @@
         {% for product in products %}
             <div class="p-2">
                 <a href="{% url 'product' product_id=product.id %}" class="d-flex flex-column p-3 rounded-3 text-light link-underline link-underline-opacity-0 product-section">
-                        <img src="../static/icon.png" alt="">
-                        <div>{{ product.name }}</div>
+                        <img src="../../static/icon.png" alt="">
+                        <div class="product-name">{{ product.name }}</div>
                         <div name="product-price">{{ product.price }}</div>
                 </a>
             </div>

@@ -93,6 +93,20 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "register.html")
+    
+
+def categories_filter(request, category_id):
+    if category_id != 0:
+        chosen_category = Category.objects.get(pk=category_id)
+        products = Product.objects.filter(category_id=chosen_category.id)
+    else:
+        chosen_category = {'name': "Alll categories"}
+        products = Product.objects.all()
+
+    context = get_layout_context(request)
+    context.update({"products": products, "chosen_category": chosen_category})
+
+    return render(request, "categories-filter.html", context)
 
 
 @login_required
@@ -191,7 +205,7 @@ def my_wishlist(request):
         products = None
     
     context = get_layout_context(request)
-    context.update({"products": product})
+    context.update({"products": products})
 
     return render(request, "shopping/my-wishlist.html", context)
 
@@ -268,6 +282,27 @@ def my_cart(request):
         products = None
     
     context = get_layout_context(request)
-    context.update({"products": product})
+    context.update({"products": products})
 
     return render(request, "shopping/my-cart.html", context)
+
+
+def purchase(request):
+    context = get_layout_context(request)
+
+    if request.method == 'GET':
+        user = request.user
+        cart = Cart.objects.get(user_id = user.id)
+        items = CartItem.objects.filter(cart_id = cart.id)
+        total = 0
+        for item in items:
+            product_price = Product.objects.get(pk = item.product_id).price
+            quant = item.quant
+            total += product_price * quant
+    
+        context.update({"total": total})
+
+        return render(request, "shopping/purchase.html", context)
+    
+    else:
+        pass

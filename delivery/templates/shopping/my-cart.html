@@ -1,6 +1,6 @@
 {% extends "layout.html" %} {% block body %}
 <div class="container d-flex flex-column rounded-5">
-    <div class="d-flex justify-content-center p-3">
+    <div class="d-flex flex-column align-items-center p-3">
         <table class="cart-table col-12 col-md-10 col-lg-6 col-xl-6 bg-secondary rounded-5 py-4">
             <thead>
                 <tr><td class="d-flex text-center mx-5"><h1>My cart</h1></td></tr>
@@ -76,7 +76,9 @@
                             </div>
                                 <!-- End modal -->
                             </div>
-                            <h5>{{ product.product.name }}</h5>
+                            <a href="{% url 'product' product_id=product.product.id %}" class="link-underline link-underline-opacity-0 link-light">
+                                <h5>{{ product.product.name }}</h5>
+                            </a>
                         </td>
                         <td class="text-end" name="product-price">
                             <span class="product-price-visible">{{ product.product.price }}</span>
@@ -99,6 +101,9 @@
                 </tr>
             </tbody>
         </table>
+        <a href="{% url 'purchase' %}" class="btn btn-warning mt-5 rounded-4 p-2 px-3">
+            <h2>Purchase</h2>
+        </a>
     </div>
 </div>
 
