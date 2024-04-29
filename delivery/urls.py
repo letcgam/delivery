@@ -8,6 +8,7 @@ urlpatterns = [
     path("login", views.login_view, name="login"),
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
+    path("my-account", views.my_account, name="my_account"),
     path("seller", views.seller, name="seller"),
     path("new-product", views.add_product, name="add_product"),
     path("my-products", views.my_products, name="my_products"),
@@ -19,5 +20,5 @@ urlpatterns = [
     path("add-to-wishlist/<int:product_id>/", views.add_to_wishlist, name="add_to_wishlist"),
     path("move-to-wishlist/<int:product_id>/", views.move_to_wishlist, name="move_to_wishlist"),
     path("categories-filter/<int:category_id>/", views.categories_filter, name="categories_filter"),
-    path("purchase", views.purchase, name="purchase"),
+    path("new-order", views.new_order, name="new_order"),
 ]

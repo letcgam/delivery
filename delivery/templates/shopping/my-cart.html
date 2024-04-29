@@ -1,6 +1,6 @@
 {% extends "layout.html" %} {% block body %}
 <div class="container d-flex flex-column rounded-5">
-    <div class="d-flex flex-column align-items-center p-3">
+    <div class="d-flex flex-column align-items-center">
         <table class="cart-table col-12 col-md-10 col-lg-6 col-xl-6 bg-secondary rounded-5 py-4">
             <thead>
                 <tr><td class="d-flex text-center mx-5"><h1>My cart</h1></td></tr>
@@ -17,6 +17,8 @@
                     <td id="message"><h3 class="text-secondary">Add poducts to yout cart to see them here.</h3></td>
                 </tr>
                 {% else %}
+                <form action="{% url 'new_order' %}" method="post">
+                    {% csrf_token %}
                     {% for product in products %}
                     <tr class="row row-cols-4 cart-product rounded-4 pe-3 py-4 mb-3" >
                         <td class="d-flex">
@@ -85,7 +87,7 @@
                             <input name="product-price-input" value="{{ product.product.price }}" hidden />
                         </td>
                         <td class="text-center quantity-input-col">
-                            <input name="quantity-input" class="form-control bg-dark text-light" type="number" min="1" value="{{ product.quantity }}" />
+                            <input name="quantity-input-{{ product.product.id }}" class="form-control bg-dark text-light" type="number" min="1" value="{{ product.quantity }}" />
                         </td>
                         <td class="text-end" name="total-price">
                             <span class="total-price-visible">{{ product.product.price }}</span>
@@ -93,17 +95,22 @@
                         </td>
                     </tr>
                     {% endfor %}
-                {% endif %}
                 <tr class="row cart-product rounded-4 p-3 py-4 mt-5 d-flex">
                     <td class="w-25"><h4>Total:</h4></td>
                     <td class="w-75 text-end"><h4 id="total">0</h4></td>
                     <td><input id="total-input" hidden value="0"/></td>
                 </tr>
+                <tr class="d-flex justify-content-center">
+                    <td>
+                        <button class="btn btn-warning border-3 mt-4 rounded-4 p-2 px-3" type="submit">
+                            <h2>Purchase</h2>
+                        </button>
+                    </td>
+                </tr>
+            </form>
+                {% endif %}
             </tbody>
         </table>
-        <a href="{% url 'purchase' %}" class="btn btn-warning mt-5 rounded-4 p-2 px-3">
-            <h2>Purchase</h2>
-        </a>
     </div>
 </div>
 

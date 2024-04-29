@@ -1,4 +1,5 @@
-
+from math import prod
+from multiprocessing import context
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -93,6 +94,15 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "register.html")
+
+
+def my_account(request):
+    user = User.objects.get(pk = request.user.id)
+
+    context = get_layout_context(request)
+
+    return render(request, "account/account.html", context)
+
     
 
 def categories_filter(request, category_id):
@@ -104,7 +114,7 @@ def categories_filter(request, category_id):
         products = Product.objects.all()
 
     context = get_layout_context(request)
-    context.update({"products": products, "chosen_category": chosen_category})
+    context.update({"products": products, "chosen_category": chosen_category, 'products_len': len(products)})
 
     return render(request, "categories-filter.html", context)
 
@@ -287,22 +297,34 @@ def my_cart(request):
     return render(request, "shopping/my-cart.html", context)
 
 
-def purchase(request):
+@login_required
+def new_order(request):
     context = get_layout_context(request)
 
-    if request.method == 'GET':
+    if request.method == "POST":
         user = request.user
         cart = Cart.objects.get(user_id = user.id)
         items = CartItem.objects.filter(cart_id = cart.id)
+
+        products = []
         total = 0
         for item in items:
-            product_price = Product.objects.get(pk = item.product_id).price
-            quant = item.quant
-            total += product_price * quant
-    
-        context.update({"total": total})
+            product = Product.objects.get(pk = item.product_id)
+            quantity = int(request.POST['quantity-input-' + str(product.id)])
 
-        return render(request, "shopping/purchase.html", context)
-    
-    else:
-        pass
+            item.quant = quantity
+            item.save()
+            
+            products.append({
+                "product": Product.objects.get(pk = item.product_id),
+                "quantity": item.quant
+            })
+            total += product.price * quantity
+        context.update({'total': total, 'products': products})
+
+    return render(request, "shopping/new-order.html", context)
+
+
+@login_required
+def purchase(request):
+    pass

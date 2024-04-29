@@ -29,6 +29,9 @@
         <div class="text-light w-100 m-3">
             <h2>{{ chosen_category.name }}</h2>
         </div>
+        {% if products_len == 0 %}
+            <h4 class="text-secondary ms-3">There are no products in this category.</h4>
+        {% else %}
         <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-5">
             {% for product in products %}
                 <div class="p-2" id="product-list">
@@ -41,6 +44,7 @@
                 </div>
             {% endfor %}
         </div>
+        {% endif %}
     </div>
 </div>
 

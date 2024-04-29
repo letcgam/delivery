@@ -1,10 +1,10 @@
 const unitPrice = document.getElementsByName("product-price");
-const quantity = document.getElementsByName("quantity-input");
+const quantity = document.querySelectorAll('[name^="quantity-input"]');
 const totalPrice = document.getElementsByName("total-price");
 const total = document.getElementById("total");
-const totalPurchase = document.getElementById("total-purchase");
 const totalValue = document.getElementById("total-input");
 const evt = new Event('change');
+
 
 document.addEventListener('DOMContentLoaded', () => {
     unitPrice.forEach(elem => {
@@ -33,7 +33,6 @@ quantity.forEach((elem, index) => {
         })
         total.innerHTML = formatPrice(cartPrice);
         totalValue.value = cartPrice;
-        totalPurchase.value = cartPrice
     })
 });
 
