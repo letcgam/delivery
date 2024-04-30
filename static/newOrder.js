@@ -3,13 +3,16 @@ const total = document.getElementById("total");
 var orderTotal = 0;
 
 product.forEach(element => {
-    var unitPrice = element.children[1]
-    var quantity = element.children[2]
-    var totalPrice = element.children[3]
+    productInfo = element.children[0].children[1]
+    unitPrice = productInfo.children[0]
+    quant = productInfo.children[1]
+    exibitPrice = productInfo.children[3]
+    productTotal = element.children[1]
 
-    unitPrice.children[0].innerHTML = formatPrice(unitPrice.children[1].value);
-    totalPrice.innerHTML = formatPrice(unitPrice.children[1].value * quantity.innerHTML)
-    orderTotal += (unitPrice.children[1].value * quantity.innerHTML)
+    productTotal.innerHTML = formatPrice(unitPrice.value * Number.parseInt(quant.innerHTML))
+    exibitPrice.innerHTML = formatPrice(unitPrice.value)
+
+    orderTotal += unitPrice.value * Number.parseInt(quant.innerHTML)
 });
 
 total.innerHTML = formatPrice(orderTotal)

@@ -1,5 +1,8 @@
-from math import prod
-from multiprocessing import context
+from cgitb import text
+from datetime import datetime
+from email import message
+from hmac import new
+from os import error
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -8,7 +11,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from django.contrib.auth.models import User
-from .models import User as UserInfo, Product, Category, WishList, Cart, CartItem
+from .models import BillingAdress, User as UserInfo, Product, Category, WishList, Cart, CartItem, Adress
 
 
 def index(request):
@@ -34,6 +37,14 @@ def get_layout_context(request):
 
     return context
 
+class EmptyFields(Exception):
+        def __init__(self, error_message) -> None:
+            super().__init__()
+            self.error_message = error_message
+
+        def __str__(self) -> str:
+            return self.error_message
+        
 
 def login_view(request):
     if request.method == "POST":
@@ -98,12 +109,91 @@ def register(request):
 
 def my_account(request):
     user = User.objects.get(pk = request.user.id)
+    user_info = UserInfo.objects.get(user_id = user.id)
+    user_info.birth = str(user_info.birth)
+    context = get_layout_context(request)
+    context.update({'user': user, 'user_info': user_info})
 
+    if request.method == 'GET':
+        return render(request, "account/account.html", context)
+    else:
+        try:
+            if request.POST['username'] == "":
+                raise EmptyFields('Username')
+            elif request.POST['email'] == "":
+                raise EmptyFields('Email')
+            elif len(request.POST['phone-number']) != 19:
+                raise EmptyFields('Phone number')
+            else:
+                user.first_name = request.POST['first-name']
+                user.last_name = request.POST['last-name']
+                user.username = request.POST['username']
+                user.email = request.POST['email']
+                user_info.phone = request.POST['phone-number']
+                user_info.birth = request.POST['birth'] if request.POST['birth'] != "" else None
+
+                user.save()
+                user_info.save()
+        except EmptyFields as e:
+            message = {
+                "text": "Provide valid data for required field: " + e.error_message + ".",
+                "class": "text-danger"
+            }
+        except:
+            message = {
+                "text": "Error during saving user information.",
+                "class": "text-danger"
+            }
+        else:
+            message = {
+                "text": "Successfully saved profile.",
+                "class": "text-success"
+            }
+
+        context.update({'message': message})
+        return render(request, "account/account.html", context)
+    
+
+def add_adress(request):
     context = get_layout_context(request)
 
+    message = {
+        "text": "",
+        "class": ""
+    }
+    try:   
+        if request.POST['adress'] == "":
+            raise EmptyFields('Adress')
+        elif request.POST['postal-code'] == "":
+            raise EmptyFields('Postal code')
+        elif request.POST['city'] == "":
+            raise EmptyFields('City')
+        elif request.POST['state'] == "":
+            raise EmptyFields('State')
+        elif request.POST['country'] == "":
+            raise EmptyFields('Country')
+        else:
+            adress = Adress.objects.create(
+                street = request.POST["adress"],
+                postal_code = request.POST["postal-code"],
+                city = request.POST["city"],
+                state = request.POST["state"],
+                country = request.POST["country"]
+            ).save()
+            BillingAdress.objects.create(
+                user_id = request.user.id,
+                adress_id = adress.id
+            ).save()
+    except EmptyFields as e:
+        message['text'] = "Provide valid data for required field: " + e.error_message + "."
+        message['class'] = "text-danger"
+    else:
+        message['text'] = "Successfully added billing adress."
+        message['class'] = "text-success"
+    
+    context.update({"adress_message": message})
     return render(request, "account/account.html", context)
 
-    
 
 def categories_filter(request, category_id):
     if category_id != 0:

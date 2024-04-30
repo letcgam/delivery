@@ -2,6 +2,14 @@
     color: white;
 }
 
+label {
+    user-select: none;
+}
+
+.hidden {
+    display: none;
+}
+
 
 ::-webkit-scrollbar-track {
     background-color: #696969;
