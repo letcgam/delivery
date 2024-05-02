@@ -1,6 +1,40 @@
+const billingStreet = document.getElementById("billing-street").value;
+const billingPostalCode = document.getElementById("billing-postal-code").value;
+const billingCity = document.getElementById("billing-city").value;
+const billingState = document.getElementById("billing-state").value;
+const billingCountry = document.getElementById("billing-country").value;
+const streetInput = document.getElementById("street-input");
+const postalCodeInput = document.getElementById("postal-code-input");
+const cityInput = document.getElementById("city-input");
+const stateInput = document.getElementById("state-input");
+const countryInput = document.getElementById("country-input");
+var sameAdressCheck = document.getElementById("same-adress");
+const adressMessage = document.getElementById("adress-message");
 const product = document.getElementsByName("product");
 const total = document.getElementById("total");
 var orderTotal = 0;
+
+sameAdressCheck.addEventListener("click", () => {
+    if (billingStreet == "") {
+        adressMessage.hidden = false
+        sameAdressCheck.checked = false 
+    } else {
+        if (sameAdressCheck.checked == true) {
+            streetInput.value = billingStreet;
+            postalCodeInput.value = billingPostalCode;
+            cityInput.value = billingCity;
+            stateInput.value = billingState;
+            countryInput.value = billingCountry;
+        } else {;
+            streetInput.value = "";
+            postalCodeInput.value = "";
+            cityInput.value = "";
+            stateInput.value = "";
+            countryInput.value = "";
+        }
+    }
+})
+
 
 product.forEach(element => {
     productInfo = element.children[0].children[1]
@@ -19,8 +53,8 @@ total.innerHTML = formatPrice(orderTotal)
 
 
 function formatPrice(price) {
-    return Intl.NumberFormat("pt-BR", {
+    return Intl.NumberFormat("en-US", {
         style: "currency",
-        currency: "BRL",
+        currency: "USD",
     }).format(price);
 }

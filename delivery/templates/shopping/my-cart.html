@@ -17,7 +17,7 @@
                     <td id="message"><h3 class="text-secondary">Add poducts to yout cart to see them here.</h3></td>
                 </tr>
                 {% else %}
-                <form action="{% url 'new_order' %}" method="post">
+                <form action="{% url 'my_cart' %}" method="post">
                     {% csrf_token %}
                     {% for product in products %}
                     <tr class="row row-cols-4 cart-product rounded-4 pe-3 py-4 mb-3" >
@@ -51,7 +51,8 @@
                                     </div>
                                 </div>
                                 <!-- Link trigger modal - Move item to favorites -->
-                                <a class="btn p-2 bg-black rounded-bottom-2" data-bs-toggle="modal" data-bs-target="#moveModal{{product.product.id}}">                                <i class="bi bi-heart-fill text-danger"></i>
+                                <a class="btn p-2 bg-black rounded-bottom-2" data-bs-toggle="modal" data-bs-target="#moveModal{{product.product.id}}">
+                                    <i class="bi bi-heart-fill text-danger"></i>
                                 </a>
                                 <!-- Modal -->
                                 <div class="modal fade" id="moveModal{{product.product.id}}" aria-labelledby="removeModalLabel" aria-hidden="true">
@@ -87,7 +88,7 @@
                             <input name="product-price-input" value="{{ product.product.price }}" hidden />
                         </td>
                         <td class="text-center quantity-input-col">
-                            <input name="quantity-input-{{ product.product.id }}" class="form-control bg-dark text-light" type="number" min="1" value="{{ product.quantity }}" />
+                            <input name="quantity-input-{{ product.product.id }}" class="form-control bg-dark text-light" type="number" min="1" max="{{ product.product.stock }}" value="{{ product.quantity }}" />
                         </td>
                         <td class="text-end" name="total-price">
                             <span class="total-price-visible">{{ product.product.price }}</span>
@@ -102,9 +103,7 @@
                 </tr>
                 <tr class="d-flex justify-content-center">
                     <td>
-                        <button class="btn btn-warning border-3 mt-4 rounded-4 p-2 px-3" type="submit">
-                            <h2>Purchase</h2>
-                        </button>
+                        <input class="btn btn-warning border-3 mt-4 rounded-4 p-2 px-3 fs-3" type="submit" value="Purchase"></input>
                     </td>
                 </tr>
             </form>

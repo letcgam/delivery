@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function formatPrice(price) {
-    return Intl.NumberFormat("pt-BR", {
+    return Intl.NumberFormat("en-US", {
         style: "currency",
-        currency: "BRL",
+        currency: "USD",
     }).format(price);
 };

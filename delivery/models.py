@@ -78,6 +78,9 @@ class BillingAdress(models.Model):
     user = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
     adress = models.ForeignKey(Adress, on_delete=models.CASCADE)
 
+    class Meta:
+        db_table = "billing_adress"
+
 
 class Cart(models.Model):
     id = models.AutoField(primary_key=True)
@@ -101,25 +104,57 @@ class CartItem(models.Model):
 
 class PaymentType(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=20)
+    name = models.CharField(choices=[("CREDIT", "Credit card"), ("DEBIT", "Debit card")], max_length=20)
 
     class Meta:
         db_table = "payment_type"
 
 
+class Card(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    number = models.CharField(max_length=19)
+    cvv = models.IntegerField()
+    expiration = models.CharField(max_length=5)
+    type = models.ForeignKey(PaymentType, on_delete=models.CASCADE)
+    add_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "card"
+
+
 class Payment(models.Model):
     id = models.AutoField(primary_key=True)
-    type_name = models.ForeignKey(PaymentType, on_delete=models.CASCADE)
-    client = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
+    card = models.ForeignKey(Card, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "payment"
 
 
+class Recipient(models.Model):
+    id = models.AutoField(primary_key=True)pronto para ser retirado
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    email = models.CharField(max_length=255)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+
+    class Meta:
+        db_table = "recipient"
+
+
 class OrderStatus(models.Model):
     id = models.AutoField(primary_key=True)
-    description = models.CharField(max_length=25)
+    description = models.CharField(max_length=25, choices=[
+        ("PROCESSING", "Processing"),
+        ("AWAITING PAYMENT", "Awaiting payment"),
+        ("IN PREPARATION", "In preparation"),
+        ("AWAITING WITHDRAW", "Awaiting withdrawal"),
+        ("EN ROUTE", "En route"),
+        ("DELIVER", "Deliver"),
+    ])
 
     class Meta:
         db_table = "order_status"
@@ -127,12 +162,13 @@ class OrderStatus(models.Model):
 
 class Order(models.Model):
     id = models.AutoField(primary_key=True)
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    user = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
     creation_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.ForeignKey(OrderStatus, on_delete=models.CASCADE)
-    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, blank=True)
+    payment = models.OneToOneField(Payment, on_delete=models.CASCADE, blank=True)
+    recipient = models.ForeignKey(Recipient, on_delete=models.CASCADE)
     delivery_adress = models.ForeignKey(Adress, on_delete=models.CASCADE)
 
     class Meta:

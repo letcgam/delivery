@@ -37,10 +37,13 @@ def get_layout_context(request):
 
     return context
 
-class EmptyFields(Exception):
+class FieldError(Exception):
         def __init__(self, error_message) -> None:
             super().__init__()
-            self.error_message = error_message
+            if len(error_message) > 1:
+                for i in range(0, len(error_message) - 1):
+                    error_message[i] += ", "
+            self.error_message = "".join(error_message)
 
         def __str__(self) -> str:
             return self.error_message
@@ -112,18 +115,32 @@ def my_account(request):
     user_info = UserInfo.objects.get(user_id = user.id)
     user_info.birth = str(user_info.birth)
     context = get_layout_context(request)
-    context.update({'user': user, 'user_info': user_info})
+
+    context.update({
+        'user': user,
+        'user_info': user_info,
+    })
+
+    try:
+        billing_adress = BillingAdress.objects.get(user_id = user.id)
+        adress = Adress.objects.get(pk = billing_adress.adress_id)
+        context.update({'adress': adress})
+    except:
+        pass
 
     if request.method == 'GET':
         return render(request, "account/account.html", context)
     else:
         try:
+            error_message = []
             if request.POST['username'] == "":
-                raise EmptyFields('Username')
-            elif request.POST['email'] == "":
-                raise EmptyFields('Email')
-            elif len(request.POST['phone-number']) != 19:
-                raise EmptyFields('Phone number')
+                error_message.append('Username')
+            if request.POST['email'] == "":
+                error_message.append('Email')
+            if len(request.POST['phone-number']) != 19:
+                error_message.append('Phone number')
+            if len(error_message) >= 1:
+                raise FieldError(error_message)
             else:
                 user.first_name = request.POST['first-name']
                 user.last_name = request.POST['last-name']
@@ -134,16 +151,16 @@ def my_account(request):
 
                 user.save()
                 user_info.save()
-        except EmptyFields as e:
+        except FieldError as e:
             message = {
-                "text": "Provide valid data for required field: " + e.error_message + ".",
+                "text": "Provide valid data for required fields: " + e.error_message + ".",
                 "class": "text-danger"
             }
-        except:
-            message = {
-                "text": "Error during saving user information.",
-                "class": "text-danger"
-            }
+        # except:
+        #     message = {
+        #         "text": "Error during saving user information.",
+        #         "class": "text-danger"
+        #     }
         else:
             message = {
                 "text": "Successfully saved profile.",
@@ -157,21 +174,26 @@ def my_account(request):
 def add_adress(request):
     context = get_layout_context(request)
 
+    user = User.objects.get(pk = request.user.id)
+
     message = {
         "text": "",
         "class": ""
     }
-    try:   
+    try:
+        error_message = []
         if request.POST['adress'] == "":
-            raise EmptyFields('Adress')
-        elif request.POST['postal-code'] == "":
-            raise EmptyFields('Postal code')
-        elif request.POST['city'] == "":
-            raise EmptyFields('City')
-        elif request.POST['state'] == "":
-            raise EmptyFields('State')
-        elif request.POST['country'] == "":
-            raise EmptyFields('Country')
+            error_message.append('Adress')
+        if request.POST['postal-code'] == "":
+            error_message.append('Postal code')
+        if request.POST['city'] == "":
+            error_message.append('City')
+        if request.POST['state'] == "":
+            error_message.append('State')
+        if request.POST['country'] == "":
+            error_message.append('Country')
+        if error_message != []:
+            raise FieldError(error_message)
         else:
             adress = Adress.objects.create(
                 street = request.POST["adress"],
@@ -179,18 +201,27 @@ def add_adress(request):
                 city = request.POST["city"],
                 state = request.POST["state"],
                 country = request.POST["country"]
-            ).save()
-            BillingAdress.objects.create(
+            )
+            adress.save()
+            billing_adress = BillingAdress.objects.create(
                 user_id = request.user.id,
                 adress_id = adress.id
-            ).save()
-    except EmptyFields as e:
-        message['text'] = "Provide valid data for required field: " + e.error_message + "."
+            )
+            billing_adress.save()
+    except FieldError as e:
+        message['text'] = "Provide valid data for required fields: " + e.error_message + "."
         message['class'] = "text-danger"
     else:
         message['text'] = "Successfully added billing adress."
         message['class'] = "text-success"
     
+    try:
+        billing_adress = BillingAdress.objects.get(user_id = user.id)
+        adress = Adress.objects.get(pk = billing_adress.adress_id)
+        context.update({'adress': adress})
+    except:
+        pass
+
     context.update({"adress_message": message})
     return render(request, "account/account.html", context)
 
@@ -256,7 +287,7 @@ def my_products(request):
     return render(request, "seller/my-products.html", context)
 
 
-def product(request, product_id):
+def product(request, product_id, success=False):
     product = Product.objects.get(pk=product_id)
     category = Category.objects.get(pk=product.category_id).name
     wishlist = WishList.objects.filter(
@@ -269,7 +300,8 @@ def product(request, product_id):
         "product": product,
         "category": category,
         "wishlist": wishlist,
-        "image_url": "../static/icon.png"
+        "image_url": "../static/icon.png",
+        "success": success
     })
 
     return render(request, "product.html", context)
@@ -334,7 +366,7 @@ def add_to_cart(request):
             )
             cart_item.save()
 
-        return product(request, product_id)
+        return product(request, product_id, success=True)
 
 
 @login_required
@@ -367,54 +399,78 @@ def move_to_wishlist(request, product_id):
 
 @login_required
 def my_cart(request):
-    user = request.user
-    cart = Cart.objects.filter(user_id = user.id).first()
-    items = CartItem.objects.filter(cart_id = cart.id)
-    products = []
-    for item in items:
-        product = {
-            "product": Product.objects.get(pk = item.product_id),
-            "quantity": item.quant
-        }
-        products.append(product)
-    
-    if len(products) == 0:
-        products = None
-    
-    context = get_layout_context(request)
-    context.update({"products": products})
-
-    return render(request, "shopping/my-cart.html", context)
-
-
-@login_required
-def new_order(request):
+    user = User.objects.get(pk = request.user.id)
+    user_info = UserInfo.objects.get(user_id = user.id)
     context = get_layout_context(request)
 
-    if request.method == "POST":
-        user = request.user
+    if request.method == "GET":
+        cart = Cart.objects.filter(user_id = user.id).first()
+        items = CartItem.objects.filter(cart_id = cart.id)
+        products = []
+        for item in items:
+            product = {
+                "product": Product.objects.get(pk = item.product_id),
+                "quantity": item.quant
+            }
+            products.append(product)
+        
+        if len(products) == 0:
+            products = None
+        
+        context.update({"products": products})
+    
+        return render(request, "shopping/my-cart.html", context)
+    else:
         cart = Cart.objects.get(user_id = user.id)
         items = CartItem.objects.filter(cart_id = cart.id)
-
         products = []
         total = 0
         for item in items:
             product = Product.objects.get(pk = item.product_id)
             quantity = int(request.POST['quantity-input-' + str(product.id)])
-
             item.quant = quantity
             item.save()
-            
             products.append({
                 "product": Product.objects.get(pk = item.product_id),
                 "quantity": item.quant
             })
             total += product.price * quantity
-        context.update({'total': total, 'products': products})
+        
+        try:
+            billing_adress = BillingAdress.objects.get(user_id = user.id)
+            adress = Adress.objects.get(pk = billing_adress.adress_id)
+            context.update({'adress': adress})
+        except:
+            pass
 
-    return render(request, "shopping/new-order.html", context)
+        context.update({
+            'user': user,
+            'user_info': user_info,
+            'total': total,
+            'products': products,
+            'products_len': len(products),
+        })
+
+        return render(request, "shopping/new-order.html", context)
 
 
 @login_required
-def purchase(request):
-    pass
+def new_order(request):
+    user = request.user
+    if request.method == "POST":
+        firstName = "first-name"
+        lastName = "last-name"
+        email = "email" 
+        phoneNumber = "phone-number"
+
+        streetInput = "street-input"
+        postalCodeInput = "postal-code-input"
+        cityInput = "city-input"
+        stateInput = "state-input"
+        countryInput = "country-input"
+
+        paymentMethod = "paymentMethod" 
+        cardname = "card-name"
+        cardCvv = "card-cvv"
+        cardNumber = "card-number"
+        cardExpiration = "card-expiration"

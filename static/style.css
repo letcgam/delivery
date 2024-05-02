@@ -103,3 +103,16 @@ a:hover {
     width: 2px;
     background: #fff;
 }
+
+
+
+#added-to-cart-message {
+    height: 0;
+    opacity: 0;
+}
+
+#added-to-cart-message.show {
+    height: auto;
+    opacity: 1;
+    transition:linear .2s;
+}

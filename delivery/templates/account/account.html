@@ -90,7 +90,7 @@
 
                             <div class="col-lg-9">
                                 <label for="adress" class="label adress-label p-0 m-0 mt-3">Adress</label>
-                                <input type="text" class="adress-input form-control bg-dark text-light" id="adress" name="adress">
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="adress" name="adress" value="{{ adress.street }}">
                                 <div class="invalid-feedback">
                                     Street adress required.
                                 </div>
@@ -98,7 +98,7 @@
 
                             <div class="col-md-3">
                                 <label for="postal-code" class="label adress-label p-0 m-0 mt-3">Postal code</label>
-                                <input type="text" class="adress-input form-control bg-dark text-light" id="postal-code" name="postal-code">
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="postal-code" name="postal-code" value="{{ adress.postal_code }}">
                                 <div class="invalid-feedback">
                                     Postal code required.
                                 </div>
@@ -106,7 +106,7 @@
 
                             <div class="col-md-9 col-lg-4">
                                 <label for="city" class="label adress-label p-0 m-0 mt-3">City</label>
-                                <input type="text" class="adress-input form-control bg-dark text-light" id="city" name="city"></input>
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="city" name="city"  value="{{ adress.city }}"></input>
                                 <div class="invalid-feedback">
                                     Please provide a valid city.
                                 </div>
@@ -114,7 +114,7 @@
 
                             <div class="col-md-6 col-lg-4">
                                 <label for="state" class="label adress-label p-0 m-0 mt-3">State</label>
-                                <input type="text" class="adress-input form-control bg-dark text-light" id="state" name="state"></input>
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="state" name="state"  value="{{ adress.state }}"></input>
                                 <div class="invalid-feedback">
                                     Please provide a valid state.
                                 </div>
@@ -122,7 +122,7 @@
 
                             <div class="col-md-6 col-lg-4">
                                 <label for="country" class="label adress-label p-0 m-0 mt-3">Country</label>
-                                <input type="text" class="adress-input form-control bg-dark text-light" id="country" name="country"></input>
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="country" name="country" value="{{ adress.country }}"></input>
                                 <div class="invalid-feedback">
                                     Please provide a valid country.
                                 </div>
