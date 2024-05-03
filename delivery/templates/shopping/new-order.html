@@ -31,7 +31,8 @@
         </div>
 
         <div class="col-md-7 col-lg-8">
-          <form class="needs-validation">
+          <form method="post" action="{% url 'new_order' %}" class="needs-validation">
+            {% csrf_token %}
 
             <h4 class="mb-3">Recipient information</h4>
 

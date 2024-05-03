@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="container">
+    <div class="row d-flex justify-content-center text-light">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-6 mb-4">
+            <ul class="list-group">
+                <li class="list-group-item bg-dark px-4 pt-3 bg-black">
+                    <h3>Your order</h3>
+                </li>
+                {% for order_item in order_items %}
+                    <li class="list-group-item bg-dark">
+                        <div class="product-name">{{ order_item.product.name }}</div>
+                        <div class="d-flex justify-content-between">
+                            <span name="product-price">{{ order_item.product.price }}</span>
+                            <span>{{ order_item.quant }}</span>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-12 col-md-8 col-lg-6 col-xl-6">
+            <ul class="list-group">
+                <li class="list-group-item bg-dark px-4 pt-3 bg-black">
+                    <h3>Shipping status</h3>
+                </li>
+                {% for update in update_list %}
+                <li class="list-group-item bg-dark">
+                    <h3>Shipping status</h3>
+                </li>
+                {% endfor%}
+                <li class="list-group-item bg-dark d-flex flex-column py-3">
+                    <div>
+                        <i class="bi bi-person-lines-fill mx-3"></i>Processing...
+                    </div>
+                    <span class="mx-4">|</span>
+                    <div>
+                        <i class="bi bi-box-seam mx-3"></i>In preparation
+                    </div>
+                    <span class="mx-4">|</span>
+                    <div>
+                        <i class="bi bi-hourglass-split mx-3"></i>Awaiting withdraw
+                    </div>
+                    <span class="mx-4">|</span>
+                    <div>
+                        <i class="bi bi-truck mx-3"></i>En route
+                    </div>
+                    <span class="mx-4">|</span>
+                    <div>
+                        <i class="bi bi-bag-check mx-3"></i>Deliver
+                    </div>
+                </li>
+            </ul>
+            <ul class="list-group my-3">
+                <li class="list-group-item bg-dark px-4 pt-3 bg-black">
+                    <h3>Delivery adress</h3>
+                </li>
+                <li class="list-group-item bg-dark">
+                    <div class="p-3">
+                        <i class="bi bi-geo-alt"></i>
+                        {{ order.delivery_adress.street }}, {{ order.delivery_adress.postal_code }}, {{ order.delivery_adress.city }}, {{ order.delivery_adress.state }}, {{ order.delivery_adress.country }}
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="../../static/index.js"></script>
+{% endblock %}

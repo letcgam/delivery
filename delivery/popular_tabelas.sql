@@ -1,4 +1,4 @@
-INSERT INTO delivery_category (name) VALUES
+INSERT INTO category (name) VALUES
     ('Electronics'),
     ('Books'),
     ('Movies'),
@@ -24,7 +24,7 @@ INSERT INTO delivery_category (name) VALUES
     ('Collectibles & Memorabilia');
 
 
-INSERT INTO delivery_product (name,description,category_id,price,stock,owner_id) VALUES
+INSERT INTO product (name,description,category_id,price,stock,owner_id) VALUES
     ('iPhone 13 Pro Max','The latest flagship smartphone from Apple.',1,1199.00,10,2),
     ('MacBook Air M2','The latest MacBook Air with the new M2 chip.',1,1199.00,15,2),
     ('Harry Potter and the Sorcerers Stone','The first book in the Harry Potter series by J.K. Rowling.',2,14.99,20,2),
@@ -51,3 +51,31 @@ INSERT INTO delivery_product (name,description,category_id,price,stock,owner_id)
     ('Office Chair','An ergonomic office chair for comfort and support.',14,199.99,10,2),
     ('Diamond Necklace','A beautiful diamond necklace for special occasions.',15,2999.99,1,2);
 
+
+
+APLICAR NA MIGRATIONS ANTES DE EXECUTAR:
+        from django.db import migrations
+
+        def create_order_statuses(apps, schema_editor):
+            OrderStatus = apps.get_model("delivery", "OrderStatus")
+
+            statuses = [
+                ("PROCESSING", "Processing"),
+                ("IN PREPARATION", "In preparation"),
+                ("AWAITING WITHDRAW", "Awaiting withdrawal"),
+                ("EN ROUTE", "En route"),
+                ("DELIVER", "Deliver"),
+            ]
+
+            for status_code, description in statuses:
+                OrderStatus.objects.get_or_create(description=status_code)
+
+        class Migration(migrations.Migration):
+
+            operations = [
+                migrations.RunPython(create_order_statuses),
+            ]
+
+            dependencies = [
+                ('delivery', '0019_order_total_price'),
+            ]

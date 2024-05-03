@@ -1,8 +1,6 @@
-from cgitb import text
-from datetime import datetime
 from email import message
-from hmac import new
-from os import error
+from multiprocessing import context
+from operator import indexOf
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -11,7 +9,8 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from django.contrib.auth.models import User
-from .models import BillingAdress, User as UserInfo, Product, Category, WishList, Cart, CartItem, Adress
+
+from .models import BillingAdress, Card, Order, OrderItem, Payment, PaymentType, Recipient, User as UserInfo, Product, Category, WishList, Cart, CartItem, Adress
 
 
 def index(request):
@@ -36,6 +35,7 @@ def get_layout_context(request):
     context = {'user_type': user_type, 'categories': categories}
 
     return context
+
 
 class FieldError(Exception):
         def __init__(self, error_message) -> None:
@@ -132,15 +132,15 @@ def my_account(request):
         return render(request, "account/account.html", context)
     else:
         try:
-            error_message = []
+            error = []
             if request.POST['username'] == "":
-                error_message.append('Username')
+                error.append('Username')
             if request.POST['email'] == "":
-                error_message.append('Email')
+                error.append('Email')
             if len(request.POST['phone-number']) != 19:
-                error_message.append('Phone number')
-            if len(error_message) >= 1:
-                raise FieldError(error_message)
+                error.append('Phone number')
+            if len(error) >= 1:
+                raise FieldError(error)
             else:
                 user.first_name = request.POST['first-name']
                 user.last_name = request.POST['last-name']
@@ -156,11 +156,11 @@ def my_account(request):
                 "text": "Provide valid data for required fields: " + e.error_message + ".",
                 "class": "text-danger"
             }
-        # except:
-        #     message = {
-        #         "text": "Error during saving user information.",
-        #         "class": "text-danger"
-        #     }
+        except:
+            message = {
+                "text": "Error during saving user information.",
+                "class": "text-danger"
+            }
         else:
             message = {
                 "text": "Successfully saved profile.",
@@ -173,7 +173,6 @@ def my_account(request):
 
 def add_adress(request):
     context = get_layout_context(request)
-
     user = User.objects.get(pk = request.user.id)
 
     message = {
@@ -216,7 +215,7 @@ def add_adress(request):
         message['class'] = "text-success"
     
     try:
-        billing_adress = BillingAdress.objects.get(user_id = user.id)
+        billing_adress = BillingAdress.objects.filter(user_id = user.id).last()
         adress = Adress.objects.get(pk = billing_adress.adress_id)
         context.update({'adress': adress})
     except:
@@ -457,20 +456,91 @@ def my_cart(request):
 @login_required
 def new_order(request):
     user = request.user
+    context = get_layout_context(request)
+
     if request.method == "POST":
-        firstName = "first-name"
-        lastName = "last-name"
-        email = "email" 
-        phoneNumber = "phone-number"
+        form = [ "first-name", "last-name", "email" , "phone-number", "street-input", "postal-code-input", "city-input", "state-input", "country-input", "paymentMethod" , "card-name", "card-cvv", "card-number", "card-expiration"]
+        try:
+            error = []
+            for field in form:
+                if request.POST[field] == "":
+                    error.append(field)
+            if len(error) > 0:
+                raise FieldError(error)
+            else:
+                recipient, created_recipient = Recipient.objects.get_or_create(
+                    first_name = request.POST["first-name"],
+                    last_name = request.POST["last-name"],
+                    email = request.POST["email"],
+                    phone = request.POST["phone-number"]
+                )
+                recipient.save()
 
-        streetInput = "street-input"
-        postalCodeInput = "postal-code-input"
-        cityInput = "city-input"
-        stateInput = "state-input"
-        countryInput = "country-input"
+                adress, created_adress = Adress.objects.get_or_create(
+                    street = request.POST["street-input"],
+                    postal_code = request.POST["postal-code-input"],
+                    city = request.POST["city-input"],
+                    state = request.POST["state-input"],
+                    country = request.POST["country-input"],
+                )
+                adress.save()
 
-        paymentMethod = "paymentMethod" 
-        cardname = "card-name"
-        cardCvv = "card-cvv"
-        cardNumber = "card-number"
-        cardExpiration = "card-expiration"
+                card, created_card = Card.objects.get_or_create(
+                    user_id = user.id,
+                    name = request.POST["card-name"],
+                    number = request.POST["card-number"],
+                    cvv = request.POST["card-cvv"],
+                    expiration = request.POST["card-expiration"],
+                    type_id = PaymentType.objects.get(pk = request.POST["paymentMethod"]).id
+                )
+                card.save()
+
+                payment, created_payment = Payment.objects.get_or_create(
+                    user_id = user.id,
+                    card_id = card.id
+                )
+                payment.save()
+
+                new_order = Order.objects.create(
+                    user_id = user.id,
+                    payment_id = payment.id,
+                    recipient_id = recipient.id,
+                    delivery_adress_id = adress.id
+                )
+                new_order.save()
+
+                cart = Cart.objects.get(user_id = user.id)
+                cart_items = CartItem.objects.filter(cart_id = cart.id)
+
+                message = []
+                for item in cart_items:
+                    order_item = OrderItem.objects.create(
+                        order_id = new_order.id,
+                        product_id = item.product.id,
+                        quant = item.quant
+                    )
+                    order_item.save()
+                    new_order.total_price += Product.objects.get(pk = order_item.product_id).price
+                    new_order.save()
+                    item.delete()
+                    message.append(order_item)
+
+        except FieldError as e:
+            message = "Provide valid data for required fields: " + e.error_message + "."
+        except:
+            message = "An error ocured trying to checkout. Try again later."
+    
+        context.update({"message": message})
+        return order(request, new_order.id)
+
+
+@login_required
+def order(request, order_id):
+    user = request.user
+    order = Order.objects.get(pk = order_id)
+    context = get_layout_context(request)
+
+    if order.user_id == user.id:
+        order_items = OrderItem.objects.filter(order_id = order.id)
+        context.update({"order": order, "order_items": order_items})
+        return render(request, "shopping/order.html", context)

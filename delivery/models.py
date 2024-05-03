@@ -149,7 +149,6 @@ class OrderStatus(models.Model):
     id = models.AutoField(primary_key=True)
     description = models.CharField(max_length=25, choices=[
         ("PROCESSING", "Processing"),
-        ("AWAITING PAYMENT", "Awaiting payment"),
         ("IN PREPARATION", "In preparation"),
         ("AWAITING WITHDRAW", "Awaiting withdrawal"),
         ("EN ROUTE", "En route"),
@@ -165,9 +164,9 @@ class Order(models.Model):
     user = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
     creation_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.ForeignKey(OrderStatus, on_delete=models.CASCADE)
-    payment = models.OneToOneField(Payment, on_delete=models.CASCADE, blank=True)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    status = models.ForeignKey(OrderStatus, on_delete=models.CASCADE, default=1)
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE)
     recipient = models.ForeignKey(Recipient, on_delete=models.CASCADE)
     delivery_adress = models.ForeignKey(Adress, on_delete=models.CASCADE)
 
@@ -177,10 +176,9 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     id = models.AutoField(primary_key=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quant = models.PositiveIntegerField()
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "order_item"
