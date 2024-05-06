@@ -1,6 +1,8 @@
 from email import message
+from math import prod
 from multiprocessing import context
 from operator import indexOf
+import re
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -11,6 +13,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 
 from .models import BillingAdress, Card, Order, OrderItem, Payment, PaymentType, Recipient, User as UserInfo, Product, Category, WishList, Cart, CartItem, Adress
+from delivery import models
 
 
 def index(request):
@@ -279,11 +282,36 @@ def add_product(request):
 @login_required
 def my_products(request):
     products = Product.objects.filter(owner=request.user.id)
-
     context = get_layout_context(request)
     context.update({"products": products})
-
     return render(request, "seller/my-products.html", context)
+
+
+@login_required
+def my_sales(request):
+    user = request.user
+    context = get_layout_context(request)
+    orders = Order.objects.all()
+    order_items = OrderItem.objects.all()
+
+    # sale["order_id"] = {"order": order,
+    #                     "items": [order_items]
+    #                     }
+    sales = {}
+    for order in orders:
+        sales.update({str(order.id): {"order": order, "items": []}})
+
+        for item in order_items:
+            if item.order == order:
+                sales[str(order.id)]["items"].append({
+                    "product": item.product,
+                    "quant": item.quant
+                })
+
+    sales = {key: value for key, value in sales.items() if value["items"] != []}
+    
+    context.update({"sales": sales})
+    return render(request, "seller/my-sales.html", context)
 
 
 def product(request, product_id, success=False):
