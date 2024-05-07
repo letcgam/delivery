@@ -15,7 +15,7 @@ from django.contrib.auth.models import User
 from .models import BillingAdress, Card, Order, OrderItem, Payment, PaymentType, Recipient, User as UserInfo, Product, Category, WishList, Cart, CartItem, Adress
 from delivery import models
 
-
+import account
 def index(request):
     products = Product.objects.all()
 
