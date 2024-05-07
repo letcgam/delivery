@@ -15,7 +15,7 @@ from django.contrib.auth.models import User
 from .models import BillingAdress, Card, Order, OrderItem, Payment, PaymentType, Recipient, User as UserInfo, Product, Category, WishList, Cart, CartItem, Adress
 from delivery import models
 
-import account
+
 def index(request):
     products = Product.objects.all()
 
@@ -312,6 +312,17 @@ def my_sales(request):
     
     context.update({"sales": sales})
     return render(request, "seller/my-sales.html", context)
+
+
+def sale(request, order_id):
+    user = request.user
+    order = Order.objects.get(pk = order_id)
+    order_items = OrderItem.objects.filter(order=order)
+    items = [item for item in order_items if item.product.owner == user]
+    context = get_layout_context(request)
+
+    context.update({"order": order, "items": items})
+    return render(request, "seller/sale.html", context)
 
 
 def product(request, product_id, success=False):
