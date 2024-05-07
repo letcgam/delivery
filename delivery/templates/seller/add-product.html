@@ -3,11 +3,8 @@
 {% block body %}
 <div class="d-flex justify-content-center">
 
-    <form action="{% url 'add_product' %}" method="post" class="d-flex flex-column gap-3 align-items-center text-light border border-1 border-secondary rounded-5 p-3 pb-4" id="register-form">
-        <div class="align-self-start d-flex">
-            <a href="{% url 'seller' %}"><i class="bi bi-arrow-left-circle fs-2 link-warning"></i></a>
-            <h1>&nbspNew product</h1>
-        </div>
+    <form action="{% url 'add_product' %}" method="post" class="d-flex flex-column gap-3 align-items-center text-light rounded-4 p-4 glass" id="register-form">
+        <h1>&nbspNew product</h1>
 
         {% if message %}
             <div class={{message.class}}>{{ message.text }}</div>
@@ -15,17 +12,32 @@
 
         {% csrf_token %}
         <div class="form-group d-flex flex-column gap-3">
-            <input autofocus class="form-control" type="text" name="name" placeholder="Title"/>
-            <textarea rows="3" class="form-control" name="description" placeholder="Description"></textarea>
-            <select class="form-control form-select bg-dark text-light" name="category">
-                <option value="" selected disabled>Item category</option>
-                {% for category in categories %}
-                    <option value={{category.id}}>{{category.name}}</option>
-                {% endfor %}
-            </select>
+            <span class="d-flex flex-column">
+                <label for="name">Name</label>
+                <input autofocus class="form-control bg-dark text-light" type="text" id="name" name="name" placeholder="Title"/>
+            </span>
+            <span class="d-flex flex-column">
+                <label for="description">Description</label>
+            <textarea rows="3" class="form-control bg-dark text-light" id="description" name="description" placeholder="Description"></textarea>
+            </span>
+            <span class="d-flex flex-column">
+                <label for="category">Category</label>
+                <select class="form-control bg-dark text-light form-select bg-dark text-light" name="category" id="category">
+                    <option value="" selected disabled>Select</option>
+                    {% for category in categories %}
+                        <option value={{category.id}}>{{category.name}}</option>
+                    {% endfor %}
+                </select>
+            </span>
             <span class="d-flex gap-3">
-                <input class="form-control" type="number" name="stock" placeholder="Available stock">
-                <input class="form-control" type="number" name="price" placeholder="Unit price">
+                <span class="d-flex flex-column">
+                    <label for="stock">Available stock</label>
+                    <input class="form-control bg-dark text-light" type="number" id="stock" name="stock" placeholder="Available stock">
+                </span>
+                <span class="d-flex flex-column">
+                    <label for="price">Unit price</label>
+                    <input class="form-control bg-dark text-light" type="number" id="price" name="price" placeholder="Unit price" step="0.01">
+                </span>
             </span>
             <span class="d-flex justify-content-center">
                 <input class="btn btn-warning" type="submit" value="Submit"/>

@@ -12,6 +12,7 @@ urlpatterns = [
     path("add-adress", views.add_adress, name="add_adress"),
     path("seller", views.seller, name="seller"),
     path("new-product", views.add_product, name="add_product"),
+    path("edit-product/<int:product_id>/", views.edit_product, name="edit_product"),
     path("my-products", views.my_products, name="my_products"),
     path("my-sales", views.my_sales, name="my_sales"),
     path("sale/<int:order_id>/", views.sale, name="sale"),

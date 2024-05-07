@@ -153,6 +153,7 @@ class OrderStatus(models.Model):
         ("AWAITING WITHDRAW", "Awaiting withdrawal"),
         ("EN ROUTE", "En route"),
         ("DELIVER", "Deliver"),
+        ("CANCELED", "Canceled")
     ])
 
     class Meta:

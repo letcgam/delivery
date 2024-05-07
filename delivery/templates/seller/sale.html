@@ -10,20 +10,39 @@
             </div>
             <ul class="list-group">
                 {% for item in items %}
-                    <form class="list-group-item bg-dark text-light d-flex">
-                        <img src="../../static/icon.png" alt="" class="w-25">
+                    <div class="list-group-item bg-dark text-light d-flex align-items-center">
+                        <img src="../../static/icon.png" alt="" class="w-25 h-100">
                         <div class="d-flex p-4 px-5 flex-column">
                             <h4>{{ item.product }}</h4>
-                            <p>{{ item.quant }}&times;<span name="price">{{ item.product.price }}</span></p>
+                            <p>{{ item.quant }}&times;&nbsp;<span name="price">{{ item.product.price }}</span></p>
                         </div>
-                        <div class="d-flex flex-column justify-content-center">
-                            
-                        </div>
-                    </form>
+                    </div>
                 {% endfor %}
             </ul>
+            <div class="d-flex flex-column align-items-center m-4">
+                <p>Current status: {{ order.status.description }}</p>
+                <form action="" class="d-flex flex-column">
+                    {% if order.status.description == "PROCESSING" %}
+                        <a class="btn btn-warning my-3">Confirm order</a>
+                        <a class="btn bg-black text-light" data-bs-toggle="modal" data-bs-target="#exampleModal">Reject order</a>
+                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content d-flex flex-column align-items-center bg-dark p-4">
+                                    <p>Reject an order can reduce your seller reputation. Are you sure you want to proceed?</p>
+                                    <span>
+                                        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No, keep order</button>
+                                        <button type="button" class="btn btn-secondary">Yes, reject order</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    {% elif order.status == "IN PREPARATION" %}
+                        <a class="btn btn-warning">Ready for pickup</a>
+                    {% endif %}
+                </form>
+            </div>
         </div>
     </div>
 </div>
-<script src="../../static/product.js"></script>
+<script src="../../static/sale.js"></script>
 {% endblock %}

@@ -3,7 +3,7 @@
 {% block body %}
 
 <div class="container d-flex justify-content-center">
-    <div class="row col-12 col-md-10 col-lg-8 col-xl-8">
+    <div class="row col-12 col-md-10 col-lg-8 col-xl-8 glass p-4 rounded-4">
         <form class="needs-validation" method="post" action="{% url 'my_account' %}">
             {% csrf_token %}
             <div class="row g-3">
@@ -72,7 +72,7 @@
 
             <hr class="my-4">
 
-        <form class="needs-validation" method="post" action="{% url 'add_adress' %}">
+        <form class="needs-validation mb-4" method="post" action="{% url 'add_adress' %}">
             {% csrf_token %}
 
             <div class="accordion" id="billing-adress-accordion">

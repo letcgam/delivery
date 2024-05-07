@@ -1,8 +1,3 @@
-from email import message
-from math import prod
-from multiprocessing import context
-from operator import indexOf
-import re
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -264,19 +259,31 @@ def add_product(request):
             product.save()
         except:
             message = {
-                "class": "text-warning",
+                "class": "text-danger",
                 "text": "Failed to register product. Make sure to fill in every field."
             }
         else:
             message = {
-                "class": "text-warning",
-                "text": "warningfully registered product!"
+                "class": "text-success",
+                "text": "Successfully registered product!"
             }
 
     context = get_layout_context(request)
     context.update({"message": message})
 
     return render(request, "seller/add-product.html", context)
+
+
+@login_required
+def edit_product(request, product_id):
+    item = Product.objects.get(pk = product_id)
+    item.name = request.POST["name"]
+    item.price = request.POST["price"]
+    item.description = request.POST["description"]
+    item.category = Category.objects.get(pk = request.POST["category"])
+    item.stock = request.POST["stock"]
+    item.save()
+    return product(request, product_id)
 
 
 @login_required
@@ -289,15 +296,16 @@ def my_products(request):
 
 @login_required
 def my_sales(request):
-    user = request.user
     context = get_layout_context(request)
-    orders = Order.objects.all()
+    orders = Order.objects.all().order_by("creation_date")
     order_items = OrderItem.objects.all()
 
     # sale["order_id"] = {"order": order,
     #                     "items": [order_items]
     #                     }
     sales = {}
+    reverse_sales = {}
+
     for order in orders:
         sales.update({str(order.id): {"order": order, "items": []}})
 
@@ -307,10 +315,24 @@ def my_sales(request):
                     "product": item.product,
                     "quant": item.quant
                 })
+    
+    for order in orders.reverse():
+        reverse_sales.update({str(order.id): {"order": order, "items": []}})
+
+        for item in order_items:
+            if item.order == order:
+                reverse_sales[str(order.id)]["items"].append({
+                    "product": item.product,
+                    "quant": item.quant
+                })
 
     sales = {key: value for key, value in sales.items() if value["items"] != []}
+    reverse_sales = {key: value for key, value in reverse_sales.items() if value["items"] != []}
     
-    context.update({"sales": sales})
+    context.update({
+        "sales": sales,
+        "reverse_sales": reverse_sales
+    })
     return render(request, "seller/my-sales.html", context)
 
 
