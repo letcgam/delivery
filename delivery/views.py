@@ -47,7 +47,7 @@ class FieldError(Exception):
 
         def __str__(self) -> str:
             return self.error_message
-        
+
 
 def login_view(request):
     if request.method == "POST":
@@ -169,7 +169,7 @@ def my_account(request):
 
         context.update({'message': message})
         return render(request, "account/account.html", context)
-    
+
 
 def add_adress(request):
     context = get_layout_context(request)
@@ -213,7 +213,7 @@ def add_adress(request):
     else:
         message['text'] = "Successfully added billing adress."
         message['class'] = "text-success"
-    
+
     try:
         billing_adress = BillingAdress.objects.filter(user_id = user.id).last()
         adress = Adress.objects.get(pk = billing_adress.adress_id)
@@ -240,7 +240,7 @@ def categories_filter(request, category_id):
 
 
 @login_required
-def seller(request):    
+def seller(request):
     context = get_layout_context(request)
     return render(request, "seller/seller.html", context)
 
@@ -334,7 +334,7 @@ def my_wishlist(request):
 
     if len(products) == 0:
         products = None
-    
+
     context = get_layout_context(request)
     context.update({"products": products})
 
@@ -392,7 +392,7 @@ def move_to_wishlist(request, product_id):
             user_id = request.user.id
         )
         wishlist_item.save()
-    
+
     return remove_from_cart(request, product_id)
 
 
@@ -412,12 +412,12 @@ def my_cart(request):
                 "quantity": item.quant
             }
             products.append(product)
-        
+
         if len(products) == 0:
             products = None
-        
+
         context.update({"products": products})
-    
+
         return render(request, "shopping/my-cart.html", context)
     else:
         cart = Cart.objects.get(user_id = user.id)
@@ -434,7 +434,7 @@ def my_cart(request):
                 "quantity": item.quant
             })
             total += product.price * quantity
-        
+
         try:
             billing_adress = BillingAdress.objects.get(user_id = user.id)
             adress = Adress.objects.get(pk = billing_adress.adress_id)
@@ -529,7 +529,7 @@ def new_order(request):
             message = "Provide valid data for required fields: " + e.error_message + "."
         except:
             message = "An error ocured trying to checkout. Try again later."
-    
+
         context.update({"message": message})
         return order(request, new_order.id)
 
@@ -544,3 +544,18 @@ def order(request, order_id):
         order_items = OrderItem.objects.filter(order_id = order.id)
         context.update({"order": order, "order_items": order_items})
         return render(request, "shopping/order.html", context)
+
+
+def my_orders(request):
+    user = request.user
+    context = get_layout_context(request)
+    orders = Order.objects.filter(user_id = user.id)
+    for order in orders:
+        items = OrderItem.objects.filter(order_id = order.id)
+        order.quant = 0
+        for item in items:
+            order.quant += item.quant
+
+    context.update({"orders": orders})
+
+    return render(request, "shopping/my-orders.html", context)

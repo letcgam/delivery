@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="container">
+    <div class="row d-flex justify-content-center text-light">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-6 mb-4">
+            <ul class="list-group">
+                <li class="list-group-item bg-dark px-4 pt-3 bg-black">
+                    <h3>My orders</h3>
+                </li>
+                {% for order in orders %}
+                <li class="list-group-item bg-dark">
+                    <a href="" class="d-flex justify-content-between p-3 link-underline link-underline-0">
+                        <span class="d-flex flex-column">
+                            <span class="d-flex grid gap-2">
+                                <img style="height: 70px;" src="../../static/icon.png" alt="">
+                                <img style="height: 70px;" src="../../static/icon.png" alt="">
+                                <img style="height: 70px;" src="../../static/icon.png" alt="">
+                            </span>
+                            <span class="d-flex flex-column">
+                                <span name="order-quant">{{ order.quant }}&times; Itens</span>
+                                <small class="text-secondary">Order ID <span name="order-id" class="text-secondary">{{ order.id }}</span></small class="text-secondary">
+                            </span>
+                        </span>
+                        <span>
+                            <div class="d-flex flex-column align-items-end">
+                                <div class="border py-1 px-3 rounded-pill" name="order-status">{{ order.status.description }}</div>
+                                <span>
+                                    <span name="order-date">{{ order.creation_date.day }}</span>/<span
+                                        name="order-date">{{ order.creation_date.month }}</span>
+                                </span>
+                                <h5 name="price">{{ order.total_price }}</h5>
+                            </div>
+                        </span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="../../static/order.js"></script>
+{% endblock %}

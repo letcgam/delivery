@@ -22,5 +22,6 @@ urlpatterns = [
     path("move-to-wishlist/<int:product_id>/", views.move_to_wishlist, name="move_to_wishlist"),
     path("categories-filter/<int:category_id>/", views.categories_filter, name="categories_filter"),
     path("new-order", views.new_order, name="new_order"),
+    path("my-orders", views.my_orders, name="my_orders"),
     path("order/<int:order_id>/", views.order, name="order"),
 ]

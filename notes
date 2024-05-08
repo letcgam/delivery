@@ -2,4 +2,5 @@ get all info on user
 >> select auth_user.id, username, email, user_type from auth_user inner join delivery_user where delivery_user.user_id = auth_user.id;
 
 
-FIX PURCHASE WITH ITEM QUANTITY BIGGER THAN STOCK
+ADD CARD RECORD TO MY_ACCOUNT PAGE
+arrumar favoritos
