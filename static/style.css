@@ -104,8 +104,6 @@ a:hover {
     background: #fff;
 }
 
-
-
 #added-to-cart-message {
     height: 0;
     opacity: 0;
@@ -114,5 +112,4 @@ a:hover {
 #added-to-cart-message.show {
     height: auto;
     opacity: 1;
-    transition:linear .2s;
 }

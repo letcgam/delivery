@@ -4,67 +4,105 @@
 <div class="container">
     <div class="row d-flex justify-content-center">
         <div class="col-xm-12 col-sm-10 col-md-8 col-lg-6">
-            <!-- Product area -->
-            <div class="text-light border border-1 rounded-5 p-5">
-                <div class="d-flex product-section rounded-4">
-                    <img class="product-img" src="../../static/icon.png" alt="">
-                </div>
-                <div class="d-flex justify-content-between mt-3">
-                    <span>
-                        <h3 class="fw-bold">{{ product.name }}</h3>
-                        <span id="product-unit-price" hidden>{{ product.price }}</span>
-                        <h4 id="product-price">{{ product.price }}</h4>
-                        <span>{{ category }}</span>
-                        <p>Stock available: {{ product.stock }}</p>
-                    </span>
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'add_to_wishlist' product_id=product.id %}" class="link link-danger fs-3" data-bs-toggle="tooltip" data-bs-title="Add to my favorites">
-                            {% if wishlist|first %}
-                                <i class="bi bi-heart-fill link-danger"></i>
-                            {% else %}
-                                <i class="bi bi-heart link-danger"></i>
-                            {% endif %}
+            {% if user_type == 'seller' and product.owner == user %}
+                <input id="is-owner" value=true hidden>
+                <!-- SELLER Product area -->
+                <form method="post" action="{% url 'edit_product' product_id=product.id %}" class="text-light rounded-5 p-5 glass">
+                    {% csrf_token %}
+                    <div class="d-flex product-section rounded-4">
+                        <img class="product-img" src="../../static/icon.png" alt="">
+                    </div>
+                    <div class="d-flex justify-content-between mt-3">
+                        <span>
+                            <input name="name" class="input fw-bold fs-3 form-control bg-dark text-light border-secondary" value="{{ product.name }}" disabled>
+                            <input name="price" type="number" step="0.01" class="input form-control bg-dark text-light border-secondary my-2" value="{{ product.price }}" disabled>
+                            <select name="category" class="input form-select bg-dark text-light border-secondary" disabled>
+                                {% for cat in categories %}
+                                    {% if cat.name == category %}
+                                        <option value="{{ cat.id }}" selected>{{ cat.name }}</option>
+                                    {% else %}
+                                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <textarea name="description" class="input form-control bg-dark text-light my-2 border-secondary" disabled>{{ product.description }}</textarea>
+                            <div class="d-flex my-2 align-items-center">
+                                <p class="w-50 d-flex align-items-center justify-content-center m-0">Stock available: </p>
+                                <input name="stock" class="input w-50 form-control bg-dark text-light border-secondary" type="number" value="{{ product.stock }}" disabled>
+                            </div>
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-center mt-3">
+                        <div class="btn btn-secondary me-2" id="cancel-btn" hidden>Cancel</div>
+                        <div class="btn btn-warning" id="edit-btn">Edit product</div>
+                        <button type="submit" class="btn btn-warning" id="confirm-btn" hidden>Confirm</button>
+                    </div>
+                </form>
+                <!-- SELLER Product area end -->
+            {% else %}
+                <input id="is-owner" value=false hidden>
+                <!-- Product area -->
+                <div class="text-light rounded-5 p-5 glass">
+                    <div class="d-flex product-section rounded-4">
+                        <img class="product-img" src="../../static/icon.png" alt="">
+                    </div>
+                    <div class="d-flex justify-content-between mt-3">
+                        <span>
+                            <h3 class="fw-bold">{{ product.name }}</h3>
+                            <span id="product-unit-price" hidden>{{ product.price }}</span>
+                            <h4 id="product-price">{{ product.price }}</h4>
+                            <span>{{ category }}</span>
+                            <p>Stock available: {{ product.stock }}</p>
+                        </span>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'add_to_wishlist' product_id=product.id %}" class="link link-danger fs-3" data-bs-toggle="tooltip" data-bs-title="Add to my favorites">
+                                {% if wishlist|first %}
+                                    <i class="bi bi-heart-fill link-danger"></i>
+                                {% else %}
+                                    <i class="bi bi-heart link-danger"></i>
+                                {% endif %}
+                            </a>
+                        {% else %}
+                        <!-- Button trigger modal -->
+                        <a class="link link-danger fs-3" data-bs-toggle="modal" data-bs-target="#login-link">
+                            <i class="bi bi-heart"></i>
                         </a>
-                    {% else %}
-                    <!-- Button trigger modal -->
-                    <a class="link link-danger fs-3" data-bs-toggle="modal" data-bs-target="#login-link">
-                        <i class="bi bi-heart"></i>
-                    </a>
-                    <!-- Modal -->
-                    <div class="modal fade" id="login-link" tabindex="-1" aria-labelledby="login-link-label" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content bg-dark py-3">
-                                <div class="modal-body d-flex flex-column justify-content-center align-items-center">
-                                    Log in to add items to yout wishlist!
-                                    <span class="d-flex justify-content-center">
-                                        <button type="button" class="btn btn-secondary m-2" data-bs-dismiss="modal">Close</button>
-                                        <a href="{% url 'login' %}" class="btn btn-warning m-2">Log in</a>
-                                    </span>
+                        <!-- Modal -->
+                        <div class="modal fade" id="login-link" tabindex="-1" aria-labelledby="login-link-label" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content bg-dark py-3">
+                                    <div class="modal-body d-flex flex-column justify-content-center align-items-center">
+                                        Log in to add items to yout wishlist!
+                                        <span class="d-flex justify-content-center">
+                                            <button type="button" class="btn btn-secondary m-2" data-bs-dismiss="modal">Close</button>
+                                            <a href="{% url 'login' %}" class="btn btn-warning m-2">Log in</a>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
+                    <form method="post" class="row justify-content-center mt-3" action="{% url 'add_to_cart' %}">
+                        {% csrf_token %}
+                        <div class="row col-3">
+                            <input type="number" class="form-control bg-dark text-light" name="quantity" value="1" min="1" max="{{ product.stock }}" id="quantity-input">
+                        </div>
+                        <input name="product-id" type="number" value="{{ product.id }}" hidden>
+                        <div class="row col-5 ms-1">
+                            <button type="submit" class="btn btn-warning">Add to cart</button>
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            <p>Total price:&nbsp;</p>
+                            <p id="total-price">{{ product.price }}</p>
+                        </div>
+                        <div class="d-flex justify-content-center rounded-4 text-success fs-3 {% if success %}show{% endif %}" id="added-to-cart-message">
+                            Successfully added to cart!
+                        </div>
+                    </form>
                 </div>
-                <form method="post" class="row justify-content-center mt-3" action="{% url 'add_to_cart' %}">
-                    {% csrf_token %}
-                    <div class="row col-3">
-                        <input type="number" class="form-control bg-dark text-light" name="quantity" value="1" min="1" max="{{ product.stock }}" id="quantity-input">
-                    </div>
-                    <input name="product-id" type="number" value="{{ product.id }}" hidden>
-                    <div class="row col-5 ms-1">
-                        <button type="submit" class="btn btn-warning">Add to cart</button>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <p>Total price:&nbsp;</p>
-                        <p id="total-price">{{ product.price }}</p>
-                    </div>
-                    <div class="d-flex justify-content-center rounded-4 text-success fs-3 {% if success %}show{% endif %}" id="added-to-cart-message">
-                        Successfully added to cart!
-                    </div>
-                </form>
-            </div>
-            <!-- Product area end -->
+                <!-- Product area end -->
+            {% endif %}
         </div>
     </div>
 </div>

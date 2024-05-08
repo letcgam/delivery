@@ -1,0 +1,115 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="container">
+    <div class="d-flex text-light justify-content-center row">
+        <ul class="list-group col-12 col-md-10 col-lg-8 col-xl-6" name="orders">
+            <li class="list-group-item bg-dark text-light rounded-3 m-2 border-1 bg-black d-flex justify-content-evenly p-4 row">
+                <div class="d-flex flex-column col col-9">
+                    Filter by
+                    <select id="status-filter" class="bg-dark text-light p-2 rounded-2">
+                        <option value="" disabled selected>None</option>
+                        <option value="Confirmation needed">Confirmation needed</option>
+                        <option value="In preparation">In preparation</option>
+                        <option value="Awaiting withdraw">Awaiting withdraw</option>
+                        <option value="En route">En route</option>
+                        <option value="Deliver">Deliver</option>
+                    </select>
+                </div>
+                <div class="d-flex flex-column col col-3">
+                    Order by
+                    <select id="order-by-filter" class="bg-dark text-light p-2 rounded-2">
+                        <option value="newest">Newest</option>
+                        <option value="oldest">Oldest</option>
+                    </select>
+                </div>
+                <div class="mt-3 d-flex flex-column col col-6">
+                    From
+                    <input type="date" id="from-date" class="form-control border-secondary bg-dark text-light p-2 rounded-2">
+                </div>
+                <div class="mt-3 d-flex flex-column col col-6">
+                    To
+                    <input type="date" id="to-date" class="form-control border-secondary bg-dark text-light p-2 rounded-2">
+                </div>
+            </li>
+            <div id="sales-div">
+                {% for order, items in sales.items %}
+                    <a href="{% url 'sale' order_id=order %}" name="order" class="list-group-item bg-dark text-light rounded-3 m-2 border-secondary border-1">
+                        <div class="d-flex justify-content-between">
+                            <p>Order  
+                                <span name="order-id">{{ order }}</span>
+                            </p>
+                            <span name="status">
+                                {% if items.order.status.description == "PROCESSING" %}
+                                    Confirmation needed
+                                {% elif items.order.status.description == "IN PREPARATION" %}
+                                    In preparation
+                                {% elif items.order.status.description == "AWAITING WITHDRAW" %}
+                                    Awaiting withdraw
+                                {% elif items.order.status.description == "EN ROUTE" %}
+                                    En route
+                                {% else %}
+                                    Deliver
+                                {% endif %}
+                            </span>
+                        </div>
+                        <ul class="list-group mt-1 p-0 border-top border-secondary rounded-0">
+                            {% for item in items.items %}
+                                <li class="list-group-item bg-dark text-light d-flex justify-content-between border-0">
+                                    <div class="d-flex flex-column">
+                                        <span>{{ item.product }}</span>
+                                        <span>
+                                            <span class="text-secondary" name="quant">{{ item.quant }}&times;</span>
+                                            <span class="text-secondary" name="price">{{ item.product.price }}</span>
+                                        </span>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <input type="text" name="order-date" value="{{ items.order.creation_date }}" hidden>
+                    </a>
+                {% endfor %}
+            </div>
+            <div id="reverse-sales-div" hidden>
+                {% for order, items in reverse_sales.items %}
+                    <a href="{% url 'sale' order_id=order %}" name="order" class="list-group-item bg-dark text-light rounded-3 m-2 border-secondary border-1">
+                        <div class="d-flex justify-content-between">
+                            <p>Order  
+                                <span name="order-id">{{ order }}</span>
+                            </p>
+                            <span name="status">
+                                {% if items.order.status.description == "PROCESSING" %}
+                                    Confirmation needed
+                                {% elif items.order.status.description == "IN PREPARATION" %}
+                                    In preparation
+                                {% elif items.order.status.description == "AWAITING WITHDRAW" %}
+                                    Awaiting withdraw
+                                {% elif items.order.status.description == "EN ROUTE" %}
+                                    En route
+                                {% else %}
+                                    Deliver
+                                {% endif %}
+                            </span>
+                        </div>
+                        <ul class="list-group mt-1 p-0 border-top border-secondary rounded-0">
+                            {% for item in items.items %}
+                                <li class="list-group-item bg-dark text-light d-flex justify-content-between border-0">
+                                    <div class="d-flex flex-column">
+                                        <span>{{ item.product }}</span>
+                                        <span>
+                                            <span class="text-secondary" name="quant">{{ item.quant }}&times;</span>
+                                            <span class="text-secondary" name="price">{{ item.product.price }}</span>
+                                        </span>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <input type="text" name="order-date" value="{{ items.order.creation_date }}" hidden>
+                    </a>
+                {% endfor %}
+            </div>
+        </ul>
+    </div>
+</div>
+<script src="../../static/mySales.js"></script>
+{% endblock %}
