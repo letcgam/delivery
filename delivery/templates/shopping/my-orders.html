@@ -3,14 +3,17 @@
 {% block body %}
 <div class="container">
     <div class="row d-flex justify-content-center text-light">
-        <div class="col-12 col-md-8 col-lg-6 col-xl-6 mb-4">
-            <ul class="list-group">
-                <li class="list-group-item bg-dark px-4 pt-3 bg-black">
-                    <h3>My orders</h3>
-                </li>
+        <div class="col-12 col-md-12 col-lg-10 col-xl-8 mb-4">
+            <h1 class="w-100 p-3">My orders</h1>
+            <ul class="list-group glass p-2">
+                {% if not orders %}
+                <h3 class="text-secondary p-3">
+                    No orders.
+                </h3>
+                {% endif %}
                 {% for order in orders %}
-                <li class="list-group-item bg-dark">
-                    <a href="" class="d-flex justify-content-between p-3 link-underline link-underline-0">
+                <li class="list-group-item bg-black border-0 rounded-3 m-3">
+                    <a href="{% url 'order' order_id=order.id %}" class="d-flex justify-content-between p-3 link-underline link-underline-opacity-0">
                         <span class="d-flex flex-column">
                             <span class="d-flex grid gap-2">
                                 <img style="height: 70px;" src="../../static/icon.png" alt="">

@@ -7,19 +7,13 @@ if (isOwner) {
     const confirmBtn = document.getElementById("confirm-btn");
 
     editBtn.addEventListener("click", () => {
-        if (cancelBtn.hidden) {
-            inputs.forEach(input => {
-                input.disabled = false;
-                input.classList.remove("border-secondary");
-            })
-            cancelBtn.hidden = false;
-        } else {
-            inputs.forEach(input => {
-                input.disabled = true;
-                input.classList.add("border-secondary");
-            })
-            cancelBtn.hidden = true;
-        }
+        inputs.forEach(input => {
+            input.disabled = false;
+            input.classList.remove("border-secondary");
+        })
+        editBtn.hidden = true;
+        cancelBtn.hidden = false;
+        confirmBtn.hidden = false;
     })
 
     cancelBtn.addEventListener("click", () => {

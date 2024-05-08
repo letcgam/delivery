@@ -192,25 +192,31 @@ def add_adress(request):
         if error_message != []:
             raise FieldError(error_message)
         else:
-            adress = Adress.objects.create(
+            adress, created_adress = Adress.objects.get_or_create(
                 street = request.POST["adress"],
                 postal_code = request.POST["postal-code"],
                 city = request.POST["city"],
                 state = request.POST["state"],
                 country = request.POST["country"]
             )
-            adress.save()
-            billing_adress = BillingAdress.objects.create(
-                user_id = request.user.id,
-                adress_id = adress.id
-            )
-            billing_adress.save()
+
+            if created_adress:
+                adress.save()
+                billing_adress, aux = BillingAdress.objects.get_or_create(
+                    user = request.user
+                )
+                billing_adress.adress = adress
+                billing_adress.save()
+
     except FieldError as e:
         message['text'] = "Provide valid data for required fields: " + e.error_message + "."
         message['class'] = "text-danger"
     else:
-        message['text'] = "Successfully added billing adress."
         message['class'] = "text-success"
+        if created_adress:
+            message['text'] = "Successfully added billing adress."
+        else:
+            message['text'] = "Successfully altered billing adress."
 
     try:
         billing_adress = BillingAdress.objects.filter(user_id = user.id).last()

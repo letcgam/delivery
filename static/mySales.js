@@ -9,6 +9,17 @@ const toDate = document.getElementById("to-date");
 const salesDiv = document.getElementById("sales-div");
 const reverseSalesDiv = document.getElementById("reverse-sales-div");
 const orderDate = document.getElementsByName("order-date");
+const orderId = Array.from(document.getElementsByName("order-id"));
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    price.forEach(price => {
+        price.innerHTML = formatPrice(price.innerHTML)
+    })
+    orderId.forEach(id => {
+        id.innerHTML = String(id.innerHTML).padStart(7, '0');
+    })
+})
 
 statusFilter.addEventListener("change", () => {
     var status = statusFilter.value
@@ -30,13 +41,6 @@ orderByFilter.addEventListener("change", () => {
         salesDiv.hidden = true;
         reverseSalesDiv.hidden = false;
     }
-})
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    price.forEach(price => {
-        price.innerHTML = formatPrice(price.innerHTML)
-    })
 })
 
 fromDate.addEventListener("change", () => {

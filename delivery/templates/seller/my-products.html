@@ -2,27 +2,31 @@
 
 {% block body %}
 <div class="container d-flex flex-column align-items-center text-light">
-    <div class="d-flex mb-4 row w-50 p-4 pb-0 rounded-3 bg-black">
-        <div class="col-12 col-lg-6 col-xl-6">
-            <select class="form-select bg-dark text-light mb-4" id="category-scroll">
-                <option selected disabled>Filter category</option>
+    <div class="d-flex row rounded-3 bg-black p-3 rounded-3 col-12 col-md-10 col-lg-8 mb-3">
+        <div class="col-12 col-md-6">
+            <label for="category-scroll">Filter category</label>
+            <select class="form-select bg-dark text-light mb-3" id="category-scroll">
+                <option selected disabled>Select</option>
                 {% for category in categories %}
                         <option value="{{ categorie.name }}">{{ category.name }}</option>
                 {% endfor %}
             </select>
         </div>
-        <span class="col-12 col-lg-6 col-xl-6 mb-4">
-            <input type="text" id="search" class="form-control bg-secondary text-light" placeholder="Search in my products">
+        <span class="col-12 col-md-6 mb-3">
+            <label for="search">Search in my products</label>
+            <input type="text" id="search" class="form-control bg-dark text-light">
         </span>
     </div>
     <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6">
         {% for product in products %}
             <div class="p-2">
-                <a href="{% url 'product' product_id=product.id %}" class="d-flex flex-column p-3 rounded-3 text-light link-underline link-underline-opacity-0 product-section">
+                <div class="glass">
+                    <a href="{% url 'product' product_id=product.id %}" class="d-flex flex-column p-3 rounded-3 text-light link-underline link-underline-opacity-0 product-section">
                         <img src="../../static/icon.png" alt="">
                         <div class="product-name">{{ product.name }}</div>
                         <div name="product-price">{{ product.price }}</div>
-                </a>
+                    </a>
+                </div>
             </div>
         {% endfor %}
     </div>

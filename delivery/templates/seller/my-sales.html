@@ -4,7 +4,7 @@
 <div class="container">
     <div class="d-flex text-light justify-content-center row">
         <ul class="list-group col-12 col-md-10 col-lg-8 col-xl-6" name="orders">
-            <li class="list-group-item bg-dark text-light rounded-3 m-2 border-1 bg-black d-flex justify-content-evenly p-4 row">
+            <li class="list-group-item text-light rounded-3 m-2 border-0 bg-black d-flex justify-content-evenly p-4 row">
                 <div class="d-flex flex-column col col-9">
                     Filter by
                     <select id="status-filter" class="bg-dark text-light p-2 rounded-2">
@@ -34,9 +34,9 @@
             </li>
             <div id="sales-div">
                 {% for order, items in sales.items %}
-                    <a href="{% url 'sale' order_id=order %}" name="order" class="list-group-item bg-dark text-light rounded-3 m-2 border-secondary border-1">
-                        <div class="d-flex justify-content-between">
-                            <p>Order  
+                    <a href="{% url 'sale' order_id=order %}" name="order" class="list-group-item glass text-light rounded-3 m-2 border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="p-2 m-0">Order  
                                 <span name="order-id">{{ order }}</span>
                             </p>
                             <span name="status">
@@ -55,7 +55,7 @@
                         </div>
                         <ul class="list-group mt-1 p-0 border-top border-secondary rounded-0">
                             {% for item in items.items %}
-                                <li class="list-group-item bg-dark text-light d-flex justify-content-between border-0">
+                                <li class="list-group-item full-glass text-light d-flex justify-content-between border-0">
                                     <div class="d-flex flex-column">
                                         <span>{{ item.product }}</span>
                                         <span>

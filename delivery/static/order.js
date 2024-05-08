@@ -5,9 +5,9 @@ const orderStatus = Array.from(document.getElementsByName("order-status"));
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    for (i = 0; i < price.length; i++) {
-        price[i].innerHTML = formatPrice(price[i].innerHTML)
-    }
+    price.forEach(price => {
+        price.innerHTML = formatPrice(price.innerHTML)
+    })
     orderId.forEach(id => {
         id.innerHTML = String(id.innerHTML).padStart(7, '0');
     })

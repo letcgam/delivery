@@ -2,11 +2,15 @@
 
 {% block body %}
 
-<div class="container d-flex justify-content-center">
+<div class="container d-flex flex-column align-items-center">
+    <div class="row col-12 col-md-10 col-lg-8 col-xl-8">
+        <h1 class="w-100 p-3">My account</h1>
+    </div>
+    
     <div class="row col-12 col-md-10 col-lg-8 col-xl-8 glass p-4 rounded-4">
-        <form class="needs-validation" method="post" action="{% url 'my_account' %}">
+        <form class="needs-validation my-3" method="post" action="{% url 'my_account' %}">
             {% csrf_token %}
-            <div class="row g-3">
+            <div class="row">
                 <span class="{{ message.class }}">{{ message.text }}</span>
 
                 <div class="d-flex justify-content-between">
@@ -69,21 +73,26 @@
                 </div>
             </div>
         </form>
+    </div>
 
-            <hr class="my-4">
-
-        <form class="needs-validation mb-4" method="post" action="{% url 'add_adress' %}">
+    <div class="row col-12 col-md-10 col-lg-8 col-xl-8 my-4">
+        <form class="needs-validation p-0" method="post" action="{% url 'add_adress' %}">
             {% csrf_token %}
-
             <div class="accordion" id="billing-adress-accordion">
-                <div class="accordion-item bg-dark">
-                    <h2 class="accordion-header text-light">
-                        <button class="accordion-button bg-dark text-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                <div class="accordion-item rounded-4 border-0 glass">
+                    <h2 class="accordion-header text-light border-0">
+                        <button class="accordion-button text-light rounded-4 bg-black shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                             Billing adress
                         </button>
                     </h2>
 
-                    <div id="collapseOne" class="accordion-collapse show collapse container pb-4" data-bs-parent="#billing-adress-accordion">
+                    <div id="collapseOne"
+                        {% if adress_message %}
+                            class="accordion-collapse collapse container pb-4 border-0 full-glass show"
+                        {% else %}
+                            class="accordion-collapse collapse container pb-4 border-0 full-glass"
+                        {% endif %}
+                        data-bs-parent="#billing-adress-accordion">
                         <div class="accordion-body container row">
 
                             <span class="{{ adress_message.class }}">{{ adress_message.text }}</span>

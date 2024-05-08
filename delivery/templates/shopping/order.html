@@ -2,14 +2,17 @@
 
 {% block body %}
 <div class="container">
-    <div class="row d-flex justify-content-center text-light">
+    <a href="{% url 'my_orders' %}" class="link-underline link-underline-opacity-0 text-light bg-dark p-3 rounded-pill m-3 border">
+        <i class="bi bi-arrow-left"></i>&nbsp;My orders
+    </a>
+    <div class="row d-flex justify-content-center text-light glass">
         <div class="col-12 col-md-8 col-lg-6 col-xl-6 mb-4">
-            <ul class="list-group">
-                <li class="list-group-item bg-dark px-4 pt-3 bg-black">
-                    <h3>Your order</h3>
+            <ul class="list-group mt-5">
+                <li class="list-group-item px-4 pt-3 bg-black border-0 rounded-top-3">
+                    <h3 id="order-id">Order {{ order.id }}</h3>
                 </li>
                 {% for order_item in order_items %}
-                    <li class="list-group-item bg-dark">
+                    <li class="list-group-item full-glass rounded-0 border-0">
                         <div class="product-name">{{ order_item.product.name }}</div>
                         <div class="d-flex justify-content-between">
                             <span name="product-price">{{ order_item.product.price }}</span>
@@ -21,7 +24,7 @@
         </div>
         <div class="col-12 col-md-8 col-lg-6 col-xl-6">
             <ul class="list-group">
-                <li class="list-group-item bg-dark px-4 pt-3 bg-black">
+                <li class="list-group-item bg-dark px-4 pt-3 bg-black border-0 rounded-top-3">
                     <h3>Shipping status</h3>
                 </li>
                 {% for update in update_list %}
@@ -29,7 +32,7 @@
                     <h3>Shipping status</h3>
                 </li>
                 {% endfor%}
-                <li class="list-group-item bg-dark d-flex flex-column py-3">
+                <li class="list-group-item full-glass rounded-top-0 d-flex flex-column py-3 border-0">
                     <div>
                         <i class="bi bi-bag-check mx-3"></i>Deliver
                     </div>
@@ -52,10 +55,10 @@
                 </li>
             </ul>
             <ul class="list-group my-3">
-                <li class="list-group-item bg-dark px-4 pt-3 bg-black">
+                <li class="list-group-item bg-dark px-4 pt-3 bg-black border-0 rounded-top-3">
                     <h3>Destination</h3>
                 </li>
-                <li class="list-group-item bg-dark">
+                <li class="list-group-item full-glass rounded-top-0 border-0">
                     <div class="p-3 d-flex flex-column">
                         <strong>{{ order.recipient.first_name }} {{ order.recipient.last_name }}</strong>
                         <span class="text-secondary">{{ order.recipient.email }} | {{ order.recipient.phone }}</span>

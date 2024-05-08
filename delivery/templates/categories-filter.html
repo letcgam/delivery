@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<div class="container d-flex justify-content-start text-light">
+<div class="container d-flex justify-content-start text-light p-0">
     <div class="glass p-2 ms-2 mx-4 rounded product-section row col-4 col-lg-3 col-xl-3 justify-content-center" id="filter-sidebar">        
         <div class="col-12 col-lg-10 col-xl-10 py-4">
             <h2 class="mb-4">Filter</h2>
@@ -35,7 +35,7 @@
         <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-5">
             {% for product in products %}
                 <div class="p-2" id="product-list">
-                    <a href="{% url 'product' product_id=product.id %}" class="d-flex flex-column p-3 rounded-3 text-light link-underline link-underline-opacity-0 product-section" name="product">
+                    <a href="{% url 'product' product_id=product.id %}" class="d-flex flex-column p-3 rounded-3 text-light link-underline link-underline-opacity-0 product-section glass" name="product">
                             <img src="../../static/icon.png" alt="">
                             <div name="product-name" class="product-name">{{ product.name }}</div>
                             <div name="product-price">{{ product.price }}</div>

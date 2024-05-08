@@ -1,10 +1,10 @@
 {% extends "layout.html" %} {% block body %}
-<div class="container d-flex flex-column rounded-5">
-    <div class="d-flex flex-column align-items-center">
-        <table class="cart-table col-12 col-md-10 col-lg-6 col-xl-6 glass rounded-5 py-4">
+<div class="container d-flex justify-content-center">
+    <div class="col-12 col-ls-10 col-xl-8">
+        <h1 class="w-100 p-3">My cart</h1>
+        <table class="cart-table rounded-4 glass p-2">
             <thead>
-                <tr><td class="d-flex text-center mx-5"><h1>My cart</h1></td></tr>
-                <tr class="row row-cols-4 cart-product p-3 bg-black mb-3 rounded-4">
+                <tr class="m-3 row row-cols-4 cart-product bg-black mb-3 rounded-3 p-3">
                     <th><h5>Product</h5></th>
                     <th class="text-end">Unit price</th>
                     <th class="text-center quantity-input-col">Quantity</th>
@@ -12,15 +12,15 @@
                 </tr>
             </thead>
             <tbody class="tbody">
-                {% if products == None %}
-                <tr class="row row-cols-1 bg-black rounded-4 pe-3 py-4 mb-3" >
-                    <td id="message"><h3 class="text-secondary">Add poducts to yout cart to see them here.</h3></td>
+                {% if not products %}
+                <tr class="m-3 row row-cols-1 bg-black rounded-3 pe-3 py-4 mb-3" >
+                    <td id="message"><h3 class="text-secondary p-3">Add poducts to your cart to see them here.</h3></td>
                 </tr>
                 {% else %}
                 <form action="{% url 'my_cart' %}" method="post">
                     {% csrf_token %}
                     {% for product in products %}
-                    <tr class="row row-cols-4 cart-product rounded-4 pe-3 py-4 mb-3" >
+                    <tr class="m-3 row row-cols-4 cart-product bg-black rounded-3 pe-3 py-4 mb-3" >
                         <td class="d-flex">
                             <div class="d-flex flex-column align-items-center btn-group-vertical me-3">
                                 <!-- Link trigger modal - Delete item from cart -->
@@ -52,30 +52,30 @@
                                 </div>
                                 <!-- Link trigger modal - Move item to favorites -->
                                 <a class="btn p-2 bg-black rounded-bottom-2" data-bs-toggle="modal" data-bs-target="#moveModal{{product.product.id}}">
-                                    <i class="bi bi-heart-fill text-danger"></i>
+                                        <i class="bi bi-heart-fill text-danger"></i>
                                 </a>
                                 <!-- Modal -->
                                 <div class="modal fade" id="moveModal{{product.product.id}}" aria-labelledby="removeModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content rounded-5">
-                                        <div class="d-flex justify-content-end bg-dark rounded-top-4">
-                                            <a type="button" class="fs-3 me-3 mt-2" data-bs-dismiss="modal" aria-label="Close">
-                                                <i class="bi bi-x-square-fill"></i>
-                                            </a>
-                                        </div>
-                                        <div class="modal-body bg-dark d-flex flex-column align-items-center rounded-bottom-4">
-                                            <p>Move "{{ product.product.name }}" to your wishlist?</p>
-                                            <span>
-                                                <a href="{% url 'move_to_wishlist' product_id=product.product.id %}" type="button" class="btn btn-secondary">
-                                                    Yes, move to my wishlist
+                                    <div class="modal-dialog">
+                                        <div class="modal-content rounded-5">
+                                            <div class="d-flex justify-content-end bg-dark rounded-top-4">
+                                                <a type="button" class="fs-3 me-3 mt-2" data-bs-dismiss="modal" aria-label="Close">
+                                                    <i class="bi bi-x-square-fill"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
-                                                    No, keep in the cart
-                                                </button>
-                                            </span>
+                                            </div>
+                                            <div class="modal-body bg-dark d-flex flex-column align-items-center rounded-bottom-4">
+                                                <p>Move "{{ product.product.name }}" to your wishlist?</p>
+                                                <span>
+                                                    <a href="{% url 'move_to_wishlist' product_id=product.product.id %}" type="button" class="btn btn-secondary">
+                                                        Yes, move to my wishlist
+                                                    </a>
+                                                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
+                                                        No, keep in the cart
+                                                    </button>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
                             </div>
                                 <!-- End modal -->
                             </div>
@@ -96,14 +96,14 @@
                         </td>
                     </tr>
                     {% endfor %}
-                <tr class="row cart-product rounded-4 p-3 py-4 mt-5 d-flex">
+                <tr class="m-3 row bg-black rounded-4 p-3 py-4 mt-5 d-flex">
                     <td class="w-25"><h4>Total:</h4></td>
                     <td class="w-75 text-end"><h4 id="total">0</h4></td>
                     <td><input id="total-input" hidden value="0"/></td>
                 </tr>
                 <tr class="d-flex justify-content-center">
                     <td>
-                        <input class="btn btn-warning border-3 mt-4 rounded-4 p-2 px-3 fs-3" type="submit" value="Purchase"></input>
+                        <input class="btn btn-warning border-3 my-4 rounded-4 p-2 px-3 fs-3" type="submit" value="Purchase"></input>
                     </td>
                 </tr>
             </form>
