@@ -7,3 +7,4 @@ FIX PURCHASE WITH ITEM QUANTITY BIGGER THAN STOCK
 add product link in the "my-products" view + add edit option for seller
 add id formatter form "my-sales" view
 end salt view and order updates
+fix wishlist display
