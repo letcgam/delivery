@@ -9,7 +9,7 @@ if (isOwner) {
     editBtn.addEventListener("click", () => {
         inputs.forEach(input => {
             input.disabled = false;
-            input.classList.remove("border-secondary");
+            input.classList.remove("border-dark");
         })
         editBtn.hidden = true;
         cancelBtn.hidden = false;

@@ -32,7 +32,7 @@
                     <input type="date" id="to-date" class="form-control border-secondary bg-dark text-light p-2 rounded-2">
                 </div>
             </li>
-            <div id="sales-div">
+            <div id="sales-div" hidden>
                 {% for order, items in sales.items %}
                     <a href="{% url 'sale' order_id=order %}" name="order" class="list-group-item glass text-light rounded-3 m-2 border-0">
                         <div class="d-flex justify-content-between align-items-center">
@@ -70,11 +70,11 @@
                     </a>
                 {% endfor %}
             </div>
-            <div id="reverse-sales-div" hidden>
+            <div id="reverse-sales-div">
                 {% for order, items in reverse_sales.items %}
-                    <a href="{% url 'sale' order_id=order %}" name="order" class="list-group-item bg-dark text-light rounded-3 m-2 border-secondary border-1">
-                        <div class="d-flex justify-content-between">
-                            <p>Order  
+                    <a href="{% url 'sale' order_id=order %}" name="order" class="list-group-item text-light rounded-3 m-2 border-0 glass">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="p-2 m-0">Order  
                                 <span name="order-id">{{ order }}</span>
                             </p>
                             <span name="status">
@@ -93,7 +93,7 @@
                         </div>
                         <ul class="list-group mt-1 p-0 border-top border-secondary rounded-0">
                             {% for item in items.items %}
-                                <li class="list-group-item bg-dark text-light d-flex justify-content-between border-0">
+                                <li class="list-group-item full-glass text-light d-flex justify-content-between border-0">
                                     <div class="d-flex flex-column">
                                         <span>{{ item.product }}</span>
                                         <span>
@@ -111,5 +111,5 @@
         </ul>
     </div>
 </div>
-<script src="../../static/mySales.js"></script>
+<script src="../../static/seller/mySales.js"></script>
 {% endblock %}

@@ -3,11 +3,14 @@ end alt view and order updates
 create user adress edit log
 add a bunch of logs
 
-add filter to my-products view
 add dashboard info
-fix order view
-finish sales filter
-fix product view
 
-move order date to order view
-fix order id and script
+add edit product message
+add completed order page
+
+add placeholders
+
+fix adress adition and edit {
+    add in my account
+    add in making order
+}

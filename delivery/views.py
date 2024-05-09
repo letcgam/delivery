@@ -1,3 +1,4 @@
+from hmac import new
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -213,10 +214,7 @@ def add_adress(request):
         message['class'] = "text-danger"
     else:
         message['class'] = "text-success"
-        if created_adress:
-            message['text'] = "Successfully added billing adress."
-        else:
-            message['text'] = "Successfully altered billing adress."
+        message['text'] = "Successfully altered billing adress."
 
     try:
         billing_adress = BillingAdress.objects.filter(user_id = user.id).last()
@@ -316,7 +314,7 @@ def my_sales(request):
         sales.update({str(order.id): {"order": order, "items": []}})
 
         for item in order_items:
-            if item.order == order:
+            if item.order == order and item.product.owner == request.user:
                 sales[str(order.id)]["items"].append({
                     "product": item.product,
                     "quant": item.quant
@@ -326,7 +324,7 @@ def my_sales(request):
         reverse_sales.update({str(order.id): {"order": order, "items": []}})
 
         for item in order_items:
-            if item.order == order:
+            if item.order == order and item.product.owner == request.user:
                 reverse_sales[str(order.id)]["items"].append({
                     "product": item.product,
                     "quant": item.quant
@@ -598,25 +596,29 @@ def new_order(request):
             message = "An error ocured trying to checkout. Try again later."
 
         context.update({"message": message})
-        return order(request, new_order.id)
+        return order(request, new_order.id, new_order=True)
 
 
 @login_required
-def order(request, order_id):
+def order(request, order_id, new_order=False):
     user = request.user
     order = Order.objects.get(pk = order_id)
     context = get_layout_context(request)
 
     if order.user_id == user.id:
         order_items = OrderItem.objects.filter(order_id = order.id)
-        context.update({"order": order, "order_items": order_items})
+        context.update({
+            "order": order,
+            "order_items": order_items,
+            "new_order": new_order
+        })
         return render(request, "shopping/order.html", context)
 
 
 def my_orders(request):
     user = request.user
     context = get_layout_context(request)
-    orders = Order.objects.filter(user_id = user.id)
+    orders = Order.objects.filter(user_id = user.id).order_by("-creation_date")
     for order in orders:
         items = OrderItem.objects.filter(order_id = order.id)
         order.quant = 0

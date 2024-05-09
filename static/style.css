@@ -1,5 +1,5 @@
 body {
-    background: linear-gradient(-45deg, #803c27, #631a36, #0f4153, #0d5544);
+    background: linear-gradient(-45deg, #803c27, #741137, #3c2853, #0f4153, #0d5544);
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
     height: 100vh;
@@ -21,12 +21,28 @@ body {
     color: white;
 }
 
+.form-control::placeholder {
+    color: rgb(255, 255, 255);
+}
+
 label {
     user-select: none;
 }
 
 .hidden {
     display: none;
+}
+
+.glass {
+    background: rgba(0, 0, 0, 0.54);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(11.4px);
+    -webkit-backdrop-filter: blur(11.4px);
+}
+
+.full-glass {
+    background: rgba(0, 0, 0, 0);;
 }
 
 
@@ -54,10 +70,6 @@ a:hover {
 
 /* Product screen */
 
-.product-section {
-    background-color: rgb(19, 19, 20);
-}
-
 .product-name {
     text-wrap: nowrap;
     max-width: 100%;
@@ -68,14 +80,6 @@ a:hover {
 .product-section img {
     max-width: 100%;
     max-height: 100%;
-}
-
-.glass {
-    background: rgba(0, 0, 0, 0.54);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(11.4px);
-    -webkit-backdrop-filter: blur(11.4px);
 }
 
 /* Cart */
@@ -91,10 +95,6 @@ a:hover {
 
 .cart-table tr td, .cart-table th {
     word-break: normal;
-}
-
-.cart-product {
-    background-color: rgb(19, 19, 20);
 }
 
 .quantity-input-col {

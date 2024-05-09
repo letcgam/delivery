@@ -1,27 +1,45 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<div class="container d-flex flex-column align-items-center">
-    <div class="d-flex justify-content-start col-12 col-lg-8 col-xl-6">
-        <a href="{% url 'my_orders' %}" class="link-underline link-underline-opacity-0 text-light bg-dark p-3 rounded-pill mb-3 mx-2">
-            <i class="bi bi-arrow-left"></i>&nbsp;My orders
-        </a>
-    </div>
+<div class="container d-flex flex-column col-12 col-lg-8 col-xl-6">
+    {% if new_order %}
+        <div class="d-flex flex-column align-items-center rounded-pill p-3 pt-4 m-3" id="thanks">
+            <h3>Thank's for your purchase!</h3>
+            <p>Order received. Stay tuned for shipping updates!</p>
+            <a href="{% url 'my_orders' %}" class="link-underline link-underline-opacity-0 text-light glass p-3 rounded-pill mx-2">
+                Go to My orders
+            </a>
+        </div>
+    {% else %}
+        <div class="d-flex align-items-center">
+            <a href="{% url 'my_orders' %}" class="link-underline link-underline-opacity-0 text-light bg-black p-3 rounded-pill mb-3 mx-2">
+                <i class="bi bi-arrow-left"></i>&nbsp;My orders
+            </a>
+        </div>
+    {% endif %}
     <div class="row d-flex justify-content-center text-light glass">
-        <div class="col-12 col-lg-6 col-xl-6 mb-4">
-            <ul class="list-group mt-3">
+        <div class="col-12 col-lg-6 col-xl-6">
+            <ul class="list-group my-3">
                 <li class="list-group-item px-4 pt-3 bg-black border-0 rounded-top-3">
-                    <h3 id="order-id">Order {{ order.id }}</h3>
+                    <h3>Items</h3>
                 </li>
                 {% for order_item in order_items %}
-                    <li class="list-group-item full-glass rounded-0 border-0">
+                    <a href="{% url 'product' product_id=order_item.product.id %}" class="list-group-item full-glass rounded-0 border-0 mb-3">
                         <div class="product-name">{{ order_item.product.name }}</div>
                         <div class="d-flex justify-content-between">
                             <span name="product-price">{{ order_item.product.price }}</span>
                             <span>{{ order_item.quant }}</span>
                         </div>
-                    </li>
+                    </a>
                 {% endfor %}
+                <li class="list-group-item px-4 pt-3 bg-black border-0 rounded-top-3">
+                    <h3>Info</h3>
+                </li>
+                <div class="p-3">
+                    <p class="mb-0"></p>Order ID: <span id="order-id">{{ order.id }}</span></p>
+                    <hr class="my-2">
+                    <p class="mt-2"></p>Purchase: <span id="order-id">{{ order.creation_date.date }}</span></p>
+                </div>
             </ul>
         </div>
         <div class="col-12 col-lg-6 col-xl-6 mt-3">
@@ -34,39 +52,24 @@
                     <h3>Shipping status</h3>
                 </li>
                 {% endfor%}
-                <li id="status" class="list-group-item full-glass rounded-top-0 d-flex flex-column py-3 border-0">
-                    {% if order.status.id %}
-                    <div>
-                        <i class="bi bi-bag-check mx-3"></i>
-                        <span>Deliver</span>
-                    </div>
-                    <span class="mx-4">|</span>
+                <li id="status" class="list-group-item full-glass rounded-top-0 p-3 px-4 border-0 d-flex flex-column">
+                    {% if order.status.id > 4 %}
+                        <span class="text-secondary"><i class="text-secondary bi bi-bag-check"></i> Deliver</span>
+                        <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
-                    {% if order.status.id %}
-                    <div>
-                        <i class="bi bi-truck mx-3"></i>
-                        <span>En route</span>
-                    </div>
-                    <span class="mx-4">|</span>
+                    {% if order.status.id > 3 %}
+                        <span class="text-secondary"><i class="text-secondary bi bi-truck"></i> En route</span>
+                        <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
-                    {% if order.status.id %}
-                    <div>
-                        <i class="bi bi-hourglass-split mx-3"></i>
-                        <span>Awaiting withdraw</span>
-                    </div>
-                    <span class="mx-4">|</span>
+                    {% if order.status.id > 2 %}
+                        <span class="text-secondary"><i class="text-secondary bi bi-hourglass-split"></i> Awaiting withdraw</span>
+                        <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
-                    {% if order.status.id %}
-                    <div>
-                        <i class="bi bi-box-seam mx-3"></i>
-                        <span>In preparation</span>
-                    </div>
-                    <span class="mx-4">|</span>
+                    {% if order.status.id > 1 %}
+                        <span class="text-secondary"><i class="text-secondary bi bi-box-seam"></i> In preparation</span>
+                        <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
-                    <div>
-                        <i class="bi bi-person-lines-fill mx-3"></i>
-                        <span>Processing</span>
-                    </div>
+                        <span class="text-secondary"><i class="text-secondary bi bi-person-lines-fill"></i> Processing</span>
                 </li>
             </ul>
             <ul class="list-group my-3">
@@ -88,5 +91,5 @@
 </div>
 
 <script src="../../static/index.js"></script>
-<script src="../../static/order.js"></script>
+<script src="../../static/shopping/order.js"></script>
 {% endblock %}

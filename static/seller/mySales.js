@@ -34,7 +34,7 @@ statusFilter.addEventListener("change", () => {
 })
 
 orderByFilter.addEventListener("change", () => {
-    if (orderByFilter.value == "newest") {
+    if (orderByFilter.value == "oldest") {
         salesDiv.hidden = false;
         reverseSalesDiv.hidden = true;
     } else {
