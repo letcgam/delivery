@@ -5,4 +5,9 @@ add a bunch of logs
 
 add filter to my-products view
 add dashboard info
-fiz order view
+fix order view
+finish sales filter
+fix product view
+
+move order date to order view
+fix order id and script

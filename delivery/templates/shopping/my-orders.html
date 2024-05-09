@@ -28,10 +28,6 @@
                         <span>
                             <div class="d-flex flex-column align-items-end">
                                 <div class="border py-1 px-3 rounded-pill" name="order-status">{{ order.status.description }}</div>
-                                <span>
-                                    <span name="order-date">{{ order.creation_date.day }}</span>/<span
-                                        name="order-date">{{ order.creation_date.month }}</span>
-                                </span>
                                 <h5 name="price">{{ order.total_price }}</h5>
                             </div>
                         </span>
@@ -43,5 +39,5 @@
     </div>
 </div>
 
-<script src="../../static/order.js"></script>
+<script src="../../static/myOrders.js"></script>
 {% endblock %}

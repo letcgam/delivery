@@ -1,13 +1,15 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<div class="container">
-    <a href="{% url 'my_orders' %}" class="link-underline link-underline-opacity-0 text-light bg-dark p-3 rounded-pill m-3 border">
-        <i class="bi bi-arrow-left"></i>&nbsp;My orders
-    </a>
+<div class="container d-flex flex-column align-items-center">
+    <div class="d-flex justify-content-start col-12 col-lg-8 col-xl-6">
+        <a href="{% url 'my_orders' %}" class="link-underline link-underline-opacity-0 text-light bg-dark p-3 rounded-pill mb-3 mx-2">
+            <i class="bi bi-arrow-left"></i>&nbsp;My orders
+        </a>
+    </div>
     <div class="row d-flex justify-content-center text-light glass">
-        <div class="col-12 col-md-8 col-lg-6 col-xl-6 mb-4">
-            <ul class="list-group mt-5">
+        <div class="col-12 col-lg-6 col-xl-6 mb-4">
+            <ul class="list-group mt-3">
                 <li class="list-group-item px-4 pt-3 bg-black border-0 rounded-top-3">
                     <h3 id="order-id">Order {{ order.id }}</h3>
                 </li>
@@ -22,7 +24,7 @@
                 {% endfor %}
             </ul>
         </div>
-        <div class="col-12 col-md-8 col-lg-6 col-xl-6">
+        <div class="col-12 col-lg-6 col-xl-6 mt-3">
             <ul class="list-group">
                 <li class="list-group-item bg-dark px-4 pt-3 bg-black border-0 rounded-top-3">
                     <h3>Shipping status</h3>
@@ -32,25 +34,38 @@
                     <h3>Shipping status</h3>
                 </li>
                 {% endfor%}
-                <li class="list-group-item full-glass rounded-top-0 d-flex flex-column py-3 border-0">
+                <li id="status" class="list-group-item full-glass rounded-top-0 d-flex flex-column py-3 border-0">
+                    {% if order.status.id %}
                     <div>
-                        <i class="bi bi-bag-check mx-3"></i>Deliver
+                        <i class="bi bi-bag-check mx-3"></i>
+                        <span>Deliver</span>
                     </div>
                     <span class="mx-4">|</span>
+                    {% endif %}
+                    {% if order.status.id %}
                     <div>
-                        <i class="bi bi-truck mx-3"></i>En route
+                        <i class="bi bi-truck mx-3"></i>
+                        <span>En route</span>
                     </div>
                     <span class="mx-4">|</span>
+                    {% endif %}
+                    {% if order.status.id %}
                     <div>
-                        <i class="bi bi-hourglass-split mx-3"></i>Awaiting withdraw
+                        <i class="bi bi-hourglass-split mx-3"></i>
+                        <span>Awaiting withdraw</span>
                     </div>
                     <span class="mx-4">|</span>
+                    {% endif %}
+                    {% if order.status.id %}
                     <div>
-                        <i class="bi bi-box-seam mx-3"></i>In preparation
+                        <i class="bi bi-box-seam mx-3"></i>
+                        <span>In preparation</span>
                     </div>
                     <span class="mx-4">|</span>
+                    {% endif %}
                     <div>
-                        <i class="bi bi-person-lines-fill mx-3"></i>Processing
+                        <i class="bi bi-person-lines-fill mx-3"></i>
+                        <span>Processing</span>
                     </div>
                 </li>
             </ul>
@@ -73,4 +88,5 @@
 </div>
 
 <script src="../../static/index.js"></script>
+<script src="../../static/order.js"></script>
 {% endblock %}
