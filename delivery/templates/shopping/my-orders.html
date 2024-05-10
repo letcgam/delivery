@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% load static %}
 
 {% block body %}
 <div class="container">
@@ -21,7 +22,7 @@
                                 <img style="height: 70px;" src="../../static/icon.png" alt="">
                             </div>
                             <div>
-                                <div class="border rounded-pill p-2 px-3" name="order-status">{{ order.status.description }}</div>
+                                <div class="border rounded-pill p-2 px-3 text-center" name="order-status">{{ order.status.description }}</div>
                             </div>
                         </span>
                         <span class="d-flex justify-content-between align-items-end w-100">
@@ -39,5 +40,5 @@
     </div>
 </div>
 
-<script src="../../static/shopping/myOrders.js"></script>
+<script src="{% static 'shopping/myOrders.js' %}"></script>
 {% endblock %}

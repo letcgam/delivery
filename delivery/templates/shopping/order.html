@@ -1,4 +1,6 @@
 {% extends "layout.html" %}
+{% load static %}
+
 
 {% block body %}
 <div class="container d-flex flex-column col-12 col-lg-8 col-xl-6">
@@ -25,7 +27,8 @@
                 </li>
                 {% for order_item in order_items %}
                     <a href="{% url 'product' product_id=order_item.product.id %}" class="list-group-item full-glass rounded-0 border-0 mb-3">
-                        <div class="product-name">{{ order_item.product.name }}</div>
+                        <div class="product-name">{{ 
+                            product.name }}</div>
                         <div class="d-flex justify-content-between">
                             <span name="product-price">{{ order_item.product.price }}</span>
                             <span>{{ order_item.quant }}</span>
@@ -54,22 +57,22 @@
                 {% endfor%}
                 <li id="status" class="list-group-item full-glass rounded-top-0 p-3 px-4 border-0 d-flex flex-column">
                     {% if order.status.id > 4 %}
-                        <span class="text-secondary"><i class="text-secondary bi bi-bag-check"></i> Deliver</span>
+                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-bag-check"></i> Deliver</span>
                         <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
                     {% if order.status.id > 3 %}
-                        <span class="text-secondary"><i class="text-secondary bi bi-truck"></i> En route</span>
+                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-truck"></i> En route</span>
                         <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
                     {% if order.status.id > 2 %}
-                        <span class="text-secondary"><i class="text-secondary bi bi-hourglass-split"></i> Awaiting withdraw</span>
+                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-hourglass-split"></i> Awaiting withdraw</span>
                         <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
                     {% if order.status.id > 1 %}
-                        <span class="text-secondary"><i class="text-secondary bi bi-box-seam"></i> In preparation</span>
+                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-box-seam"></i> In preparation</span>
                         <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
-                        <span class="text-secondary"><i class="text-secondary bi bi-person-lines-fill"></i> Processing</span>
+                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-person-lines-fill"></i> Processing</span>
                 </li>
             </ul>
             <ul class="list-group my-3">
@@ -90,6 +93,6 @@
     </div>
 </div>
 
-<script src="../../static/index.js"></script>
-<script src="../../static/shopping/order.js"></script>
+<script src="{% static 'index.js' %}"></script>
+<script src="{% static 'shopping/order.js' %}"></script>
 {% endblock %}

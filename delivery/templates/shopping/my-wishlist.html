@@ -1,8 +1,10 @@
 {% extends "layout.html" %}
+{% load static %}
+
 
 {% block body %}
 <div class="container">
-    <h1 class="w-100 p-3">My wishlist</h1>
+
     {% if not products %}
     <h3 class="text-secondary glass p-3">
         Add products to your wishlist to save them here.
@@ -12,7 +14,7 @@
         {% for product in products %}
             <div class="p-2">
                 <a href="{% url 'product' product_id=product.id %}" class="d-flex flex-column p-3 rounded-3 text-light link-underline link-underline-opacity-0 product-section glass">
-                        <img src="../../static/icon.png" alt="">
+                        <img src="{% static 'icon.png' %}" alt="">
                         <div class="product-name">{{ product.name }}</div>
                         <div name="product-price">{{ product.price }}</div>
                 </a>
@@ -21,5 +23,5 @@
     </div>
 </div>
 
-<script src="../../static/index.js"></script>
+<script src="{% static 'index.js' %}"></script>
 {% endblock %}

@@ -1,4 +1,3 @@
-from hmac import new
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -7,12 +6,12 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from django.contrib.auth.models import User
-
-from .models import BillingAdress, Card, Order, OrderItem, Payment, PaymentType, Recipient, User as UserInfo, Product, Category, WishList, Cart, CartItem, Adress
-from delivery import models
+from .models import User as UserInfo
+from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress
 
 
 def index(request):
+    return render(request, "deliveryman/complete-register.html")
     products = Product.objects.all()
 
     context = get_layout_context(request)
@@ -92,18 +91,22 @@ def register(request):
                 email=email,
                 password=password
             )
-            UserInfo.objects.create(
+            userinfo = UserInfo.objects.create(
                 user=user,
                 user_type=request.POST["user-type"]
             )
             user.save()
+            userinfo.save()
 
             Cart.objects.create(user_id = user.id).save()
         except IntegrityError:
             return render(request, "register.html", {
                 "message": "Username already taken."
             })
+        
         login(request, user)
+        if userinfo.user_type == "deliveryman":
+            return render(request, "deliveryman/complete-register.html")
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "register.html")
@@ -280,14 +283,18 @@ def add_product(request):
 
 @login_required
 def edit_product(request, product_id):
-    item = Product.objects.get(pk = product_id)
-    item.name = request.POST["name"]
-    item.price = request.POST["price"]
-    item.description = request.POST["description"]
-    item.category = Category.objects.get(pk = request.POST["category"])
-    item.stock = request.POST["stock"]
-    item.save()
-    return product(request, product_id)
+    try:
+        item = Product.objects.get(pk = product_id)
+        item.name = request.POST["name"]
+        item.price = request.POST["price"]
+        item.description = request.POST["description"]
+        item.category = Category.objects.get(pk = request.POST["category"])
+        item.stock = request.POST["stock"]
+        item.save()
+        message = "Successfully edited product."
+    except:
+        message = "Failed to edit product."
+    return product(request, product_id, message=message)
 
 
 @login_required
@@ -351,7 +358,7 @@ def sale(request, order_id):
     return render(request, "seller/sale.html", context)
 
 
-def product(request, product_id, success=False):
+def product(request, product_id, success=False, message=""):
     product = Product.objects.get(pk=product_id)
     category = Category.objects.get(pk=product.category_id).name
     wishlist = WishList.objects.filter(
@@ -365,7 +372,8 @@ def product(request, product_id, success=False):
         "category": category,
         "wishlist": wishlist,
         "image_url": "../static/icon.png",
-        "success": success
+        "success": success,
+        "message": message
     })
 
     return render(request, "product.html", context)
@@ -587,6 +595,8 @@ def new_order(request):
                     order_item.save()
                     new_order.total_price += Product.objects.get(pk = order_item.product_id).price
                     new_order.save()
+                    item.product.stock -= 1
+                    item.product.save()
                     item.delete()
                     message.append(order_item)
 
@@ -628,3 +638,19 @@ def my_orders(request):
     context.update({"orders": orders})
 
     return render(request, "shopping/my-orders.html", context)
+
+
+def update_order_status(request, status_id, order_id):
+    user = request.user
+    context = get_layout_context(request)
+    order = Order.objects.get(pk = order_id)
+    status = OrderStatus.objects.get(pk = status_id)
+    order.status = status
+    order.save()
+
+    order_items = OrderItem.objects.filter(order=order)
+    items = [item for item in order_items if item.product.owner == user]
+
+    context.update({"order": order, "items": items})
+    if context['user_type'] == 'seller':
+        return render(request, "seller/sale.html", context)

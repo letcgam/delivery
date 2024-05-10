@@ -1,8 +1,7 @@
 body {
     background: linear-gradient(-45deg, #803c27, #741137, #3c2853, #0f4153, #0d5544);
-    background-size: 400% 400%;
+    background-size: 1000% 1000%;
     animation: gradient 15s ease infinite;
-    height: 100vh;
 }
 
 @keyframes gradient {
@@ -22,7 +21,7 @@ body {
 }
 
 .form-control::placeholder {
-    color: rgb(255, 255, 255);
+    color: gray;
 }
 
 label {
@@ -139,4 +138,11 @@ a:hover {
 #added-to-cart-message.show {
     height: auto;
     opacity: 1;
+}
+
+
+#thanks {
+    background: linear-gradient(-45deg, #d46442, #ca2b68, #8557b9, #208ab1, #0d5544);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
 }

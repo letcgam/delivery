@@ -1,4 +1,6 @@
 {% extends "layout.html" %}
+{% load static %}
+
 
 {% block body %}
 
@@ -21,7 +23,7 @@
 
                 <div class="col-sm-6">
                     <label for="first-name" class="label profile-label p-0 m-0 mt-3">First name</label>
-                    <input type="text" class="profile-input form-control bg-dark text-light" id="first-name" name="first-name" value="{{ user.first_name }}" required="true">
+                    <input type="text" class="profile-input form-control bg-dark text-light" id="first-name" name="first-name" value="{{ user.first_name }}" required="true" placeholder="John">
                     <div class="invalid-feedback">
                         Valid first name is required.
                     </div>
@@ -29,7 +31,7 @@
 
                 <div class="col-sm-6">
                     <label for="last-name" class="label profile-label p-0 m-0 mt-3">Last name</label>
-                    <input type="text" class="profile-input form-control bg-dark text-light" id="last-name" name="last-name" value="{{ user.last_name }}">
+                    <input type="text" class="profile-input form-control bg-dark text-light" id="last-name" name="last-name" value="{{ user.last_name }}" placeholder="Smith">
                     <div class="invalid-feedback">
                         Valid last name is required.
                     </div>
@@ -38,7 +40,7 @@
                 <div class="col-md-5">
                     <label for="username" class="label profile-label p-0 m-0 mt-3">Username</label>
                     <div class="input-group has-validation">
-                        <input type="text" class="profile-input form-control bg-dark text-light" id="username" name="username" value="{{ user.username }}">
+                        <input type="text" class="profile-input form-control bg-dark text-light" id="username" name="username" value="{{ user.username }}" placeholder="jsmith">
                         <div class="invalid-feedback">
                             Your username is required.
                         </div>
@@ -47,7 +49,7 @@
 
                 <div class="col-md-7">
                     <label for="email" class="label profile-label p-0 m-0 mt-3">Email</label>
-                    <input type="email" class="profile-input form-control bg-dark text-light" id="email" name="email" value="{{ user.email }}">
+                    <input type="email" class="profile-input form-control bg-dark text-light" id="email" name="email" value="{{ user.email }}" placeholder="example@email.com">
                     <div class="invalid-feedback">
                         Please enter a valid email address for shipping updates.
                     </div>
@@ -63,7 +65,7 @@
 
                 <div class="col-sm-6">
                     <label for="phone-number" class="label profile-label p-0 m-0 mt-3">Phone number <span class="text-secondary">(Optional)</span></label>
-                    <input type="text" accept="number" name="phone-number" id="phone-number" class="profile-input form-control bg-dark text-light" 
+                    <input type="text" accept="number" name="phone-number" id="phone-number" class="profile-input form-control bg-dark text-light"  placeholder="+XX (XX) X XXXX-XXXX"
                     {% if user_info.phone %}
                         value="{{ user_info.phone }}"
                     {% endif %}>                        
@@ -99,7 +101,7 @@
 
                             <div class="col-lg-9">
                                 <label for="adress" class="label adress-label p-0 m-0 mt-3">Adress</label>
-                                <input type="text" class="adress-input form-control bg-dark text-light" id="adress" name="adress" value="{{ adress.street }}">
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="adress" name="adress" value="{{ adress.street }}" placeholder="265 Avenue St.">
                                 <div class="invalid-feedback">
                                     Street adress required.
                                 </div>
@@ -107,7 +109,7 @@
 
                             <div class="col-md-3">
                                 <label for="postal-code" class="label adress-label p-0 m-0 mt-3">Postal code</label>
-                                <input type="text" class="adress-input form-control bg-dark text-light" id="postal-code" name="postal-code" value="{{ adress.postal_code }}">
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="postal-code" name="postal-code" value="{{ adress.postal_code }}" placeholder="XXXXX-XXX">
                                 <div class="invalid-feedback">
                                     Postal code required.
                                 </div>
@@ -115,7 +117,7 @@
 
                             <div class="col-md-9 col-lg-4">
                                 <label for="city" class="label adress-label p-0 m-0 mt-3">City</label>
-                                <input type="text" class="adress-input form-control bg-dark text-light" id="city" name="city"  value="{{ adress.city }}"></input>
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="city" name="city"  value="{{ adress.city }}" placeholder="City"></input>
                                 <div class="invalid-feedback">
                                     Please provide a valid city.
                                 </div>
@@ -123,7 +125,7 @@
 
                             <div class="col-md-6 col-lg-4">
                                 <label for="state" class="label adress-label p-0 m-0 mt-3">State</label>
-                                <input type="text" class="adress-input form-control bg-dark text-light" id="state" name="state"  value="{{ adress.state }}"></input>
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="state" name="state"  value="{{ adress.state }}" placeholder="State"></input>
                                 <div class="invalid-feedback">
                                     Please provide a valid state.
                                 </div>
@@ -131,7 +133,7 @@
 
                             <div class="col-md-6 col-lg-4">
                                 <label for="country" class="label adress-label p-0 m-0 mt-3">Country</label>
-                                <input type="text" class="adress-input form-control bg-dark text-light" id="country" name="country" value="{{ adress.country }}"></input>
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="country" name="country" value="{{ adress.country }}" placeholder="Country"></input>
                                 <div class="invalid-feedback">
                                     Please provide a valid country.
                                 </div>
@@ -149,6 +151,6 @@
     </div>
 </div>
 
-<script src="../../static/account/account.js"></script>
+<script src="{% static 'account/account.js' %}"></script>
 
 {% endblock %}

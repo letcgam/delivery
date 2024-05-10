@@ -1,4 +1,6 @@
 {% extends "layout.html" %}
+{% load static %}
+
 
 {% block body %}
 <div class="container d-flex justify-content-start text-light p-0">
@@ -36,7 +38,7 @@
             {% for product in products %}
                 <div class="p-2" id="product-list">
                     <a href="{% url 'product' product_id=product.id %}" class="d-flex flex-column p-3 rounded-3 text-light link-underline link-underline-opacity-0 product-section glass" name="product">
-                            <img src="../../static/icon.png" alt="">
+                            <img src="{% static 'icon.png' %}" alt="">
                             <div name="product-name" class="product-name">{{ product.name }}</div>
                             <div name="product-price">{{ product.price }}</div>
                             <span hidden id="price">{{ product.price }}</span>
@@ -48,6 +50,6 @@
     </div>
 </div>
 
-<script src="../../static/index.js"></script>
-<script src="../../static/indexFilter.js"></script>
+<script src="{% static 'index.js' %}"></script>
+<script src="{% static 'indexFilter.js' %}"></script>
 {% endblock %}

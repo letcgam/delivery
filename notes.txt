@@ -1,14 +1,7 @@
-end alt view and order updates
-
 create user adress edit log
 add a bunch of logs
 
 add dashboard info
-
-add edit product message
-add completed order page
-
-add placeholders
 
 fix adress adition and edit {
     add in my account

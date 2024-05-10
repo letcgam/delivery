@@ -1,4 +1,6 @@
 {% extends "layout.html" %}
+{% load static %}
+
 
 {% block body %}
 <div class="container d-flex flex-column align-items-center text-light">
@@ -21,7 +23,7 @@
         {% for product in products %}
             <div class="p-2" name="product">
                 <a href="{% url 'product' product_id=product.id %}" class="glass d-flex flex-column p-3 text-light link-underline link-underline-opacity-0">
-                    <img src="../../static/icon.png" alt="">
+                    <img src="{% static 'icon.png' %}" alt="">
                     <div class="product-name">{{ product.name }}</div>
                     <div name="product-price">{{ product.price }}</div>
                 </a>
@@ -31,5 +33,5 @@
     </div>
 </div>
 
-<script src="../../static/seller/myProducts.js"></script>
+<script src="{% static 'seller/myProducts.js' %}"></script>
 {% endblock %}
