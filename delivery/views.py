@@ -1,3 +1,6 @@
+from cgi import print_arguments
+from email import message
+from multiprocessing import context
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -7,11 +10,10 @@ from django.urls import reverse
 
 from django.contrib.auth.models import User
 from .models import User as UserInfo
-from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress
+from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense
 
 
 def index(request):
-    return render(request, "deliveryman/complete-register.html")
     products = Product.objects.all()
 
     context = get_layout_context(request)
@@ -33,6 +35,48 @@ def get_layout_context(request):
     context = {'user_type': user_type, 'categories': categories}
 
     return context
+
+
+def update_user_type(request, user_type_request=None):
+    if user_type_request == None:
+        return None
+
+    user = request.user
+    records = []
+
+    user_info = UserInfo.objects.filter(user_id = user.id).first()
+    if user_info != None:
+        user_info_list = []
+        for field in user_info.get_fields_values():
+            user_info_list.append(field)
+        records.append(user_info_list)
+
+    billing_adress = BillingAdress.objects.filter(user_id = user.id).first()
+    if billing_adress != None:
+        adress = Adress.objects.get(pk = billing_adress.adress_id)
+        adress_list = []
+        for field in adress.get_fields_values():
+            adress_list.append(field)
+        records.append(adress_list)
+    
+    driver = Driver.objects.filter(user_id = user.id).first()
+    if driver != None:
+        license = DriversLicense.objects.get(pk = driver.license_id)
+        license_list = []
+        for field in license.get_fields_values():
+            license_list.append(field)
+        records.append(license_list)
+    
+    if user_type_request == "seller applicant":
+        if None in user_info_list or None in adress_list:
+            return None
+    elif user_type_request == "deliveryman applicant":
+        if None in user_info_list or None in adress_list or None in license_list:
+            return None
+    else:
+        return None
+    
+    user_info.user_type = user_type_request
 
 
 class FieldError(Exception):
@@ -105,8 +149,9 @@ def register(request):
             })
         
         login(request, user)
-        if userinfo.user_type == "deliveryman":
-            return render(request, "deliveryman/complete-register.html")
+        context = get_layout_context(request)
+        if context["user_type"] == "deliveryman applicant":
+            return render(request, "account/account.html", context)
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "register.html")
@@ -125,8 +170,16 @@ def my_account(request):
 
     try:
         billing_adress = BillingAdress.objects.get(user_id = user.id)
-        adress = Adress.objects.get(pk = billing_adress.adress_id)
-        context.update({'adress': adress})
+        if billing_adress != None:
+            adress = Adress.objects.get(pk = billing_adress.adress_id)
+            context.update({'adress': adress})
+
+        driver = Driver.objects.get(user_id = user.id)
+        if driver != None:
+            license = DriversLicense.objects.get(pk = driver.license_id)
+            license.issue_date = str(license.issue_date)
+            license.expiration_date = str(license.expiration_date)
+            context.update({'license': license})
     except:
         pass
 
@@ -173,7 +226,7 @@ def my_account(request):
         return render(request, "account/account.html", context)
 
 
-def add_adress(request):
+def add_adress(request, is_billing=0):
     context = get_layout_context(request)
     user = User.objects.get(pk = request.user.id)
 
@@ -203,13 +256,17 @@ def add_adress(request):
                 state = request.POST["state"],
                 country = request.POST["country"]
             )
+            adress.save()
 
-            if created_adress:
-                adress.save()
-                billing_adress, aux = BillingAdress.objects.get_or_create(
-                    user = request.user
-                )
-                billing_adress.adress = adress
+            if is_billing:
+                billing_adress = BillingAdress.objects.filter(user_id = user.id).first()
+                if billing_adress == None:
+                    billing_adress = BillingAdress.objects.create(
+                        user_id = user.id,
+                        adress_id = adress.id
+                    )
+                else:
+                    billing_adress.adress_id = adress.id
                 billing_adress.save()
 
     except FieldError as e:
@@ -220,13 +277,56 @@ def add_adress(request):
         message['text'] = "Successfully altered billing adress."
 
     try:
-        billing_adress = BillingAdress.objects.filter(user_id = user.id).last()
+        billing_adress = BillingAdress.objects.filter(user_id = user.id).first()
         adress = Adress.objects.get(pk = billing_adress.adress_id)
         context.update({'adress': adress})
     except:
         pass
 
+    if context["user_type"] == "seller applicant":
+        update_user_type(request, user_type_request="seller")
+    elif context["user_type"] == "deliveryman applicant":
+        update_user_type(request, user_type_request="deliveryman")
+
     context.update({"adress_message": message})
+    return render(request, "account/account.html", context)
+
+
+def add_drivers_license(request):
+    context = get_layout_context(request)
+    user = User.objects.get(pk = request.user.id)
+    message = {}
+    # try:
+    license = DriversLicense.objects.create(
+        number = request.POST["license-number"],
+        type = request.POST["license-type"],
+        issue_date = request.POST["issue-date"],
+        expiration_date = request.POST["expiration-date"]
+    )
+    license.save()
+    
+    driver = Driver.objects.filter(user_id = user.id).first()
+    if driver == None:
+        driver = Driver.objects.create(
+            user_id = user.id,
+            license_id = license.id
+        )
+    else:
+        driver.license_id = license.id
+    driver.save()
+    
+    message['class'] = "text-success"
+    message['text'] = "Successfully altered license."
+    # except:
+    #     message['class'] = "text-danger"
+    #     message['text'] = "Error saving license."
+    #     license.delete()
+    #     driver.delete()
+
+    
+    update_user_type(request, user_type_request="deliveryman")
+
+    context.update({"license_message": message})
     return render(request, "account/account.html", context)
 
 

@@ -1,27 +1,99 @@
+from ast import Delete
 from django.db import models
 from django.contrib.auth.models import User as AuthUser
 
 
+class Document(models.Model):
+    type = models.CharField(max_length=30, choices=[
+        ('SSN', 'Social Security Number'),
+        ('EIN', 'Employer Identification Number')
+    ])
+    number = models.CharField(max_length=50, unique=True)
+    issue_date = models.DateField()
+    expiration_date = models.DateField()
+
+    def __str__(self):
+        return f"{self.get_document_type_display()} - {self.number}"
+
+    class Meta:
+        db_table = "document"
+    
+
 class User(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.CASCADE, primary_key=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
-    adress = models.CharField(max_length=255, blank=True, null=True)
     birth = models.DateField(blank=True, null=True)
-    user_type = models.CharField(max_length=20)
+    document = models.ForeignKey(Document, blank=True, null=True, on_delete=models.SET_NULL)
+    user_type = models.CharField(max_length=30, choices=[
+        ('admin', 'Admin'),
+        ('client', 'Client'),
+        ('seller applicant', 'Seller applicant'),
+        ('seller', 'Seller'),
+        ('deliveryman applicant', 'Deliveryman applicant'),
+        ('deliveryman', 'Deliveryman')
+    ])
     exclude_fields = [id]
 
     class Meta:
         db_table = "user_info"
+    
+    def get_fields_values(self):
+        fields = [field.name for field in self._meta.get_fields()]
+        values = []
+        for field in fields:
+            try:
+                values.append([field, getattr(self, field)])
+            except:
+                pass
+        return values
+
+
+class DriversLicense(models.Model):
+    id = models.AutoField(primary_key=True)
+    number = models.CharField(max_length=20)
+    issue_date = models.DateField()
+    expiration_date = models.DateField()
+    type = models.CharField(max_length=20, choices=[
+        ('DL', 'DL'),
+        ('CDL', 'CDL'),
+        ('M', 'M'),
+        ('EDL', 'EDL')
+    ])
+
+    def __str__(self):
+        return self.number
+    
+    class Meta:
+        db_table = "license"
+    
+    def get_fields_values(self):
+        fields = [field.name for field in self._meta.get_fields()]
+        values = []
+        for field in fields:
+            try:
+                values.append([field, getattr(self, field)])
+            except:
+                pass
+        return values
 
 
 class Driver(models.Model):
     id = models.AutoField(primary_key=True)
-    phone = models.CharField(max_length=20, blank=True)
-    adress = models.CharField(max_length=255, blank=True)
-    birth = models.DateField(blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    license = models.ForeignKey(DriversLicense, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "driver"
+    
+    def get_fields_values(self):
+        fields = [field.name for field in self._meta.get_fields()]
+        values = []
+        for field in fields:
+            try:
+                values.append([field, getattr(self, field)])
+            except:
+                pass
+        return values
 
 
 class Category(models.Model):
@@ -37,7 +109,7 @@ class Product(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, default=24, on_delete=models.SET_DEFAULT)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
     owner = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
@@ -71,6 +143,16 @@ class Adress(models.Model):
 
     class Meta:
         db_table = "adress"
+    
+    def get_fields_values(self):
+        fields = [field.name for field in self._meta.get_fields()]
+        values = []
+        for field in fields:
+            try:
+                values.append([field, getattr(self, field)])
+            except:
+                pass
+        return values
 
 
 class BillingAdress(models.Model):
@@ -126,9 +208,9 @@ class Card(models.Model):
 
 class Payment(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(AuthUser, on_delete=models.PROTECT)
     date = models.DateTimeField(auto_now_add=True)
-    card = models.ForeignKey(Card, on_delete=models.CASCADE)
+    card = models.ForeignKey(Card, on_delete=models.PROTECT)
 
     class Meta:
         db_table = "payment"
@@ -166,7 +248,7 @@ class Order(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    status = models.ForeignKey(OrderStatus, on_delete=models.CASCADE, default=1)
+    status = models.ForeignKey(OrderStatus, on_delete=models.PROTECT, default=1)
     payment = models.ForeignKey(Payment, on_delete=models.CASCADE)
     recipient = models.ForeignKey(Recipient, on_delete=models.CASCADE)
     delivery_adress = models.ForeignKey(Adress, on_delete=models.CASCADE)
@@ -187,7 +269,7 @@ class OrderItem(models.Model):
 
 class DeliveryRecord(models.Model):
     id = models.AutoField(primary_key=True)
-    driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
+    driver = models.ForeignKey(Driver, on_delete=models.DO_NOTHING)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
 
     class Meta:

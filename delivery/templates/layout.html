@@ -26,7 +26,10 @@
                                         <a class="nav-link link-warning" href="{% url 'register' %}">Register</a>
                                     </li>
                                 {% endif %}
-                                <div class="dropdown border rounded-3">
+                                <li>
+                                    <a class="nav-link link-warning" href="{% url 'index' %}">Home</a>
+                                </li>
+                                <li class="dropdown border rounded-3">
                                     <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <strong class="link link-light">Categories</strong>
                                     </button>
@@ -37,7 +40,7 @@
                                             </li>
                                         {% endfor %}
                                     </ul>
-                                </div>
+                                </li>
                         </ul>
                         <form action="" class="d-flex col-12 col-xl-6">
                             <input class="form-control bg-dark text-light" type="text" id="search" placeholder="Looking for something?">

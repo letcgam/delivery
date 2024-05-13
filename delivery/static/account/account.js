@@ -1,17 +1,24 @@
 const editProfileBtn = document.getElementById("edit-profile-btn");
 const confirmProfileBtn = document.getElementById("confirm-profile-btn");
+const profileInputs = Array.from(document.getElementsByClassName("profile-input"));
+const profileLabels = Array.from(document.getElementsByClassName("profile-label"));
 
 const editAdressBtn = document.getElementById("edit-adress-btn");
 const confirmAdressBtn = document.getElementById("confirm-adress-btn");
+const adressInputs = Array.from(document.getElementsByClassName("adress-input"));
+const adressLabels = Array.from(document.getElementsByClassName("adress-label"));
+
+const editLicenseBtn = document.getElementById("edit-license-btn");
+const confirmLicenseBtn = document.getElementById("confirm-license-btn");
+const licenseInputs = Array.from(document.getElementsByClassName("license-input"));
+const licenseLabels = Array.from(document.getElementsByClassName("license-label"));
 
 const labels = Array.from(document.getElementsByClassName("label"));
 const inputs = Array.from(document.getElementsByClassName("form-control"));
 
-const profileInputs = Array.from(document.getElementsByClassName("profile-input"));
-const profileLabels = Array.from(document.getElementsByClassName("profile-label"));
-
-const adressInputs = Array.from(document.getElementsByClassName("adress-input"));
-const adressLabels = Array.from(document.getElementsByClassName("adress-label"));
+const documentTypeInput = document.getElementById("document-type-input");
+const ssnInput = document.getElementById("ssn-input");
+const einInput = document.getElementById("ein-input");
 
 const evt = new Event('DOMContentLoaded');
 
@@ -31,6 +38,9 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     confirmProfileBtn.hidden = true;
     confirmAdressBtn.hidden = true;
+    if (confirmLicenseBtn) {
+        confirmLicenseBtn.hidden = true;
+    }
 })
  
 
@@ -46,6 +56,19 @@ editProfileBtn.addEventListener('click', () => {
     hide(editProfileBtn)
 })
 
+if (editLicenseBtn) {
+    editLicenseBtn.addEventListener('click', () => {
+        licenseLabels.forEach(element => {
+            element.classList.remove("text-secondary")
+        });
+        licenseInputs.forEach(input => {
+            input.disabled = false
+            input.classList.remove("border-secondary")
+        })
+        confirmLicenseBtn.hidden = false
+        hide(editLicenseBtn)
+    })
+}
 
 editAdressBtn.addEventListener('click', () => {
     adressLabels.forEach(element => {
@@ -66,6 +89,16 @@ confirmProfileBtn.addEventListener('click', () => {
 
 confirmAdressBtn.addEventListener('click', () => {
     location.reload()
+})
+
+documentTypeInput.addEventListener("change", () => {
+    if (documentTypeInput.value == "SSN") {
+        ssnInput.hidden = false;
+        einInput.hidden = true;
+    } else {
+        ssnInput.hidden = true;
+        einInput.hidden = false;
+    }
 })
 
 

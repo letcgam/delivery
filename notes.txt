@@ -7,3 +7,9 @@ fix adress adition and edit {
     add in my account
     add in making order
 }
+
+create deliveryman account solicitation
+
+MAKE SELLER AUTHENTICATION
+
+add field_error at drivers license
