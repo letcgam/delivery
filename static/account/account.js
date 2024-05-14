@@ -9,22 +9,21 @@ const adressInputs = Array.from(document.getElementsByClassName("adress-input"))
 const adressLabels = Array.from(document.getElementsByClassName("adress-label"));
 
 const editLicenseBtn = document.getElementById("edit-license-btn");
-if (editAdressBtn) {
-    const confirmLicenseBtn = document.getElementById("confirm-license-btn");
-    const licenseInputs = Array.from(document.getElementsByClassName("license-input"));
-    const licenseLabels = Array.from(document.getElementsByClassName("license-label"));
-}
+const confirmLicenseBtn = document.getElementById("confirm-license-btn");
+const licenseInputs = Array.from(document.getElementsByClassName("license-input"));
+const licenseLabels = Array.from(document.getElementsByClassName("license-label"));
 
 const labels = Array.from(document.getElementsByClassName("label"));
-const inputs = Array.from(document.getElementsByClassName("form-control"));
+const inputs = Array.from(document.getElementsByClassName("account-input"));
 
 const documentTypeInput = document.getElementById("document-type-input");
-const ssnInput = document.getElementById("ssn-input");
-const einInput = document.getElementById("ein-input");
+var docNumberInput = document.getElementById("doc-number-input");
+var docNumberLabel = document.getElementById("doc-number-label");
 
 const evt = new Event('DOMContentLoaded');
 
 const birthInput = document.getElementById("birth-input");
+var phoneNumberInput = document.getElementById('phone-number');
 
 if (birthInput.value == "") {
     birthInput.classList.replace("text-light", "text-secondary");
@@ -37,10 +36,17 @@ document.addEventListener("DOMContentLoaded", () => {
     inputs.forEach(input => {
         input.disabled = true
         input.classList.add("border-secondary")
+        
+        const userType = document.getElementById("user-type").value
+        if (userType.includes("deliveryman") || userType.includes("seller")) {
+            input.required = true;
+        }
     })
     confirmProfileBtn.hidden = true;
     confirmAdressBtn.hidden = true;
-    confirmLicenseBtn.hidden = true;
+    if (confirmLicenseBtn) {
+        confirmLicenseBtn.hidden = true;
+    }
 })
  
 
@@ -92,15 +98,38 @@ confirmAdressBtn.addEventListener('click', () => {
 })
 
 documentTypeInput.addEventListener("change", () => {
-    if (this.value == "SSN") {
-        ssnInput.hidden = false;
-        einInput.hidden = true;
+    if (documentTypeInput.value == "SSN") {
+        docNumberLabel.innerHTML = "SSN"
+        docNumberInput.placeholder="XXX-XX-XXXX"
     } else {
-        ssnInput.hidden = true;
-        einInput.hidden = false;
+        docNumberLabel.innerHTML = "EIN"
+        docNumberInput.placeholder="XX-XXXXXXX"
     }
 })
 
+docNumberInput.addEventListener("input", () => {
+    var docNumber = docNumberInput.value.replace(/\D/g, '');
+    var formattedDoc = ""
+    var type = documentTypeInput.value;
+
+    if (formattedDoc != undefined) {
+        if (type == "SSN") {
+            formattedDoc += docNumber.slice(0, 3);
+            if (docNumber.length > 3) {
+                formattedDoc += '-' + docNumber.slice(3, 5);
+            }
+            if (docNumber.length > 5) {
+                formattedDoc += '-' + docNumber.slice(5, 9);
+            }
+        } else {
+            formattedDoc += docNumber.slice(0, 2);
+            if (docNumber.length > 2) {
+                formattedDoc += '-' + docNumber.slice(2, 9);
+            }
+        }
+        docNumberInput.value = formattedDoc
+    }
+});
 
 function hide(elem) {
     elem.style.opacity = 0;
@@ -110,11 +139,8 @@ function hide(elem) {
     elem.style.margin = 0;
 }
 
-
-var inputPhoneNumber = document.getElementById('phone-number');
-
-inputPhoneNumber.addEventListener('input', function() {
-    var phoneNumber = inputPhoneNumber.value;
+phoneNumberInput.addEventListener('input', () => {
+    var phoneNumber = phoneNumberInput.value;
     phoneNumber = phoneNumber.replace(/\D/g, '');
 
     var formattedPhoneNumber = '+';
@@ -129,5 +155,5 @@ inputPhoneNumber.addEventListener('input', function() {
     if (phoneNumber.length > 9) {
         formattedPhoneNumber += '-' + phoneNumber.slice(9);
     }
-    inputPhoneNumber.value = formattedPhoneNumber;
+    phoneNumberInput.value = formattedPhoneNumber;
 });

@@ -1,6 +1,4 @@
-from cgi import print_arguments
-from email import message
-from multiprocessing import context
+from os import error
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -9,7 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from django.contrib.auth.models import User
-from .models import User as UserInfo
+from .models import Document, User as UserInfo
 from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense
 
 
@@ -19,6 +17,7 @@ def index(request):
     context = get_layout_context(request)
     context.update({"products": products})
 
+    print(context["user_type"])
     return render(request, "index.html", context)
 
 
@@ -37,46 +36,41 @@ def get_layout_context(request):
     return context
 
 
-def update_user_type(request, user_type_request=None):
-    if user_type_request == None:
+def update_user_type(request):
+    context = get_layout_context(request)
+    if context["user_type"] == "seller applicant":
+        user_type_request="seller"
+    elif context["user_type"] == "deliveryman applicant":
+        user_type_request="deliveryman"
+    else:
         return None
 
     user = request.user
-    records = []
 
     user_info = UserInfo.objects.filter(user_id = user.id).first()
-    if user_info != None:
-        user_info_list = []
-        for field in user_info.get_fields_values():
-            user_info_list.append(field)
-        records.append(user_info_list)
-
+    document = Document.objects.get(pk = user_info.document.id) if user_info.document else None
     billing_adress = BillingAdress.objects.filter(user_id = user.id).first()
-    if billing_adress != None:
-        adress = Adress.objects.get(pk = billing_adress.adress_id)
-        adress_list = []
-        for field in adress.get_fields_values():
-            adress_list.append(field)
-        records.append(adress_list)
+    adress = Adress.objects.get(pk = billing_adress.adress.id) if billing_adress else None
+    driver = Driver.objects.filter(user_id = user.id).first() if "deliveryman" in context["user_type"] else None
+    license = DriversLicense.objects.get(pk = driver.license.id) if "deliveryman" in context["user_type"] else None
     
-    driver = Driver.objects.filter(user_id = user.id).first()
-    if driver != None:
-        license = DriversLicense.objects.get(pk = driver.license_id)
-        license_list = []
-        for field in license.get_fields_values():
-            license_list.append(field)
-        records.append(license_list)
+    models = [user_info, document, adress, license] if "deliveryman" in context["user_type"] else [user_info, document, adress]
     
-    if user_type_request == "seller applicant":
-        if None in user_info_list or None in adress_list:
-            return None
-    elif user_type_request == "deliveryman applicant":
-        if None in user_info_list or None in adress_list or None in license_list:
-            return None
-    else:
-        return None
+    for model in models:
+        if model == None:
+            return 0
+        else:
+            for field in model.get_fields_values():
+                if field in ["", None]:
+                    return 0
     
-    user_info.user_type = user_type_request
+    if context["user_type"] == "seller applicant":
+        user_info.user_type = "seller"
+    elif context["user_type"] == "deliveryman applicant":
+        user_info.user_type = "deliveryman"
+    user_info.save()
+    
+    return 1
 
 
 class FieldError(Exception):
@@ -162,13 +156,19 @@ def my_account(request):
     user_info = UserInfo.objects.get(user_id = user.id)
     user_info.birth = str(user_info.birth)
     context = get_layout_context(request)
-
+    print(user_info.user_type)
     context.update({
         'user': user,
         'user_info': user_info,
     })
 
     try:
+        document = Document.objects.get(pk = user_info.document.id)
+        if document != None:
+            document.issue_date = str(document.issue_date)
+            document.expiration_date = str(document.expiration_date)
+            context.update({'document': document})            
+        
         billing_adress = BillingAdress.objects.get(user_id = user.id)
         if billing_adress != None:
             adress = Adress.objects.get(pk = billing_adress.adress_id)
@@ -187,13 +187,15 @@ def my_account(request):
         return render(request, "account/account.html", context)
     else:
         try:
+            fields = ['username', 'email', 'first-name', 'last-name', 'phone-number', 'birth']
+            if "seller" in context["user_type"] or "deliveryman" in context["user_type"]:
+                fields += ['doc-number', 'doc-issue-date', 'doc-expiration-date', 'document-type']
             error = []
-            if request.POST['username'] == "":
-                error.append('Username')
-            if request.POST['email'] == "":
-                error.append('Email')
-            if len(request.POST['phone-number']) != 19:
-                error.append('Phone number')
+            
+            for field in fields:
+                if request.POST[field] == "":
+                    error.append(field)
+
             if len(error) >= 1:
                 raise FieldError(error)
             else:
@@ -203,9 +205,21 @@ def my_account(request):
                 user.email = request.POST['email']
                 user_info.phone = request.POST['phone-number']
                 user_info.birth = request.POST['birth'] if request.POST['birth'] != "" else None
-
+                
+                if "seller" in context["user_type"] or "deliveryman" in context["user_type"]:
+                    document = Document.objects.create(
+                        type = request.POST['document-type'],
+                        number = request.POST['doc-number'],
+                        issue_date = request.POST['doc-issue-date'],
+                        expiration_date = request.POST['doc-expiration-date']
+                    )
+                    document.save()
+                    user_info.document = document
                 user.save()
                 user_info.save()
+
+                if "applicant" in user_info.user_type:
+                    update_user_type(request)
         except FieldError as e:
             message = {
                 "text": "Provide valid data for required fields: " + e.error_message + ".",
@@ -230,22 +244,14 @@ def add_adress(request, is_billing=0):
     context = get_layout_context(request)
     user = User.objects.get(pk = request.user.id)
 
-    message = {
-        "text": "",
-        "class": ""
-    }
+    message = {"text": "", "class": ""}
     try:
         error_message = []
-        if request.POST['adress'] == "":
-            error_message.append('Adress')
-        if request.POST['postal-code'] == "":
-            error_message.append('Postal code')
-        if request.POST['city'] == "":
-            error_message.append('City')
-        if request.POST['state'] == "":
-            error_message.append('State')
-        if request.POST['country'] == "":
-            error_message.append('Country')
+        fields = ['adress', 'postal-code', 'city', 'state', 'country']
+        for field in fields:
+            if request.POST[field] == "":
+                error_message.append(field)
+                
         if error_message != []:
             raise FieldError(error_message)
         else:
@@ -283,10 +289,8 @@ def add_adress(request, is_billing=0):
     except:
         pass
 
-    if context["user_type"] == "seller applicant":
-        update_user_type(request, user_type_request="seller")
-    elif context["user_type"] == "deliveryman applicant":
-        update_user_type(request, user_type_request="deliveryman")
+    if "applicant" in context["user_type"]:
+        update_user_type(request)
 
     context.update({"adress_message": message})
     return render(request, "account/account.html", context)
@@ -296,35 +300,35 @@ def add_drivers_license(request):
     context = get_layout_context(request)
     user = User.objects.get(pk = request.user.id)
     message = {}
-    # try:
-    license = DriversLicense.objects.create(
-        number = request.POST["license-number"],
-        type = request.POST["license-type"],
-        issue_date = request.POST["issue-date"],
-        expiration_date = request.POST["expiration-date"]
-    )
-    license.save()
-    
-    driver = Driver.objects.filter(user_id = user.id).first()
-    if driver == None:
-        driver = Driver.objects.create(
-            user_id = user.id,
-            license_id = license.id
+    try:
+        license = DriversLicense.objects.create(
+            number = request.POST["license-number"],
+            type = request.POST["license-type"],
+            issue_date = request.POST["issue-date"],
+            expiration_date = request.POST["expiration-date"]
         )
-    else:
-        driver.license_id = license.id
-    driver.save()
-    
-    message['class'] = "text-success"
-    message['text'] = "Successfully altered license."
-    # except:
-    #     message['class'] = "text-danger"
-    #     message['text'] = "Error saving license."
-    #     license.delete()
-    #     driver.delete()
+        license.save()
+        
+        driver = Driver.objects.filter(user_id = user.id).first()
+        if driver == None:
+            driver = Driver.objects.create(
+                user_id = user.id,
+                license_id = license.id
+            )
+        else:
+            driver.license_id = license.id
+        driver.save()
+        
+        message['class'] = "text-success"
+        message['text'] = "Successfully altered license."
+    except:
+        message['class'] = "text-danger"
+        message['text'] = "Error saving license."
+        license.delete()
+        driver.delete()
 
-    
-    update_user_type(request, user_type_request="deliveryman")
+    if "applicant" in context["user_type"]:
+        update_user_type(request)
 
     context.update({"license_message": message})
     return render(request, "account/account.html", context)

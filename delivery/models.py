@@ -4,6 +4,7 @@ from django.contrib.auth.models import User as AuthUser
 
 
 class Document(models.Model):
+    id = models.AutoField(primary_key=True)
     type = models.CharField(max_length=30, choices=[
         ('SSN', 'Social Security Number'),
         ('EIN', 'Employer Identification Number')
@@ -11,12 +12,19 @@ class Document(models.Model):
     number = models.CharField(max_length=50, unique=True)
     issue_date = models.DateField()
     expiration_date = models.DateField()
-
-    def __str__(self):
-        return f"{self.get_document_type_display()} - {self.number}"
-
+    
     class Meta:
         db_table = "document"
+    
+    def get_fields_values(self):
+        fields = [field.name for field in self._meta.get_fields()]
+        values = []
+        for field in fields:
+            try:
+                values.append([field, getattr(self, field)])
+            except:
+                pass
+        return values
     
 
 class User(models.Model):
@@ -38,7 +46,7 @@ class User(models.Model):
         db_table = "user_info"
     
     def get_fields_values(self):
-        fields = [field.name for field in self._meta.get_fields()]
+        fields = [field.name for field in self._meta.get_fields() if field.name != "document"]
         values = []
         for field in fields:
             try:
