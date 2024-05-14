@@ -1,0 +1,298 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block body %}
+
+<div class="container d-flex flex-column align-items-center">
+    <div class="row col-12 col-md-10 col-lg-8 col-xl-8">
+        <h1 class="w-100 p-3">My account</h1>
+    </div>
+    {% if user_type == 'deliveryman applicant' or user_type == 'seller applicant' %}
+        <div class="row col-12 col-md-10 col-lg-8 col-xl-8 glass p-4 rounded-4 mb-5">
+            <h3>Hello, {{ user }}!</h3>
+            {% if user_type == 'deliveryman applicant' %}
+                To support us with the delivery process, we kindly ask you to provide us some additional info by providing your personal information, driver's license and billing adress. Upon submission, our team will monitor the request and get back to you as soon as possible to complete your registration. Until then, you can continue to use the platform as a client. Thank you!
+            {% elif user_type == 'seller applicant' %}
+                To sell your products in our platform, we kindly ask you to provide us some additional info by providing your personal information and billing adress. Upon submission, our team will monitor the request and get back to you as soon as possible to complete your registration. Until then, you can continue to use the platform as a client. Thank you!
+            {% endif %}
+        </div>
+    {% endif %}
+    
+    <div class="row col-12 col-md-10 col-lg-8 col-xl-8 glass p-4 rounded-4">
+        <form class="needs-validation my-3" method="post" action="{% url 'my_account' %}">
+            {% csrf_token %}
+            
+            <div class="row">
+                <span class="{{ message.class }}">{{ message.text }}</span>
+
+                <div class="d-flex justify-content-between">
+                    <h2>My info</h2>
+                    <div class="btn btn-warning d-flex align-items-center" id="edit-profile-btn">Edit profile</div>
+                    <button type="submit" class="btn btn-warning" id="confirm-profile-btn">Confirm changes</button>
+                </div>
+
+                <div class="col-sm-6">
+                    <label for="first-name" class="label profile-label p-0 m-0 mt-3">First name</label>
+                    <input type="text" class="profile-input form-control bg-dark text-light" id="first-name" name="first-name" value="{{ user.first_name }}" required="true" placeholder="John">
+                    <div class="invalid-feedback">
+                        Valid first name is required.
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <label for="last-name" class="label profile-label p-0 m-0 mt-3">Last name</label>
+                    <input type="text" class="profile-input form-control bg-dark text-light" id="last-name" name="last-name" value="{{ user.last_name }}" placeholder="Smith">
+                    <div class="invalid-feedback">
+                        Valid last name is required.
+                    </div>
+                </div>
+
+                <div class="col-md-5">
+                    <label for="username" class="label profile-label p-0 m-0 mt-3">Username</label>
+                    <div class="input-group has-validation">
+                        <input type="text" class="profile-input form-control bg-dark text-light" id="username" name="username" value="{{ user.username }}" placeholder="jsmith">
+                        <div class="invalid-feedback">
+                            Your username is required.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-7">
+                    <label for="email" class="label profile-label p-0 m-0 mt-3">Email</label>
+                    <input type="email" class="profile-input form-control bg-dark text-light" id="email" name="email" value="{{ user.email }}" placeholder="example@email.com">
+                    <div class="invalid-feedback">
+                        Please enter a valid email address for shipping updates.
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <label for="birth-input" class="label profile-label p-0 m-0 mt-3">Birth date <span class="text-secondary">(Optional)</span></label>
+                    <input type="date" class="profile-input form-control bg-dark text-light" id="birth-input" name="birth" value="{{ user_info.birth }}">
+                    <div class="invalid-feedback">
+                        Valid date is required.
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <label for="phone-number" class="label profile-label p-0 m-0 mt-3">Phone number <span class="text-secondary">(Optional)</span></label>
+                    <input type="text" accept="number" name="phone-number" id="phone-number" class="profile-input form-control bg-dark text-light"  placeholder="+XX (XX) X XXXX-XXXX"
+                    {% if user_info.phone %}
+                        value="{{ user_info.phone }}"
+                    {% endif %}>                        
+                    <div class="invalid-feedback">
+                        Valid phone is required.
+                    </div>
+                </div>
+
+                {% if user_type == 'deliveryman applicant' or user_type == 'deliveryman' or user_type == 'seller applicant' or user_type == 'seller' %}
+                <div class="col-sm-4">
+                    <label for="document-type-input" class="label profile-label p-0 m-0 mt-3">Document type</label>
+                    <div class="input-group has-validation">
+                        <select type="text" class="profile-input form-control bg-dark text-light" id="document-type-input" name="document-type-input">
+                            <option value="SSN"
+                            {% if document.type == "SSN" %}
+                            selected
+                            {% endif %}>SSN</option>
+                            <option value="EIN"
+                            {% if document.type == "EIN" %}
+                            selected
+                            {% endif %}>EIN</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Your Social Security Number is required.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-8" id="ssn-input">
+                    <label for="ssn" class="label profile-label p-0 m-0 mt-3">SSN</label>
+                    <div class="input-group has-validation">
+                        <input type="text" class="profile-input form-control bg-dark text-light" id="ssn" name="ssn" value="{{ document.number }}" placeholder="XXX-XX-XXXX">
+                        <div class="invalid-feedback">
+                            Your Social Security Number is required.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-sm-8" id="ein-input" hidden>
+                    <label for="ein" class="label profile-label p-0 m-0 mt-3">EIN</label>
+                    <div class="input-group has-validation">
+                        <input type="text" class="profile-input form-control bg-dark text-light" id="ein" name="ein" value="{{ document.number }}" placeholder="XX-XXXXXXX" pattern="\d{3}-\d{2}-\d{4}">
+                        <div class="invalid-feedback">
+                            Your Employer Identification Number is required.
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Driver's license form -->
+    {% if user_type == 'deliveryman applicant' or user_type == 'deliveryman' %}
+        <div class="row col-12 col-md-10 col-lg-8 col-xl-8 mt-5">
+            <form class="needs-validation p-0" method="post" action="{% url 'add_drivers_license' %}">
+                {% csrf_token %}
+                <div class="accordion" id="other">
+                    <div class="accordion-item rounded-4 border-0 glass">
+                        <h2 class="accordion-header text-light border-0">
+                            <button class="accordion-button text-light rounded-4 bg-black shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#license-colapse" aria-expanded="true" aria-controls="license-colapse">
+                                Driver's license
+                            </button>
+                        </h2>
+
+                        <div id="license-colapse"
+                            {% if license_message %}
+                                class="accordion-collapse collapse container pb-4 border-0 full-glass show"
+                            {% else %}
+                                class="accordion-collapse collapse container pb-4 border-0 full-glass"
+                            {% endif %}
+                            data-bs-parent="#other">
+                            <div class="accordion-body container row">
+
+                                <span class="{{ license_message.class }}">{{ license_message.text }}</span>
+
+                                <div class="col-md-9 col-lg-4">
+                                    <label for="license-number" class="label license-label p-0 m-0 mt-3">License number</label>
+                                    <input type="text" class="license-input form-control bg-dark text-light" id="license-number" value="{{ license.number }}" name="license-number" placeholder="ABC123456">
+                                    <div class="invalid-feedback">
+                                        Please provide a valid license number.
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3 col-lg-4">
+                                    <label for="license-type" class="label license-label p-0 m-0 mt-3">License type</label>
+                                    <select name="license-type" id="license-type" class="license-input form-control bg-dark text-light">
+                                        <option selected disabled>Select</option>
+                                        <option value="DL"
+                                        {% if license.type == "DL" %}
+                                        selected
+                                        {% endif %}
+                                        >DL</option>
+                                        <option value="CDL"
+                                        {% if license.type == "CDL" %}
+                                        selected
+                                        {% endif %}
+                                        >CDL</option>
+                                        <option value="M"
+                                        {% if license.type == "M" %}
+                                        selected
+                                        {% endif %}
+                                        >M</option>
+                                        <option value="EDL"
+                                        {% if license.type == "EDL" %}
+                                        selected
+                                        {% endif %}
+                                        >EDL</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please provide a valid license type.
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="issue-date" class="label license-label p-0 m-0 mt-3">Issue date</label>
+                                    <input type="date" class="license-input form-control bg-dark text-light" value="{{ license.issue_date }}" id="issue-date" name="issue-date">
+                                    <div class="invalid-feedback">
+                                        Please provide a valid issue date.
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="expiration-date" class="label license-label p-0 m-0 mt-3">Expiration date</label>
+                                    <input type="date" class="license-input form-control bg-dark text-light" value="{{ license.expiration_date }}" id="expiration-date" name="expiration-date">
+                                    <div class="invalid-feedback">
+                                        Please provide a valid expiration date.
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-center mt-4">
+                                    <button type="submit" class="btn btn-warning" id="confirm-license-btn">Confirm changes</button>
+                                    <div class="btn btn-warning d-flex align-items-center" id="edit-license-btn">Edit license</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
+    <!-- Billing adress form -->
+    <div class="row col-12 col-md-10 col-lg-8 col-xl-8 my-4">
+        <form class="needs-validation p-0" method="post" action="{% url 'add_adress' is_billing=1 %}">
+            {% csrf_token %}
+            <div class="accordion" id="billing-adress-accordion">
+                <div class="accordion-item rounded-4 border-0 glass">
+                    <h2 class="accordion-header text-light border-0">
+                        <button class="accordion-button text-light rounded-4 bg-black shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#adress-collapse" aria-expanded="true" aria-controls="adress-collapse">
+                            Billing adress
+                        </button>
+                    </h2>
+
+                    <div id="adress-collapse"
+                        {% if adress_message %}
+                            class="accordion-collapse collapse container pb-4 border-0 full-glass show"
+                        {% else %}
+                            class="accordion-collapse collapse container pb-4 border-0 full-glass"
+                        {% endif %}
+                        data-bs-parent="#billing-adress-accordion">
+                        <div class="accordion-body container row">
+
+                            <span class="{{ adress_message.class }}">{{ adress_message.text }}</span>
+
+                            <div class="col-lg-9">
+                                <label for="adress" class="label adress-label p-0 m-0 mt-3">Adress</label>
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="adress" name="adress" value="{{ adress.street }}" placeholder="265 Avenue St.">
+                                <div class="invalid-feedback">
+                                    Street adress required.
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="postal-code" class="label adress-label p-0 m-0 mt-3">Postal code</label>
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="postal-code" name="postal-code" value="{{ adress.postal_code }}" placeholder="XXXXX-XXX">
+                                <div class="invalid-feedback">
+                                    Postal code required.
+                                </div>
+                            </div>
+
+                            <div class="col-md-9 col-lg-4">
+                                <label for="city" class="label adress-label p-0 m-0 mt-3">City</label>
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="city" name="city"  value="{{ adress.city }}" placeholder="City">
+                                <div class="invalid-feedback">
+                                    Please provide a valid city.
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-4">
+                                <label for="state" class="label adress-label p-0 m-0 mt-3">State</label>
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="state" name="state"  value="{{ adress.state }}" placeholder="State">
+                                <div class="invalid-feedback">
+                                    Please provide a valid state.
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-4">
+                                <label for="country" class="label adress-label p-0 m-0 mt-3">Country</label>
+                                <input type="text" class="adress-input form-control bg-dark text-light" id="country" name="country" value="{{ adress.country }}" placeholder="Country">
+                                <div class="invalid-feedback">
+                                    Please provide a valid country.
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-center mt-4">
+                                <button type="submit" class="btn btn-warning" id="confirm-adress-btn">Confirm changes</button>
+                                <div class="btn btn-warning d-flex align-items-center" id="edit-adress-btn">Edit adress</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'account/account.js' %}"></script>
+
+{% endblock %}

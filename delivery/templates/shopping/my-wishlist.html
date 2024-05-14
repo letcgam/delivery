@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% load static %}
+
+
+{% block body %}
+<div class="container">
+
+    {% if not products %}
+    <h3 class="text-secondary glass p-3">
+        Add products to your wishlist to save them here.
+    </h3>
+    {% endif %}
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6">
+        {% for product in products %}
+            <div class="p-2">
+                <a href="{% url 'product' product_id=product.id %}" class="d-flex flex-column p-3 rounded-3 text-light link-underline link-underline-opacity-0 product-section glass">
+                        <img src="{% static 'icon.png' %}" alt="">
+                        <div class="product-name">{{ product.name }}</div>
+                        <div name="product-price">{{ product.price }}</div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="{% static 'index.js' %}"></script>
+{% endblock %}

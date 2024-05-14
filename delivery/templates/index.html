@@ -1,37 +1,21 @@
 {% extends "layout.html" %}
+{% load static %}
 
-{% block sales_nav %}
-    {% if user.is_authenticated and user_type == 'seller' %}
-        <li class="nav-item text-light">
-            <a class="nav-link link-warning" href="{% url 'seller' %}">My sales</a>
-        </li>
-    {% elif user_type != 'client' %}
-        <li class="nav-item text-light">
-            <a class="nav-link link-warning" href="admin">Admin</a>
-        </li>
-    {% endif %}
-{% endblock %}
 
 {% block body %}
 <div class="container d-flex justify-content-center text-light">
-    {% if user.is_authenticated %}
-        {% if user_type == 'client' or user_type == 'seller' %}
-            <div></div>
-        {% else %}
-            <p class="row">Hello, admin.</p>
-        {% endif %}
-    {% endif %}
-
     <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5">
         {% for product in products %}
             <div class="p-2">
-                <a href="{% url 'product' product_id=product.id %}" class="d-flex flex-column p-3 rounded-3 text-light link-underline link-underline-opacity-0 product-section">
-                        <div class="product-pic"></div>
-                        <div>{{ product.name }}</div>
-                        <div>{{ product.price }}</div>
+                <a href="{% url 'product' product_id=product.id %}" class="d-flex flex-column p-3 rounded-3 text-light link-underline link-underline-opacity-0 product-section glass">
+                        <img src="{% static 'icon.png' %}" alt="">
+                        <div class="product-name">{{ product.name }}</div>
+                        <div name="product-price">{{ product.price }}</div>
                 </a>
             </div>
         {% endfor %}
     </div>
 </div>
+
+<script src="{% static 'index.js' %}"></script>
 {% endblock %}

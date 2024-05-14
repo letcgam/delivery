@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% load static %}
+
+
+{% block body %}
+<div class="container d-flex justify-content-start text-light p-0">
+    <div class="glass p-2 ms-2 mx-4 rounded product-section row col-4 col-lg-3 col-xl-3 justify-content-center" id="filter-sidebar">        
+        <div class="col-12 col-lg-10 col-xl-10 py-4">
+            <h2 class="mb-4">Filter</h2>
+            <h5>Category</h5>
+            <div class="navbar-nav navbar-nav-scroll btn-group p-0 mb-4" id="category-scroll">
+                {% for category in categories %}
+                        <a href="{% url 'categories_filter' category_id=category.id %}" class="btn btn-dark text-start" id="{{ categorie.name }}">
+                            {{ category.name }}
+                        </a>
+                {% endfor %}
+            </div>
+            <h5>Sort by</h5>
+            <select id="sort-by" class="form-control bg-dark text-light mb-4">
+                <option value="none" selected disabled>Select</option>
+                <option value="low-price">Price (lowest to highest)</option>
+                <option value="high-price">Price (highest to lowest)</option>
+            </select>
+            <h5>Min. price</h5>
+            <input type="number" id="min-price" class="form-control bg-dark text-light mb-4" onchange="filterMinPrice('min')" onkeyup="filterMinPrice('min')">
+            <h5>Max. price</h5>
+            <input type="number" id="max-price" class="form-control bg-dark text-light" onchange="filterMinPrice('max')" onkeyup="filterMinPrice('max')">
+        </div>
+    </div>
+    <div class="d-flex flex-column">
+        <div class="text-light w-100 m-3">
+            <h2>{{ chosen_category.name }}</h2>
+        </div>
+        {% if products_len == 0 %}
+            <h4 class="text-secondary ms-3">There are no products in this category.</h4>
+        {% else %}
+        <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-5">
+            {% for product in products %}
+                <div class="p-2" id="product-list">
+                    <a href="{% url 'product' product_id=product.id %}" class="d-flex flex-column p-3 rounded-3 text-light link-underline link-underline-opacity-0 product-section glass" name="product">
+                            <img src="{% static 'icon.png' %}" alt="">
+                            <div name="product-name" class="product-name">{{ product.name }}</div>
+                            <div name="product-price">{{ product.price }}</div>
+                            <span hidden id="price">{{ product.price }}</span>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="{% static 'index.js' %}"></script>
+<script src="{% static 'indexFilter.js' %}"></script>
+{% endblock %}

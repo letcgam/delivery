@@ -1,0 +1,15 @@
+create user adress edit log
+add a bunch of logs
+
+add dashboard info
+
+fix adress adition and edit {
+    add in my account
+    add in making order
+}
+
+create deliveryman account solicitation
+
+MAKE SELLER AUTHENTICATION
+
+add field_error at drivers license
