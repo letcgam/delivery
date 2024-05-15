@@ -8,7 +8,7 @@ from django.urls import reverse
 
 from django.contrib.auth.models import User
 from .models import Document, User as UserInfo
-from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense
+from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense, userEditLog
 
 
 def index(request):
@@ -17,31 +17,33 @@ def index(request):
     context = get_layout_context(request)
     context.update({"products": products})
 
-    print(context["user_type"])
+    user_info = UserInfo.objects.get(pk = request.user.id)
+    # print(user_info.get_fields_values())
+
     return render(request, "index.html", context)
 
 
 def get_layout_context(request):
-    # get user_type
+    # get type
     try:
-        user_type = UserInfo.objects.get(user_id=request.user.id).user_type
+        type = UserInfo.objects.get(user_id=request.user.id).type
     except:
-        user_type = None
+        type = None
 
     # get all categories
     categories = Category.objects.all().order_by('name')
 
-    context = {'user_type': user_type, 'categories': categories}
+    context = {'type': type, 'categories': categories}
 
     return context
 
 
-def update_user_type(request):
+def update_type(request):
     context = get_layout_context(request)
-    if context["user_type"] == "seller applicant":
-        user_type_request="seller"
-    elif context["user_type"] == "deliveryman applicant":
-        user_type_request="deliveryman"
+    if context["type"] == "seller applicant":
+        type_request="seller"
+    elif context["type"] == "deliveryman applicant":
+        type_request="deliveryman"
     else:
         return None
 
@@ -51,10 +53,10 @@ def update_user_type(request):
     document = Document.objects.get(pk = user_info.document.id) if user_info.document else None
     billing_adress = BillingAdress.objects.filter(user_id = user.id).first()
     adress = Adress.objects.get(pk = billing_adress.adress.id) if billing_adress else None
-    driver = Driver.objects.filter(user_id = user.id).first() if "deliveryman" in context["user_type"] else None
-    license = DriversLicense.objects.get(pk = driver.license.id) if "deliveryman" in context["user_type"] else None
+    driver = Driver.objects.filter(user_id = user.id).first() if "deliveryman" in context["type"] else None
+    license = DriversLicense.objects.get(pk = driver.license.id) if "deliveryman" in context["type"] else None
     
-    models = [user_info, document, adress, license] if "deliveryman" in context["user_type"] else [user_info, document, adress]
+    models = [user_info, document, adress, license] if "deliveryman" in context["type"] else [user_info, document, adress]
     
     for model in models:
         if model == None:
@@ -64,10 +66,10 @@ def update_user_type(request):
                 if field in ["", None]:
                     return 0
     
-    if context["user_type"] == "seller applicant":
-        user_info.user_type = "seller"
-    elif context["user_type"] == "deliveryman applicant":
-        user_info.user_type = "deliveryman"
+    if context["type"] == "seller applicant":
+        user_info.type = "seller"
+    elif context["type"] == "deliveryman applicant":
+        user_info.type = "deliveryman"
     user_info.save()
     
     return 1
@@ -129,12 +131,12 @@ def register(request):
                 email=email,
                 password=password
             )
-            userinfo = UserInfo.objects.create(
+            user_info = UserInfo.objects.create(
                 user=user,
-                user_type=request.POST["user-type"]
+                type=request.POST["user-type"]
             )
             user.save()
-            userinfo.save()
+            user_info.save()
 
             Cart.objects.create(user_id = user.id).save()
         except IntegrityError:
@@ -144,7 +146,7 @@ def register(request):
         
         login(request, user)
         context = get_layout_context(request)
-        if context["user_type"] == "deliveryman applicant":
+        if context["type"] == "deliveryman applicant":
             return render(request, "account/account.html", context)
         return HttpResponseRedirect(reverse("index"))
     else:
@@ -153,10 +155,10 @@ def register(request):
 
 def my_account(request):
     user = User.objects.get(pk = request.user.id)
-    user_info = UserInfo.objects.get(user_id = user.id)
+    user_info = UserInfo.objects.get(user = user)
     user_info.birth = str(user_info.birth)
     context = get_layout_context(request)
-    print(user_info.user_type)
+
     context.update({
         'user': user,
         'user_info': user_info,
@@ -188,13 +190,15 @@ def my_account(request):
     else:
         try:
             fields = ['username', 'email', 'first-name', 'last-name', 'phone-number', 'birth']
-            if "seller" in context["user_type"] or "deliveryman" in context["user_type"]:
+            if "seller" in context["type"] or "deliveryman" in context["type"]:
                 fields += ['doc-number', 'doc-issue-date', 'doc-expiration-date', 'document-type']
             error = []
             
             for field in fields:
                 if request.POST[field] == "":
                     error.append(field)
+            
+            
 
             if len(error) >= 1:
                 raise FieldError(error)
@@ -206,7 +210,7 @@ def my_account(request):
                 user_info.phone = request.POST['phone-number']
                 user_info.birth = request.POST['birth'] if request.POST['birth'] != "" else None
                 
-                if "seller" in context["user_type"] or "deliveryman" in context["user_type"]:
+                if "seller" in context["type"] or "deliveryman" in context["type"]:
                     document = Document.objects.create(
                         type = request.POST['document-type'],
                         number = request.POST['doc-number'],
@@ -218,8 +222,8 @@ def my_account(request):
                 user.save()
                 user_info.save()
 
-                if "applicant" in user_info.user_type:
-                    update_user_type(request)
+                if "applicant" in user_info.type:
+                    update_type(request)
         except FieldError as e:
             message = {
                 "text": "Provide valid data for required fields: " + e.error_message + ".",
@@ -289,8 +293,8 @@ def add_adress(request, is_billing=0):
     except:
         pass
 
-    if "applicant" in context["user_type"]:
-        update_user_type(request)
+    if "applicant" in context["type"]:
+        update_type(request)
 
     context.update({"adress_message": message})
     return render(request, "account/account.html", context)
@@ -327,8 +331,8 @@ def add_drivers_license(request):
         license.delete()
         driver.delete()
 
-    if "applicant" in context["user_type"]:
-        update_user_type(request)
+    if "applicant" in context["type"]:
+        update_type(request)
 
     context.update({"license_message": message})
     return render(request, "account/account.html", context)
@@ -339,7 +343,7 @@ def categories_filter(request, category_id):
         chosen_category = Category.objects.get(pk=category_id)
         products = Product.objects.filter(category_id=chosen_category.id)
     else:
-        chosen_category = {'name': "Alll categories"}
+        chosen_category = {'name': "All categories"}
         products = Product.objects.all()
 
     context = get_layout_context(request)
@@ -756,5 +760,5 @@ def update_order_status(request, status_id, order_id):
     items = [item for item in order_items if item.product.owner == user]
 
     context.update({"order": order, "items": items})
-    if context['user_type'] == 'seller':
+    if context['type'] == 'seller':
         return render(request, "seller/sale.html", context)

@@ -6,8 +6,8 @@ from django.contrib.auth.models import User as AuthUser
 class Document(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.CharField(max_length=30, choices=[
-        ('SSN', 'Social Security Number'),
-        ('EIN', 'Employer Identification Number')
+        ("SSN", "Social Security Number"),
+        ("EIN", "Employer Identification Number")
     ])
     number = models.CharField(max_length=50, unique=True)
     issue_date = models.DateField()
@@ -32,28 +32,45 @@ class User(models.Model):
     phone = models.CharField(max_length=20, blank=True, null=True)
     birth = models.DateField(blank=True, null=True)
     document = models.ForeignKey(Document, blank=True, null=True, on_delete=models.SET_NULL)
-    user_type = models.CharField(max_length=30, choices=[
-        ('admin', 'Admin'),
-        ('client', 'Client'),
-        ('seller applicant', 'Seller applicant'),
-        ('seller', 'Seller'),
-        ('deliveryman applicant', 'Deliveryman applicant'),
-        ('deliveryman', 'Deliveryman')
+    type = models.CharField(max_length=30, choices=[
+        ("admin", "Admin"),
+        ("client", "Client"),
+        ("seller applicant", "Seller applicant"),
+        ("seller", "Seller"),
+        ("deliveryman applicant", "Deliveryman applicant"),
+        ("deliveryman", "Deliveryman")
     ])
     exclude_fields = [id]
 
     class Meta:
         db_table = "user_info"
-    
+
     def get_fields_values(self):
-        fields = [field.name for field in self._meta.get_fields() if field.name != "document"]
-        values = []
-        for field in fields:
-            try:
-                values.append([field, getattr(self, field)])
-            except:
-                pass
+        values = {}
+        auth_user_fields = {"username": None, "first_name": None, "last_name": None, "email": None}
+        for value in auth_user_fields:
+            values.update({str(value): getattr(self.user, value)})
+
+        user_fields = {"phone": None, "birth": None, "document": None}
+        for value in user_fields:
+            values.update({str(value): getattr(self, value)})
+
         return values
+    
+
+class userEditLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    altered_by = models.ForeignKey(AuthUser, on_delete=models.SET_NULL, null=True, default=user)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    action = models.CharField(max_length=100)
+    details = models.TextField()
+
+    def __str__(self):
+        user = AuthUser.objects.get(pk = self.user_id)
+        return f"{self.timestamp} | User {user.id} - {user}: {self.action}"
+
+    class Meta:
+        db_table = "user_edit_log"
 
 
 class DriversLicense(models.Model):
@@ -62,10 +79,10 @@ class DriversLicense(models.Model):
     issue_date = models.DateField()
     expiration_date = models.DateField()
     type = models.CharField(max_length=20, choices=[
-        ('DL', 'DL'),
-        ('CDL', 'CDL'),
-        ('M', 'M'),
-        ('EDL', 'EDL')
+        ("DL", "DL"),
+        ("CDL", "CDL"),
+        ("M", "M"),
+        ("EDL", "EDL")
     ])
 
     def __str__(self):

@@ -6,7 +6,7 @@
 <div class="container">
     <div class="row d-flex justify-content-center">
         <div class="col-xm-12 col-sm-10 col-md-8 col-lg-6">
-            {% if user_type == 'seller' and product.owner == user %}
+            {% if type == 'seller' and product.owner == user %}
                 <input id="is-owner" value=true hidden>
                 <!-- SELLER Product area -->
                 <form method="post" action="{% url 'edit_product' product_id=product.id %}" class="text-light rounded-5 p-5 glass">

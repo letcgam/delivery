@@ -6,14 +6,14 @@
 <div class="container d-flex flex-column align-items-center">
     <div class="row col-12 col-md-10 col-lg-8 col-xl-8">
         <h1 class="w-100 p-3">My account</h1>
-        <input id="user-type" value="{{ user_type }}" hidden/>
+        <input id="user-type" value="{{ type }}" hidden/>
     </div>
-    {% if user_type == 'deliveryman applicant' or user_type == 'seller applicant' %}
+    {% if type == 'deliveryman applicant' or type == 'seller applicant' %}
         <div class="row col-12 col-md-10 col-lg-8 col-xl-8 glass p-4 rounded-4 mb-5">
             <h3>Hello, {{ user }}!</h3>
-            {% if user_type == 'deliveryman applicant' %}
+            {% if type == 'deliveryman applicant' %}
                 To support us with the delivery process, we kindly ask you to provide us some additional info by providing your personal information, driver's license and billing adress. Upon submission, our team will monitor the request and get back to you as soon as possible to complete your registration. Until then, you can continue to use the platform as a client. Thank you!
-            {% elif user_type == 'seller applicant' %}
+            {% elif type == 'seller applicant' %}
                 To sell your products in our platform, we kindly ask you to provide us some additional info by providing your personal information and billing adress. Upon submission, our team will monitor the request and get back to you as soon as possible to complete your registration. Until then, you can continue to use the platform as a client. Thank you!
             {% endif %}
         </div>
@@ -85,7 +85,7 @@
                     </div>
                 </div>
 
-                {% if user_type == 'deliveryman applicant' or user_type == 'deliveryman' or user_type == 'seller applicant' or user_type == 'seller' %}
+                {% if type == 'deliveryman applicant' or type == 'deliveryman' or type == 'seller applicant' or type == 'seller' %}
                 <div class="col-sm-4">
                     <label for="document-type-input" class="label profile-label p-0 m-0 mt-3">Document type</label>
                     <div class="input-group has-validation">
@@ -136,7 +136,7 @@
     </div>
 
     <!-- Driver's license form -->
-    {% if user_type == 'deliveryman applicant' or user_type == 'deliveryman' %}
+    {% if type == 'deliveryman applicant' or type == 'deliveryman' %}
         <div class="row col-12 col-md-10 col-lg-8 col-xl-8 mt-5">
             <form class="needs-validation p-0" method="post" action="{% url 'add_drivers_license' %}">
                 {% csrf_token %}
