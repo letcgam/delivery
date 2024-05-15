@@ -1,12 +1,11 @@
-from os import error
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-
 from django.contrib.auth.models import User
+from .signals import user_signals
 from .models import Document, User as UserInfo
 from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense, userEditLog
 
@@ -17,14 +16,11 @@ def index(request):
     context = get_layout_context(request)
     context.update({"products": products})
 
-    user_info = UserInfo.objects.get(pk = request.user.id)
-    # print(user_info.get_fields_values())
-
     return render(request, "index.html", context)
 
 
 def get_layout_context(request):
-    # get type
+    # get user type
     try:
         type = UserInfo.objects.get(user_id=request.user.id).type
     except:
@@ -49,14 +45,20 @@ def update_type(request):
 
     user = request.user
 
+    models = []
+
     user_info = UserInfo.objects.filter(user_id = user.id).first()
     document = Document.objects.get(pk = user_info.document.id) if user_info.document else None
     billing_adress = BillingAdress.objects.filter(user_id = user.id).first()
     adress = Adress.objects.get(pk = billing_adress.adress.id) if billing_adress else None
-    driver = Driver.objects.filter(user_id = user.id).first() if "deliveryman" in context["type"] else None
-    license = DriversLicense.objects.get(pk = driver.license.id) if "deliveryman" in context["type"] else None
+    try:
+        driver = Driver.objects.filter(user_id = user.id).first() if "deliveryman" in context["type"] else None
+        license = DriversLicense.objects.get(pk = driver.license.id) if "deliveryman" in context["type"] else None
+        models += [user_info, document, adress, license]
+    except:
+        pass
     
-    models = [user_info, document, adress, license] if "deliveryman" in context["type"] else [user_info, document, adress]
+    models += [user_info, document, adress]
     
     for model in models:
         if model == None:
@@ -203,6 +205,8 @@ def my_account(request):
             if len(error) >= 1:
                 raise FieldError(error)
             else:
+                old_user_info = user_info.get_fields_values()
+
                 user.first_name = request.POST['first-name']
                 user.last_name = request.POST['last-name']
                 user.username = request.POST['username']
@@ -221,6 +225,24 @@ def my_account(request):
                     user_info.document = document
                 user.save()
                 user_info.save()
+
+                new_user_info = user_info.get_fields_values()
+                altered_fields = ""
+                
+                for key in new_user_info.keys():
+                    if old_user_info[key] != new_user_info[key]:
+                        altered_fields += f"""- {key}
+                                              old {key}: {old_user_info[key]}
+                                              new {key}: {new_user_info[key]}
+                                            """
+
+                if altered_fields != "":
+                    user_signals.user_edited.send(
+                        sender = request.user,
+                        user = user_info,
+                        action="Edited",
+                        altered_fields = altered_fields,
+                    )
 
                 if "applicant" in user_info.type:
                     update_type(request)
@@ -328,8 +350,10 @@ def add_drivers_license(request):
     except:
         message['class'] = "text-danger"
         message['text'] = "Error saving license."
-        license.delete()
-        driver.delete()
+        if license:
+            license.delete()
+        if driver:
+            driver.delete()
 
     if "applicant" in context["type"]:
         update_type(request)
