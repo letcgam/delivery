@@ -16,8 +16,8 @@
                     <div class="d-flex justify-content-between border-bottom border-secondary py-3 mb-2">
                         {% comment %} Logo {% endcomment %}
                         <a class="nav-link nav-link d-flex align-items-end" href="{% url 'index' %}">
-                            <i class="bi bi-box-seam-fill link-warning fs-1"></i>
-                            <h1 class="link-warning">&nbsp;Title</h1>
+                            <i class="bi bi-box-seam-fill text-warning fs-1"></i>
+                            <h1 class="text-warning">&nbsp;Title</h1>
                         </a>
                         {% comment %} Search bar {% endcomment %}
                         <div class="col-8 col-md-6 col-lg-4">
@@ -32,20 +32,20 @@
                         <ul class="nav">
                         {% if not user.is_authenticated %}
                             <li class="nav-item">
-                                <a class="nav-link link-light" href="{% url 'login' %}">Log In</a>
+                                <a class="nav-link link-warning" href="{% url 'login' %}">Log In</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link link-light" href="{% url 'register' %}">Register</a>
+                                <a class="nav-link link-warning" href="{% url 'register' %}">Register</a>
                             </li>
                         {% endif %}
                         <li>
-                            <a class="nav-link link-light" href="{% url 'index' %}">Home</a>
+                            <a class="nav-link link-warning" href="{% url 'index' %}">Home</a>
                         </li>
                         <li>
-                            <a class="nav-link link-light" href="{% url 'categories_filter' category_id=0 %}">Categories</a>
+                            <a class="nav-link link-warning" href="{% url 'categories_filter' category_id=0 %}">Categories</a>
                         </li>
                         <li>
-                            <a class="nav-link link-light" href="">About</a>
+                            <a class="nav-link link-warning" href="">About</a>
                         </li>
                         </ul>
                         {% comment %} User menu {% endcomment %}

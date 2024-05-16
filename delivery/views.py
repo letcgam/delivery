@@ -7,7 +7,9 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from .signals import user_signals
 from .models import Document, User as UserInfo
-from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense, userEditLog
+from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense
+from .exceptions.exceptions import FieldError
+from .logs.logger import userEditLog
 
 
 def index(request):
@@ -77,18 +79,6 @@ def update_type(request):
     return 1
 
 
-class FieldError(Exception):
-        def __init__(self, error_message) -> None:
-            super().__init__()
-            if len(error_message) > 1:
-                for i in range(0, len(error_message) - 1):
-                    error_message[i] += ", "
-            self.error_message = "".join(error_message)
-
-        def __str__(self) -> str:
-            return self.error_message
-
-
 def login_view(request):
     if request.method == "POST":
 
@@ -155,11 +145,14 @@ def register(request):
         return render(request, "register.html")
 
 
+@login_required
 def my_account(request):
     user = User.objects.get(pk = request.user.id)
     user_info = UserInfo.objects.get(user = user)
     user_info.birth = str(user_info.birth)
     context = get_layout_context(request)
+    
+    old_user_info = user_info.get_fields_values
 
     context.update({
         'user': user,
@@ -167,7 +160,7 @@ def my_account(request):
     })
 
     try:
-        document = Document.objects.get(pk = user_info.document.id)
+        document = user_info.document
         if document != None:
             document.issue_date = str(document.issue_date)
             document.expiration_date = str(document.expiration_date)
@@ -199,42 +192,39 @@ def my_account(request):
             for field in fields:
                 if request.POST[field] == "":
                     error.append(field)
-            
-            
-
+                    
             if len(error) >= 1:
                 raise FieldError(error)
             else:
-                old_user_info = user_info.get_fields_values()
 
-                user.first_name = request.POST['first-name']
-                user.last_name = request.POST['last-name']
-                user.username = request.POST['username']
-                user.email = request.POST['email']
-                user_info.phone = request.POST['phone-number']
-                user_info.birth = request.POST['birth'] if request.POST['birth'] != "" else None
+                new_user_info = user_info.get_fields_values
+                user.first_name = new_user_info["first_name"] = request.POST['first-name']
+                user.last_name = new_user_info["last_name"] = request.POST['last-name']
+                user.username = new_user_info["username"] = request.POST['username']
+                user.email = new_user_info["email"] = request.POST['email']
+                user_info.phone = new_user_info["phone"] = request.POST['phone-number']
+                user_info.birth = new_user_info["birth"] = request.POST['birth'] if request.POST['birth'] != "" else None
                 
                 if "seller" in context["type"] or "deliveryman" in context["type"]:
-                    document = Document.objects.create(
-                        type = request.POST['document-type'],
-                        number = request.POST['doc-number'],
-                        issue_date = request.POST['doc-issue-date'],
-                        expiration_date = request.POST['doc-expiration-date']
+                    document, created = Document.objects.get_or_create(
+                        number = request.POST['doc-number']
                     )
-                    document.save()
-                    user_info.document = document
-                user.save()
+                    document.type = request.POST['document-type'],
+                    document.issue_date = request.POST['doc-issue-date'],
+                    document.expiration_date = request.POST['doc-expiration-date']
+                    if document != user_info.document:
+                        document.save()
+                        if created:
+                            user_info.document = document
+                        context.update({"document": document})
+                    
                 user_info.save()
+                user.save()
 
-                new_user_info = user_info.get_fields_values()
                 altered_fields = ""
-                
                 for key in new_user_info.keys():
                     if old_user_info[key] != new_user_info[key]:
-                        altered_fields += f"""- {key}
-                                              old {key}: {old_user_info[key]}
-                                              new {key}: {new_user_info[key]}
-                                            """
+                        altered_fields += f""" | {key} > old: {old_user_info[key]} > new: {new_user_info[key]}"""
 
                 if altered_fields != "":
                     user_signals.user_edited.send(
@@ -246,6 +236,11 @@ def my_account(request):
 
                 if "applicant" in user_info.type:
                     update_type(request)
+                    
+                context.update({
+                    'user': user,
+                    'user_info': user_info,
+                })
         except FieldError as e:
             message = {
                 "text": "Provide valid data for required fields: " + e.error_message + ".",
@@ -266,6 +261,7 @@ def my_account(request):
         return render(request, "account/account.html", context)
 
 
+@login_required
 def add_adress(request, is_billing=0):
     context = get_layout_context(request)
     user = User.objects.get(pk = request.user.id)
@@ -322,6 +318,7 @@ def add_adress(request, is_billing=0):
     return render(request, "account/account.html", context)
 
 
+@login_required
 def add_drivers_license(request):
     context = get_layout_context(request)
     user = User.objects.get(pk = request.user.id)
@@ -330,10 +327,9 @@ def add_drivers_license(request):
         license = DriversLicense.objects.create(
             number = request.POST["license-number"],
             type = request.POST["license-type"],
-            issue_date = request.POST["issue-date"],
-            expiration_date = request.POST["expiration-date"]
+            issue_date = request.POST["license-issue-date"],
+            expiration_date = request.POST["license-expiration-date"]
         )
-        license.save()
         
         driver = Driver.objects.filter(user_id = user.id).first()
         if driver == None:
@@ -343,6 +339,7 @@ def add_drivers_license(request):
             )
         else:
             driver.license_id = license.id
+        license.save()
         driver.save()
         
         message['class'] = "text-success"
@@ -350,15 +347,14 @@ def add_drivers_license(request):
     except:
         message['class'] = "text-danger"
         message['text'] = "Error saving license."
-        if license:
-            license.delete()
-        if driver:
-            driver.delete()
 
     if "applicant" in context["type"]:
         update_type(request)
 
-    context.update({"license_message": message})
+    context.update({
+        "license_message": message,
+        "license": license
+        })
     return render(request, "account/account.html", context)
 
 
@@ -479,6 +475,7 @@ def my_sales(request):
     return render(request, "seller/my-sales.html", context)
 
 
+@login_required
 def sale(request, order_id):
     user = request.user
     order = Order.objects.get(pk = order_id)
@@ -757,6 +754,7 @@ def order(request, order_id, new_order=False):
         return render(request, "shopping/order.html", context)
 
 
+@login_required
 def my_orders(request):
     user = request.user
     context = get_layout_context(request)
@@ -772,6 +770,7 @@ def my_orders(request):
     return render(request, "shopping/my-orders.html", context)
 
 
+@login_required
 def update_order_status(request, status_id, order_id):
     user = request.user
     context = get_layout_context(request)

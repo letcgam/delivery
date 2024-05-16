@@ -100,7 +100,7 @@
                             {% endif %}>EIN</option>
                         </select>
                         <div class="invalid-feedback">
-                            Your Social Security Number is required.
+                            Your document type is required.
                         </div>
                     </div>
                 </div>
@@ -159,7 +159,7 @@
 
                                 <span class="{{ license_message.class }}">{{ license_message.text }}</span>
 
-                                <div class="col-md-3">
+                                <div class="col-sm-3 col-md-2">
                                     <label for="license-type" class="label license-label p-0 m-0 mt-3">License type</label>
                                     <select name="license-type" id="license-type" class="license-input form-control account-input bg-dark text-light">
                                         <option selected disabled>Select</option>
@@ -189,7 +189,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-9 col-lg-3">
+                                <div class="col-sm-9 col-md-10 col-lg-4">
                                     <label for="license-number" class="label license-label p-0 m-0 mt-3">License number</label>
                                     <input type="text" class="license-input form-control account-input bg-dark text-light" id="license-number" value="{{ license.number }}" name="license-number" placeholder="ABC123456">
                                     <div class="invalid-feedback">
@@ -197,17 +197,17 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-6 col-lg-3">
-                                    <label for="dl-issue-date" class="label license-label p-0 m-0 mt-3">Issue date</label>
-                                    <input type="date" class="license-input form-control account-input bg-dark text-light" value="{{ license.issue_date }}" id="dl-issue-date" name="dl-issue-date">
+                                <div class="col-sm-6 col-lg-3">
+                                    <label for="license-issue-date" class="label license-label p-0 m-0 mt-3">Issue date</label>
+                                    <input type="date" class="license-input form-control account-input bg-dark text-light" value="{{ license.issue_date }}" id="license-issue-date" name="license-issue-date">
                                     <div class="invalid-feedback">
                                         Please provide a valid issue date.
                                     </div>
                                 </div>
 
-                                <div class="col-md-6 col-lg-3">
-                                    <label for="dl-expiration-date" class="label license-label p-0 m-0 mt-3">Expiration date</label>
-                                    <input type="date" class="license-input form-control account-input bg-dark text-light" value="{{ license.expiration_date }}" id="dl-expiration-date" name="dl-expiration-date">
+                                <div class="col-sm-6 col-lg-3">
+                                    <label for="license-expiration-date" class="label license-label p-0 m-0 mt-3">Expiration date</label>
+                                    <input type="date" class="license-input form-control account-input bg-dark text-light" value="{{ license.expiration_date }}" id="license-expiration-date" name="license-expiration-date">
                                     <div class="invalid-feedback">
                                         Please provide a valid expiration date.
                                     </div>
@@ -256,7 +256,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-sm-3">
                                 <label for="postal-code" class="label adress-label p-0 m-0 mt-3">Postal code</label>
                                 <input type="text" class="adress-input form-control account-input bg-dark text-light" id="postal-code" name="postal-code" value="{{ adress.postal_code }}" placeholder="XXXXX-XXX">
                                 <div class="invalid-feedback">
@@ -264,7 +264,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-9 col-lg-4">
+                            <div class="col-sm-9 col-lg-4">
                                 <label for="city" class="label adress-label p-0 m-0 mt-3">City</label>
                                 <input type="text" class="adress-input form-control account-input bg-dark text-light" id="city" name="city"  value="{{ adress.city }}" placeholder="City">
                                 <div class="invalid-feedback">
@@ -272,7 +272,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 col-lg-4">
+                            <div class="col-sm-6 col-lg-4">
                                 <label for="state" class="label adress-label p-0 m-0 mt-3">State</label>
                                 <input type="text" class="adress-input form-control account-input bg-dark text-light" id="state" name="state"  value="{{ adress.state }}" placeholder="State">
                                 <div class="invalid-feedback">
@@ -280,7 +280,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 col-lg-4">
+                            <div class="col-sm-6 col-lg-4">
                                 <label for="country" class="label adress-label p-0 m-0 mt-3">Country</label>
                                 <input type="text" class="adress-input form-control account-input bg-dark text-light" id="country" name="country" value="{{ adress.country }}" placeholder="Country">
                                 <div class="invalid-feedback">

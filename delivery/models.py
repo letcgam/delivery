@@ -1,4 +1,3 @@
-from ast import Delete
 from django.db import models
 from django.contrib.auth.models import User as AuthUser
 
@@ -12,7 +11,10 @@ class Document(models.Model):
     number = models.CharField(max_length=50, unique=True)
     issue_date = models.DateField()
     expiration_date = models.DateField()
-    
+
+    def __str__(self):
+        return f'{self.number}'
+
     class Meta:
         db_table = "document"
     
@@ -45,6 +47,7 @@ class User(models.Model):
     class Meta:
         db_table = "user_info"
 
+    @property
     def get_fields_values(self):
         values = {}
         auth_user_fields = {"username": None, "first_name": None, "last_name": None, "email": None}
@@ -57,21 +60,6 @@ class User(models.Model):
 
         return values
     
-
-class userEditLog(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    altered_by = models.ForeignKey(AuthUser, on_delete=models.SET_NULL, null=True, default=user)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    action = models.CharField(max_length=100)
-    details = models.TextField()
-
-    def __str__(self):
-        user = AuthUser.objects.get(pk = self.user_id)
-        return f"{self.timestamp} | User {user.id} - {user}: {self.action}"
-
-    class Meta:
-        db_table = "user_edit_log"
-
 
 class DriversLicense(models.Model):
     id = models.AutoField(primary_key=True)

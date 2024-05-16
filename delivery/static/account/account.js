@@ -157,3 +157,12 @@ phoneNumberInput.addEventListener('input', () => {
     }
     phoneNumberInput.value = formattedPhoneNumber;
 });
+
+// function validateForm() {
+//     profileInputs.forEach(input => {
+//         if (input.value == "") {
+//             return false;
+//         }
+//     })
+//     return true;
+// }
