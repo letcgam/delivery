@@ -9,7 +9,7 @@ from .signals import user_signals
 from .models import Document, User as UserInfo
 from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense
 from .exceptions.exceptions import FieldError
-from .logs.logger import userEditLog
+from .logs.logger import productEditLog,  userEditLog
 
 
 def index(request):
@@ -17,6 +17,9 @@ def index(request):
 
     context = get_layout_context(request)
     context.update({"products": products})
+    user = request.user
+    if user.is_authenticated:
+        print(productEditLog.objects.all())
 
     return render(request, "index.html", context)
 
@@ -136,6 +139,13 @@ def register(request):
                 "message": "Username already taken."
             })
         
+        fields = user_info.get_fields_values
+        user_signals.user_created.send(
+            sender = request.user,
+            user = user_info,
+            altered_fields = fields,
+        )
+        
         login(request, user)
         context = get_layout_context(request)
         if context["type"] == "deliveryman applicant":
@@ -152,8 +162,6 @@ def my_account(request):
     user_info.birth = str(user_info.birth)
     context = get_layout_context(request)
     
-    old_user_info = user_info.get_fields_values
-
     context.update({
         'user': user,
         'user_info': user_info,
@@ -196,8 +204,9 @@ def my_account(request):
             if len(error) >= 1:
                 raise FieldError(error)
             else:
-
+                old_user_info = user_info.get_fields_values
                 new_user_info = user_info.get_fields_values
+
                 user.first_name = new_user_info["first_name"] = request.POST['first-name']
                 user.last_name = new_user_info["last_name"] = request.POST['last-name']
                 user.username = new_user_info["username"] = request.POST['username']

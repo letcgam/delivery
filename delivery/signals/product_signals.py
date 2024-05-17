@@ -1,17 +1,16 @@
 from django.dispatch import Signal
 from django.dispatch import receiver
-from django.contrib.auth.models import User as AuthUser
-from ..models import Product
-from ..logs.logger import userEditLog
+from ..logs.logger import productEditLog
 
 
-user_edited = Signal()
+product_edited = Signal()
 
 
-@receiver(user_edited)
-def log_product_edit(sender, altered_fields, action="Edited", **kwargs):
-    log_entry = userEditLog.objects.create(
+@receiver(product_edited)
+def log_product_edit(sender, product, altered_fields, action="Edited", **kwargs):
+    log_entry = productEditLog.objects.create(
         user = sender,
+        product = product,
         action = f'{action} user',
         details = f'{action} fields:{altered_fields}'
     )
