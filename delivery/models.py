@@ -18,7 +18,7 @@ class Document(models.Model):
     class Meta:
         db_table = "document"
     
-    def get_fields_values(self):
+    def fields_values(self):
         fields = [field.name for field in self._meta.get_fields()]
         values = []
         for field in fields:
@@ -48,7 +48,7 @@ class User(models.Model):
         db_table = "user_info"
 
     @property
-    def get_fields_values(self):
+    def fields_values(self):
         values = {}
         auth_user_fields = {"username": None, "first_name": None, "last_name": None, "email": None}
         for value in auth_user_fields:
@@ -79,7 +79,7 @@ class DriversLicense(models.Model):
     class Meta:
         db_table = "license"
     
-    def get_fields_values(self):
+    def fields_values(self):
         fields = [field.name for field in self._meta.get_fields()]
         values = []
         for field in fields:
@@ -98,7 +98,7 @@ class Driver(models.Model):
     class Meta:
         db_table = "driver"
     
-    def get_fields_values(self):
+    def fields_values(self):
         fields = [field.name for field in self._meta.get_fields()]
         values = []
         for field in fields:
@@ -125,6 +125,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, default=24, on_delete=models.SET_DEFAULT)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
+    image_url = models.ImageField(upload_to='media/product')
     owner = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -132,6 +133,15 @@ class Product(models.Model):
 
     class Meta:
         db_table = "product"
+
+    @property
+    def fields_values(self):
+        values = {}
+        fields = {"name": None, "description": None, "category": None, "price": None, "stock": None, "owner": None}
+        for value in fields:
+            values.update({str(value): getattr(self, value)})
+
+        return values
 
 
 class Vehicle(models.Model):
@@ -157,7 +167,7 @@ class Adress(models.Model):
     class Meta:
         db_table = "adress"
     
-    def get_fields_values(self):
+    def fields_values(self):
         fields = [field.name for field in self._meta.get_fields()]
         values = []
         for field in fields:

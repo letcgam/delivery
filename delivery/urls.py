@@ -1,6 +1,6 @@
-from django.contrib import admin
 from django.urls import path, include
-
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
@@ -29,4 +29,4 @@ urlpatterns = [
     path("new-order", views.new_order, name="new_order"),
     path("my-orders", views.my_orders, name="my_orders"),
     path("order/<int:order_id>/", views.order, name="order"),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

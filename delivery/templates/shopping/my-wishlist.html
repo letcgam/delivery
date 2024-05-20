@@ -6,7 +6,7 @@
 <div class="container">
 
     {% if not products %}
-    <h3 class="text-secondary glass p-3">
+    <h3 class="text-secondary glass p-5">
         Add products to your wishlist to save them here.
     </h3>
     {% endif %}
@@ -14,9 +14,15 @@
         {% for product in products %}
             <div class="p-2">
                 <a href="{% url 'product' product_id=product.id %}" class="d-flex flex-column p-3 rounded-3 text-light link-underline link-underline-opacity-0 product-section glass">
-                        <img src="{% static 'icon.png' %}" alt="">
-                        <div class="product-name">{{ product.name }}</div>
-                        <div name="product-price">{{ product.price }}</div>
+                    <img
+                        {% if product.image_url != "" %}
+                            src="{{ product_url }}" class="w-100 mb-2 rounded-4 glass"
+                        {% else %}
+                            src="{% static 'icon.png' %}" class="w-100 mb-2 rounded-4 glass p-5"
+                        {% endif %}
+                    >
+                    <div class="product-name">{{ product.name }}</div>
+                    <div name="product-price">{{ product.price }}</div>
                 </a>
             </div>
         {% endfor %}

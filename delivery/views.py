@@ -1,3 +1,4 @@
+import decimal
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -5,11 +6,10 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.models import User
-from .signals import user_signals
+from .signals import user_signals, product_signals
 from .models import Document, User as UserInfo
 from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense
 from .exceptions.exceptions import FieldError
-from .logs.logger import productEditLog,  userEditLog
 
 
 def index(request):
@@ -17,9 +17,6 @@ def index(request):
 
     context = get_layout_context(request)
     context.update({"products": products})
-    user = request.user
-    if user.is_authenticated:
-        print(productEditLog.objects.all())
 
     return render(request, "index.html", context)
 
@@ -69,7 +66,7 @@ def update_type(request):
         if model == None:
             return 0
         else:
-            for field in model.get_fields_values():
+            for field in model.fields_values():
                 if field in ["", None]:
                     return 0
     
@@ -139,11 +136,13 @@ def register(request):
                 "message": "Username already taken."
             })
         
-        fields = user_info.get_fields_values
+        fields = ""
+        for key, value in user_info.fields_values:
+            fields += f""" | {key}={value}"""
         user_signals.user_created.send(
-            sender = request.user,
-            user = user_info,
-            altered_fields = fields,
+            sender = user,
+            user = user,
+            fields = fields,
         )
         
         login(request, user)
@@ -204,8 +203,8 @@ def my_account(request):
             if len(error) >= 1:
                 raise FieldError(error)
             else:
-                old_user_info = user_info.get_fields_values
-                new_user_info = user_info.get_fields_values
+                old_user_info = user_info.fields_values
+                new_user_info = user_info.fields_values
 
                 user.first_name = new_user_info["first_name"] = request.POST['first-name']
                 user.last_name = new_user_info["last_name"] = request.POST['last-name']
@@ -238,7 +237,7 @@ def my_account(request):
                 if altered_fields != "":
                     user_signals.user_edited.send(
                         sender = request.user,
-                        user = user_info,
+                        user = user,
                         action="Edited",
                         altered_fields = altered_fields,
                     )
@@ -401,6 +400,16 @@ def add_product(request):
                 owner_id = request.user.id
             )
             product.save()
+        
+            user = User.objects.get(pk = request.user.id)
+            fields = ""
+            for key, value in product.fields_values:
+                fields += f""" | {key}={value}"""
+            product_signals.product_created.send(
+                sender = user,
+                product = product,
+                fields = fields,
+            )
         except:
             message = {
                 "class": "text-danger",
@@ -411,7 +420,7 @@ def add_product(request):
                 "class": "text-success",
                 "text": "Successfully registered product!"
             }
-
+            
     context = get_layout_context(request)
     context.update({"message": message})
 
@@ -420,17 +429,38 @@ def add_product(request):
 
 @login_required
 def edit_product(request, product_id):
-    try:
-        item = Product.objects.get(pk = product_id)
-        item.name = request.POST["name"]
-        item.price = request.POST["price"]
-        item.description = request.POST["description"]
-        item.category = Category.objects.get(pk = request.POST["category"])
-        item.stock = request.POST["stock"]
-        item.save()
-        message = "Successfully edited product."
-    except:
-        message = "Failed to edit product."
+    # try:
+    item = Product.objects.get(pk = product_id)
+    old_att = item.fields_values
+    new_att = item.fields_values
+    
+    item.name = new_att["name"] = request.POST["name"]
+    item.price = new_att["price"] = request.POST["price"]
+    item.description = new_att["description"] = request.POST["description"]
+    item.category = new_att["category"] = Category.objects.get(pk = request.POST["category"])
+    item.stock = new_att["stock"] = request.POST["stock"]
+    item.save()
+    
+    new_att["price"] = decimal.Decimal(new_att["price"])
+    new_att["stock"] = int(new_att["stock"])
+    
+    user = User.objects.get(pk = request.user.id)
+    fields = ""
+    for key in old_att.keys():
+        if old_att[key] != new_att[key]:
+                fields += f""" | {key} > old: {old_att[key]} > new: {new_att[key]}"""
+    if fields != "":
+        product_signals.product_edited.send(
+            sender = user,
+            product = item,
+            altered_fields = fields,
+        )
+    
+    print(old_att)
+    print(new_att)
+    message = "Successfully edited product."
+    # except:
+    #     message = "Failed to edit product."
     return product(request, product_id, message=message)
 
 
@@ -513,7 +543,7 @@ def product(request, product_id, success=False, message=""):
         "success": success,
         "message": message
     })
-
+    
     return render(request, "product.html", context)
 
 

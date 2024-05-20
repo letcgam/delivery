@@ -8,3 +8,8 @@ fix adress adition and edit {
     add in my account
     add in making order
 }
+
+add product image edit and add
+add product sub sections (same category and from the same store)
+
+add pages for products list

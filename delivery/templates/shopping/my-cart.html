@@ -4,6 +4,9 @@
 <div class="container d-flex justify-content-center">
     <div class="col-12 col-ls-10 col-xl-8">
         <h1 class="w-100 p-3">My cart</h1>
+        
+        
+        
         <table class="cart-table rounded-4 glass p-2">
             <thead>
                 <tr class="m-3 row row-cols-4 cart-product bg-black mb-3 rounded-3 p-3">
@@ -24,63 +27,14 @@
                     {% for product in products %}
                     <tr class="m-3 row row-cols-4 cart-product bg-black rounded-3 pe-3 py-4 mb-3" >
                         <td class="d-flex">
-                            <div class="d-flex flex-column align-items-center btn-group-vertical me-3">
-                                <!-- Link trigger modal - Delete item from cart -->
-                                <a class="btn p-2 bg-black" data-bs-toggle="modal" data-bs-target="#removeModal{{product.product.id}}">
-                                    <i class="bi bi-trash3-fill text-secondary"></i>
-                                </a>
-                                <!-- Modal -->
-                                <div class="modal fade" id="removeModal{{product.product.id}}" aria-labelledby="removeModalLabel" aria-hidden="true" >
-                                    <div class="modal-dialog">
-                                        <div class="modal-content rounded-5">
-                                            <div class="d-flex justify-content-end bg-dark rounded-top-4">
-                                                <a class="fs-3 me-3 mt-2" data-bs-dismiss="modal" aria-label="Close" >
-                                                    <i class="bi bi-x-square-fill"></i>
-                                                </a>
-                                            </div>
-                                            <div class="modal-body bg-dark d-flex flex-column align-items-center rounded-bottom-4">
-                                                <p>Are you sure you would like to delete "{{ product.product.name }}" from your cart?</p>
-                                                <span>
-                                                    <a href="{% url 'remove_from_cart' product_id=product.product.id %}" type="button" class="btn btn-secondary">
-                                                        Yes, remove from my cart
-                                                    </a>
-                                                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
-                                                        No, keep in the cart
-                                                    </button>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Link trigger modal - Move item to favorites -->
-                                <a class="btn p-2 bg-black rounded-bottom-2" data-bs-toggle="modal" data-bs-target="#moveModal{{product.product.id}}">
-                                        <i class="bi bi-heart-fill text-danger"></i>
-                                </a>
-                                <!-- Modal -->
-                                <div class="modal fade" id="moveModal{{product.product.id}}" aria-labelledby="removeModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content rounded-5">
-                                            <div class="d-flex justify-content-end bg-dark rounded-top-4">
-                                                <a type="button" class="fs-3 me-3 mt-2" data-bs-dismiss="modal" aria-label="Close">
-                                                    <i class="bi bi-x-square-fill"></i>
-                                                </a>
-                                            </div>
-                                            <div class="modal-body bg-dark d-flex flex-column align-items-center rounded-bottom-4">
-                                                <p>Move "{{ product.product.name }}" to your wishlist?</p>
-                                                <span>
-                                                    <a href="{% url 'move_to_wishlist' product_id=product.product.id %}" type="button" class="btn btn-secondary">
-                                                        Yes, move to my wishlist
-                                                    </a>
-                                                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
-                                                        No, keep in the cart
-                                                    </button>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                            </div>
-                                <!-- End modal -->
-                            </div>
+                            <!-- Link trigger modal - Delete item from cart -->
+                            <a class="btn p-2 bg-black" data-bs-toggle="modal" data-bs-target="#removeModal{{ product.product.id }}">
+                                <i class="bi bi-trash3-fill text-secondary"></i>
+                            </a>
+                            <!-- Link trigger modal - Move item to favorites -->
+                            <a class="btn p-2 bg-black rounded-bottom-2" data-bs-toggle="modal" data-bs-target="#moveModal{{ product.product.id }}">
+                                    <i class="bi bi-heart-fill text-danger"></i>
+                            </a>
                             <a href="{% url 'product' product_id=product.product.id %}" class="link-underline link-underline-opacity-0 link-light">
                                 <h5>{{ product.product.name }}</h5>
                             </a>
@@ -97,6 +51,53 @@
                             <input name="total-price-input" value="{{ product.product.price }}" hidden />
                         </td>
                     </tr>
+                    <!-- Modal - Delete item from cart -->
+                    <div class="modal fade" id="removeModal{{ product.product.id }}" aria-labelledby="removeModalLabel" aria-hidden="true" >
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content rounded-5">
+                                <div class="d-flex justify-content-end bg-dark rounded-top-4">
+                                    <a class="fs-3 me-3 mt-2" data-bs-dismiss="modal" aria-label="Close" >
+                                        <i class="bi bi-x-square-fill"></i>
+                                    </a>
+                                </div>
+                                <div class="modal-body bg-dark d-flex flex-column align-items-center rounded-bottom-4">
+                                    <p>Are you sure you would like to delete "{{ product.product.name }}" from your cart?</p>
+                                    <span>
+                                        <a href="{% url 'remove_from_cart' product_id=product.product.id %}" type="button" class="btn btn-secondary">
+                                            Yes, remove from my cart
+                                        </a>
+                                        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
+                                            No, keep in the cart
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal - Move item to favorites -->
+                    <div class="modal fade" id="moveModal{{ product.product.id }}" aria-labelledby="removeModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content rounded-5">
+                                <div class="d-flex justify-content-end bg-dark rounded-top-4">
+                                    <a type="button" class="fs-3 me-3 mt-2" data-bs-dismiss="modal" aria-label="Close">
+                                        <i class="bi bi-x-square-fill"></i>
+                                    </a>
+                                </div>
+                                <div class="modal-body bg-dark d-flex flex-column align-items-center rounded-bottom-4">
+                                    <p>Move "{{ product.product.name }}" to your wishlist?</p>
+                                    <span>
+                                        <a href="{% url 'move_to_wishlist' product_id=product.product.id %}" type="button" class="btn btn-secondary">
+                                            Yes, move to my wishlist
+                                        </a>
+                                        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
+                                            No, keep in the cart
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Modal -->
                     {% endfor %}
                 <tr class="m-3 row bg-black rounded-4 p-3 py-4 mt-5 d-flex">
                     <td class="w-25"><h4>Total:</h4></td>

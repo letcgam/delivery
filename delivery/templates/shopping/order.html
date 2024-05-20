@@ -26,11 +26,10 @@
                     <h3>Items</h3>
                 </li>
                 {% for order_item in order_items %}
-                    <a href="{% url 'product' product_id=order_item.product.id %}" class="list-group-item full-glass rounded-0 border-0 mb-3">
-                        <div class="product-name">{{ 
-                            product.name }}</div>
+                    <a href="{% url 'product' product_id=order_item.product.id %}" class="list-group-item full-glass rounded-0 border-0 my-2">
+                        <div>{{ order_item.product.name }}</div>
                         <div class="d-flex justify-content-between">
-                            <span name="product-price">{{ order_item.product.price }}</span>
+                            <span>{{ order_item.product.price }}</span>
                             <span>{{ order_item.quant }}</span>
                         </div>
                     </a>
