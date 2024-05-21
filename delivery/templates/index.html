@@ -8,15 +8,15 @@
         {% for product in products %}
             <div class="p-2">
                 <a href="{% url 'product' product_id=product.id %}" class="d-flex flex-column p-3 rounded-3 text-light link-underline link-underline-opacity-0 product-section glass">
-                        <img
-                            {% if product.image_url != "" %}
-                                src="{{ product_url }}" class="mb-2 rounded-2 glass"
-                            {% else %}
-                                src="{% static 'icon.png' %}" class="mb-2 rounded-2 glass p-5"
-                            {% endif %}
-                        >
-                        <div class="product-name">{{ product.name }}</div>
-                        <div name="product-price">{{ product.price }}</div>
+                    <span class="d-flex justify-content-center mb-2 rounded-4 w-100 glass">
+                        {% if product.image_url != "" %}
+                            <img name="product-image" src="{{ product.image_url }}" class="square">
+                        {% else %}
+                            <img name="product-image" src="{% static 'icon.png' %}">
+                        {% endif %}
+                    </span>
+                    <div class="product-name">{{ product.name }}</div>
+                    <div name="product-price">{{ product.price }}</div>
                 </a>
             </div>
         {% endfor %}

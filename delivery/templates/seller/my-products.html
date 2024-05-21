@@ -23,13 +23,11 @@
         {% for product in products %}
             <div class="p-2" name="product">
                 <a href="{% url 'product' product_id=product.id %}" class="glass d-flex flex-column p-3 text-light link-underline link-underline-opacity-0">
-                    <img
-                        {% if product.image_url != "" %}
-                            src="{{ product_url }}" class="w-100 mb-2 rounded-4 glass"
-                        {% else %}
-                            src="{% static 'icon.png' %}" class="w-100 mb-2 rounded-4 glass p-5"
-                        {% endif %}
-                    >
+                    {% if product.image_url != "" %}
+                        <img id="product-image" src="{{ product.image_url }}" class="mb-2 rounded-4 glass w-100 square">
+                    {% else %}
+                        <img id="product-image" src="{% static 'icon.png' %}" class="mb-2 rounded-4 glass w-100">
+                    {% endif %}
                     <div class="product-name">{{ product.name }}</div>
                     <div name="product-price">{{ product.price }}</div>
                 </a>

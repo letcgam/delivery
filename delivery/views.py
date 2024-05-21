@@ -439,6 +439,7 @@ def edit_product(request, product_id):
     item.description = new_att["description"] = request.POST["description"]
     item.category = new_att["category"] = Category.objects.get(pk = request.POST["category"])
     item.stock = new_att["stock"] = request.POST["stock"]
+    item.image_url = new_att["image_url"] = request.POST["image_url"] if request.POST["image_url"] != "" else item.image_url
     item.save()
     
     new_att["price"] = decimal.Decimal(new_att["price"])

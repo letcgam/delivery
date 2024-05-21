@@ -13,13 +13,11 @@
             <ul class="list-group">
                 {% for item in items %}
                     <a href="{% url 'product' product_id=item.product.id %}" class="list-group-item glass border-0 rounded-3 text-light d-flex align-items-center mb-3 link-underline link-underline-opacity-0">
-                        <img
-                            {% if product.image_url != "" %}
-                                src="{{ product_url }}" class="w-25 mb-2 rounded-4 glass"
-                            {% else %}
-                                src="{% static 'icon.png' %}" class="w-25 mb-2 rounded-4 glass p-5"
-                            {% endif %}
-                        >
+                        {% if product.image_url != "" %}
+                            <img id="product-image" src="{{ product.image_url }}" class="mb-2 rounded-4 glass w-100 square">
+                        {% else %}
+                            <img id="product-image" src="{% static 'icon.png' %}" class="mb-2 rounded-4 glass w-100">
+                        {% endif %}
                         <div class="d-flex p-4 px-5 flex-column">
                             <h4>{{ item.product }}</h4>
                             <p>{{ item.quant }}&times;&nbsp;<span name="price">{{ item.product.price }}</span></p>

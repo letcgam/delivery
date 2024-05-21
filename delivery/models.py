@@ -125,7 +125,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, default=24, on_delete=models.SET_DEFAULT)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
-    image_url = models.ImageField(upload_to='media/product')
+    image_url = models.TextField(default="")
     owner = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -137,7 +137,7 @@ class Product(models.Model):
     @property
     def fields_values(self):
         values = {}
-        fields = {"name": None, "description": None, "category": None, "price": None, "stock": None, "owner": None}
+        fields = {"name": None, "description": None, "category": None, "price": None, "stock": None, "image_url": None, "owner": None}
         for value in fields:
             values.update({str(value): getattr(self, value)})
 

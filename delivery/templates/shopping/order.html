@@ -19,32 +19,39 @@
             </a>
         </div>
     {% endif %}
-    <div class="row d-flex justify-content-center text-light glass">
+    <div class="row d-flex justify-content-center text-light glass py-3">
         <div class="col-12 col-lg-6 col-xl-6">
-            <ul class="list-group my-3">
+            <ul class="list-group">
                 <li class="list-group-item px-4 pt-3 bg-black border-0 rounded-top-3">
                     <h3>Items</h3>
                 </li>
                 {% for order_item in order_items %}
-                    <a href="{% url 'product' product_id=order_item.product.id %}" class="list-group-item full-glass rounded-0 border-0 my-2">
-                        <div>{{ order_item.product.name }}</div>
-                        <div class="d-flex justify-content-between">
-                            <span>{{ order_item.product.price }}</span>
-                            <span>{{ order_item.quant }}</span>
-                        </div>
+                    <a href="{% url 'product' product_id=order_item.product.id %}" class="list-group-item full-glass border-0 mt-2 w-100 d-flex order-item">
+                        {% if product.image_url != "" %}
+                            <img id="product-image" src="{{ product.image_url }}" class="mb-2 rounded-4 glass w-100 square">
+                        {% else %}
+                            <img id="product-image" src="{% static 'icon.png' %}" class="mb-2 rounded-4 glass w-100">
+                        {% endif %}
+                        <span class="order-item">
+                            <div>{{ order_item.product.name }}</div>
+                            <div class="d-flex justify-content-between w-100">
+                                <span name="price">{{ order_item.product.price }}</span>
+                                <span>{{ order_item.quant }}</span>
+                            </div>
+                        </span>
                     </a>
                 {% endfor %}
-                <li class="list-group-item px-4 pt-3 bg-black border-0 rounded-top-3">
+                <li class="list-group-item px-4 pt-3 bg-black border-0 rounded-top-3 mt-3">
                     <h3>Info</h3>
                 </li>
                 <div class="p-3">
-                    <p class="mb-0"></p>Order ID: <span id="order-id">{{ order.id }}</span></p>
-                    <hr class="my-2">
-                    <p class="mt-2"></p>Purchase: <span id="order-id">{{ order.creation_date.date }}</span></p>
+                    <p>Order ID: <span id="order-id">{{ order.id }}</span></p>
+                    <p>Purchase: {{ order.creation_date.date }}</p>
+                    <p>Payment: {{ order.payment.card.type.name }} card</p>
                 </div>
             </ul>
         </div>
-        <div class="col-12 col-lg-6 col-xl-6 mt-3">
+        <div class="col-12 col-lg-6 col-xl-6">
             <ul class="list-group">
                 <li class="list-group-item bg-dark px-4 pt-3 bg-black border-0 rounded-top-3">
                     <h3>Shipping status</h3>

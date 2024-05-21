@@ -1,10 +1,28 @@
-const isOwner = document.getElementById("is-owner");
+const isOwner = document.getElementById("is-owner").value;
+console.log(isOwner)
 
-if (isOwner) {
+if (isOwner == "true") {
     const inputs = Array.from(document.getElementsByClassName("input"));
     const editBtn = document.getElementById("edit-btn");
     const cancelBtn = document.getElementById("cancel-btn");
     const confirmBtn = document.getElementById("confirm-btn");
+    const productImage = document.getElementById("product-image");
+    const productImgLabel = document.getElementById("product-image-label");
+    const productImgInput = document.getElementById("product-image-input");
+    const cancelImageBtn = document.getElementById("cancel-image-btn");
+
+    window.onload = function resizeLabel() {
+        productImgLabel.style.width = `${productImage.width}px`;
+        productImgLabel.style.height = `${productImage.height}px`;
+    };
+    window.onresize = function resizeLabel() {
+        productImgLabel.style.width = `${productImage.width}px`;
+        productImgLabel.style.height = `${productImage.height}px`;
+    };
+
+    cancelImageBtn.addEventListener("click", () => {
+        productImgInput.value = "";
+    })
 
     editBtn.addEventListener("click", () => {
         inputs.forEach(input => {
@@ -14,28 +32,29 @@ if (isOwner) {
         editBtn.hidden = true;
         cancelBtn.hidden = false;
         confirmBtn.hidden = false;
+        productImgLabel.style.zIndex = 1;
     })
 
     cancelBtn.addEventListener("click", () => {
         location.reload();
     })
-
 } else {
-    var totalPrice = document.getElementById("total-price");
-    var quantityInput = document.getElementById("quantity-input");
-    var productPrice = document.getElementById("product-price");
-    const productUnitPrice = document.getElementById("product-unit-price");
+    try {
+        var totalPrice = document.getElementById("total-price");
+        var quantityInput = document.getElementById("quantity-input");
+        var productPrice = document.getElementById("product-price");
+        const productUnitPrice = document.getElementById("product-unit-price");
 
-    quantityInput.addEventListener("change", () => {
-        price = quantityInput.value * productUnitPrice.innerHTML;
-        totalPrice.innerHTML = formatPrice(price);
-    });
-
-
-    document.addEventListener("DOMContentLoaded", () => {
+        quantityInput.addEventListener("change", () => {
+            price = quantityInput.value * productUnitPrice.innerHTML;
+            totalPrice.innerHTML = formatPrice(price);
+        });
+        
         productPrice.innerHTML = formatPrice(productUnitPrice.innerHTML);
         totalPrice.innerHTML = productPrice.innerHTML
-    });
+    } catch {
+
+    }
 }
 
 function formatTotalPrice() {
