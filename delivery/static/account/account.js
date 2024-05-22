@@ -8,6 +8,8 @@ const confirmAdressBtn = document.getElementById("confirm-adress-btn");
 const adressInputs = Array.from(document.getElementsByClassName("adress-input"));
 const adressLabels = Array.from(document.getElementsByClassName("adress-label"));
 
+const userType = document.getElementById("user-type").value
+
 const editLicenseBtn = document.getElementById("edit-license-btn");
 const confirmLicenseBtn = document.getElementById("confirm-license-btn");
 const licenseInputs = Array.from(document.getElementsByClassName("license-input"));
@@ -36,11 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
     inputs.forEach(input => {
         input.disabled = true
         input.classList.add("border-secondary")
-        
-        const userType = document.getElementById("user-type").value
-        if (userType.includes("deliveryman") || userType.includes("seller")) {
-            input.required = true;
-        }
     })
     confirmProfileBtn.hidden = true;
     confirmAdressBtn.hidden = true;
@@ -62,7 +59,7 @@ editProfileBtn.addEventListener('click', () => {
     hide(editProfileBtn)
 })
 
-if (editLicenseBtn) {
+if (userType.includes("deliveryman")) {
     editLicenseBtn.addEventListener('click', () => {
         licenseLabels.forEach(element => {
             element.classList.remove("text-secondary")
@@ -97,39 +94,41 @@ confirmAdressBtn.addEventListener('click', () => {
     location.reload()
 })
 
-documentTypeInput.addEventListener("change", () => {
-    if (documentTypeInput.value == "SSN") {
-        docNumberLabel.innerHTML = "SSN"
-        docNumberInput.placeholder="XXX-XX-XXXX"
-    } else {
-        docNumberLabel.innerHTML = "EIN"
-        docNumberInput.placeholder="XX-XXXXXXX"
-    }
-})
-
-docNumberInput.addEventListener("input", () => {
-    var docNumber = docNumberInput.value.replace(/\D/g, '');
-    var formattedDoc = ""
-    var type = documentTypeInput.value;
-
-    if (formattedDoc != undefined) {
-        if (type == "SSN") {
-            formattedDoc += docNumber.slice(0, 3);
-            if (docNumber.length > 3) {
-                formattedDoc += '-' + docNumber.slice(3, 5);
-            }
-            if (docNumber.length > 5) {
-                formattedDoc += '-' + docNumber.slice(5, 9);
-            }
+if (userType.includes("seller") || userType.includes("deliveryman")) {
+    documentTypeInput.addEventListener("change", () => {
+        if (documentTypeInput.value == "SSN") {
+            docNumberLabel.innerHTML = "SSN"
+            docNumberInput.placeholder="XXX-XX-XXXX"
         } else {
-            formattedDoc += docNumber.slice(0, 2);
-            if (docNumber.length > 2) {
-                formattedDoc += '-' + docNumber.slice(2, 9);
-            }
+            docNumberLabel.innerHTML = "EIN"
+            docNumberInput.placeholder="XX-XXXXXXX"
         }
-        docNumberInput.value = formattedDoc
-    }
-});
+    })
+
+    docNumberInput.addEventListener("input", () => {
+        var docNumber = docNumberInput.value.replace(/\D/g, '');
+        var formattedDoc = ""
+        var type = documentTypeInput.value;
+
+        if (formattedDoc != undefined) {
+            if (type == "SSN") {
+                formattedDoc += docNumber.slice(0, 3);
+                if (docNumber.length > 3) {
+                    formattedDoc += '-' + docNumber.slice(3, 5);
+                }
+                if (docNumber.length > 5) {
+                    formattedDoc += '-' + docNumber.slice(5, 9);
+                }
+            } else {
+                formattedDoc += docNumber.slice(0, 2);
+                if (docNumber.length > 2) {
+                    formattedDoc += '-' + docNumber.slice(2, 9);
+                }
+            }
+            docNumberInput.value = formattedDoc
+        }
+    });
+}
 
 function hide(elem) {
     elem.style.opacity = 0;
@@ -157,12 +156,3 @@ phoneNumberInput.addEventListener('input', () => {
     }
     phoneNumberInput.value = formattedPhoneNumber;
 });
-
-// function validateForm() {
-//     profileInputs.forEach(input => {
-//         if (input.value == "") {
-//             return false;
-//         }
-//     })
-//     return true;
-// }

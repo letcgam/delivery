@@ -27,11 +27,13 @@
                 </li>
                 {% for order_item in order_items %}
                     <a href="{% url 'product' product_id=order_item.product.id %}" class="list-group-item full-glass border-0 mt-2 w-100 d-flex order-item">
-                        {% if product.image_url != "" %}
-                            <img id="product-image" src="{{ product.image_url }}" class="mb-2 rounded-4 glass w-100 square">
-                        {% else %}
-                            <img id="product-image" src="{% static 'icon.png' %}" class="mb-2 rounded-4 glass w-100">
-                        {% endif %}
+                        <span class="d-flex justify-content-center align-items-center mb-2 w-100 square">
+                            {% if product.image_url != "" %}
+                                <img name="product-image" src="{{ product.image_url }}" class="full-glass rounded-3 ">
+                            {% else %}
+                                <img name="product-image" src="{% static 'icon.png' %}" class="glass p-5 rounded-3">
+                            {% endif %}
+                        </span>
                         <span class="order-item">
                             <div>{{ order_item.product.name }}</div>
                             <div class="d-flex justify-content-between w-100">
@@ -100,5 +102,6 @@
 </div>
 
 <script src="{% static 'index.js' %}"></script>
+<script src="{% static 'productList.js' %}"></script>
 <script src="{% static 'shopping/order.js' %}"></script>
 {% endblock %}

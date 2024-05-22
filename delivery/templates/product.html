@@ -53,8 +53,8 @@
                     </div>
                     <div class="d-flex justify-content-center mt-3">
                         <div class="btn btn-secondary me-2" id="cancel-btn" hidden>Cancel</div>
-                        <div class="btn btn-warning" id="edit-btn">Edit product</div>
-                        <button type="submit" class="btn btn-warning" id="confirm-btn" hidden>Confirm</button>
+                        <div class="btn btn-theme" id="edit-btn">Edit product</div>
+                        <button type="submit" class="btn btn-theme" id="confirm-btn" hidden>Confirm</button>
                     </div>
                 </form>
                 <!-- SELLER Product area end -->
@@ -98,7 +98,7 @@
                                         Log in to add items to yout wishlist!
                                         <span class="d-flex justify-content-center">
                                             <button type="button" class="btn btn-secondary m-2" data-bs-dismiss="modal">Close</button>
-                                            <a href="{% url 'login' %}" class="btn btn-warning m-2">Log in</a>
+                                            <a href="{% url 'login' %}" class="btn btn-theme m-2">Log in</a>
                                         </span>
                                     </div>
                                 </div>
@@ -113,7 +113,7 @@
                         </div>
                         <input name="product-id" type="number" value="{{ product.id }}" hidden>
                         <div class="row col-5 ms-1">
-                            <button type="submit" class="btn btn-warning">Add to cart</button>
+                            <button type="submit" class="btn btn-theme">Add to cart</button>
                         </div>
                         <div class="d-flex justify-content-center">
                             <p>Total price:&nbsp;</p>

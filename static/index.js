@@ -12,10 +12,3 @@ function formatPrice(price) {
         currency: "USD",
     }).format(price);
 };
-
-const productPictures = document.getElementsByClassName("square");
-
-for (i = 0; i < productPictures.length; i++) {
-    console.log(productPictures[i].style)
-    productPictures[i].style.maxHeight = String(productPictures[i].clientWidth) + "px"
-}
