@@ -22,19 +22,19 @@
     <div class="row d-flex justify-content-center text-light glass py-3">
         <div class="col-12 col-lg-6 col-xl-6">
             <ul class="list-group">
-                <li class="list-group-item px-4 pt-3 bg-black border-0 rounded-top-3">
+                <li class="list-group-item px-4 pt-3 bg-black border-0 rounded-top-3 mb-2">
                     <h3>Items</h3>
                 </li>
                 {% for order_item in order_items %}
-                    <a href="{% url 'product' product_id=order_item.product.id %}" class="list-group-item full-glass border-0 mt-2 w-100 d-flex order-item">
-                        <span class="d-flex justify-content-center align-items-center mb-2 w-100 square">
-                            {% if product.image_url != "" %}
-                                <img name="product-image" src="{{ product.image_url }}" class="full-glass rounded-3 ">
+                    <a href="{% url 'product' product_id=order_item.product.id %}" class="list-group-item full-glass border-0 w-100 d-flex order-item row">
+                        <span class="d-flex justify-content-center align-items-center col-2 square p-1">
+                            {% if order_item.product.image_url != "" %}
+                                <img name="product-image" src="{{ order_item.product.image_url }}" class="full-glass w-100 rounded-2">
                             {% else %}
-                                <img name="product-image" src="{% static 'icon.png' %}" class="glass p-5 rounded-3">
+                                <img name="product-image" src="{% static 'icon.png' %}" class="glass rounded-2">
                             {% endif %}
                         </span>
-                        <span class="order-item">
+                        <span class="order-item col d-flex flex-column justify-content-between p-2">
                             <div>{{ order_item.product.name }}</div>
                             <div class="d-flex justify-content-between w-100">
                                 <span name="price">{{ order_item.product.price }}</span>

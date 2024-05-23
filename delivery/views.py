@@ -270,7 +270,7 @@ def my_account(request):
 
 
 @login_required
-def add_adress(request, is_billing=0):
+def add_adress(request):
     context = get_layout_context(request)
     user = User.objects.get(pk = request.user.id)
 
@@ -294,16 +294,15 @@ def add_adress(request, is_billing=0):
             )
             adress.save()
 
-            if is_billing:
-                billing_adress = BillingAdress.objects.filter(user_id = user.id).first()
-                if billing_adress == None:
-                    billing_adress = BillingAdress.objects.create(
-                        user_id = user.id,
-                        adress_id = adress.id
-                    )
-                else:
-                    billing_adress.adress_id = adress.id
-                billing_adress.save()
+            billing_adress = BillingAdress.objects.filter(user_id = user.id).first()
+            if billing_adress == None:
+                billing_adress = BillingAdress.objects.create(
+                    user_id = user.id,
+                    adress_id = adress.id
+                )
+            else:
+                billing_adress.adress_id = adress.id
+            billing_adress.save()
 
     except FieldError as e:
         message['text'] = "Provide valid data for required fields: " + e.error_message + "."
@@ -394,6 +393,7 @@ def add_product(request):
             product = Product.objects.create(
                 name = request.POST["name"],
                 description = request.POST["description"],
+                image_url = request.POST["image-url"],
                 category = Category.objects.get(pk = request.POST["category"]),
                 stock = request.POST["stock"],
                 price = request.POST["price"],
@@ -534,6 +534,20 @@ def product(request, product_id, success=False, message=""):
         product_id = product_id,
         user_id = request.user.id
     )
+    
+    products = Product.objects.all()
+    same_category_products = [[]]
+    same_seller_products = [[]]
+
+    for item in products:
+        if item.category == product.category:
+            if (len(same_category_products[-1]) + 1) % 6 == 0:
+                same_category_products.append([])
+            same_category_products[-1].append(item)
+        if item.owner == product.owner:
+            if (len(same_seller_products[-1]) + 1) % 6 == 0:
+                same_seller_products.append([])
+            same_seller_products[-1].append(item)
 
     context = get_layout_context(request)
     context.update({
@@ -542,7 +556,9 @@ def product(request, product_id, success=False, message=""):
         "wishlist": wishlist,
         "image_url": "../static/icon.png",
         "success": success,
-        "message": message
+        "message": message,
+        "same_category_products": same_category_products,
+        "same_seller_products": same_seller_products
     })
     
     return render(request, "product.html", context)

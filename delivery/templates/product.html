@@ -127,7 +127,103 @@
                 <!-- Product area end -->
             {% endif %}
         </div>
+        <div id="same-category-carousel" class="carousel slide glass mt-5">
+            <div class="carousel-inner container">
+                {% for list in same_category_products %}
+                    {% if forloop.first %}
+                        <div class="carousel-item active p-4">
+                            <div class="row d-flex">
+                                {% for product in list %}
+                                    <div class="card col-2 m-2 p-0 glass p-1">
+                                        <div class="card-body p-1">
+                                            {% if product.image_url != "" %}
+                                                <img id="product-image" src="{{ product.image_url }}" class="mb-2 rounded-4 glass w-100 product-card-image">
+                                            {% else %}
+                                                <img id="product-image" src="{% static 'icon.png' %}" class="mb-2 rounded-4 glass w-100">
+                                            {% endif %}
+                                            <p class="product-card-name lh-sm mb-1">
+                                                {{ product.name }}
+                                            </p>
+                                            <p class="my-0 w-100 text-end">{{ product.price }}</p>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="carousel-item p-4">
+                            <div class="row d-flex">
+                                {% for product in list %}
+                                    <div class="card col-2 m-2">
+                                        <div class="card-header">
+                                            {{ product.name }}
+                                        </div>
+                                        <div class="card-body">
+                                            {{ product.price }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#same-category-carousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#same-category-carousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        <div id="same-seller-carousel" class="carousel slide glass mt-5">
+            <div class="carousel-inner container">
+                {% for list in same_seller_products %}
+                    {% if forloop.first %}
+                        <div class="carousel-item active p-4">
+                            <div class="row d-flex">
+                                {% for product in list %}
+                                    <div class="card col-2 m-2">
+                                        <div class="card-header">
+                                            {{ product.name }}
+                                        </div>
+                                        <div class="card-body">
+                                            {{ product.price }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="carousel-item p-4">
+                            <div class="row d-flex">
+                                {% for product in list %}
+                                    <div class="card col-2 m-2">
+                                        <div class="card-header">
+                                            {{ product.name }}
+                                        </div>
+                                        <div class="card-body">
+                                            {{ product.price }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#same-seller-carousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#same-seller-carousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
     </div>
 </div>
+
 <script src="{% static 'product.js' %}"></script>
 {% endblock %}

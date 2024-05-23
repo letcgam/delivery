@@ -197,3 +197,11 @@ a:hover {
 .link-theme:hover {
     color: var(--link-hover-color) !important;
 }
+
+.product-card-name {
+    display: -webkit-box;
+    overflow: hidden; /* Removendo barra de rolagem */
+    text-overflow: ellipsis; /* Adicionando "..." ao final */
+    -webkit-line-clamp: 2; /* Quantidade de linhas */
+    -webkit-box-orient: vertical; 
+}

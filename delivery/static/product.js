@@ -1,5 +1,24 @@
 const isOwner = document.getElementById("is-owner").value;
-console.log(isOwner)
+const productCards = document.getElementsByName("product-card-image");
+
+productCards.forEach(card => {
+    console.log(card)
+})
+
+const categoryCarousel = new bootstrap.Carousel(
+    document.getElementById("same-category-carousel"),
+    {
+        interval: 2000,
+        touch: false
+    }
+);
+const sellerCarousel = new bootstrap.Carousel(
+    document.getElementById("same-seller-carousel"),
+    {
+        interval: 2000,
+        touch: false
+    }
+);
 
 if (isOwner == "true") {
     const inputs = Array.from(document.getElementsByClassName("input"));
@@ -68,3 +87,4 @@ function formatPrice(price) {
         currency: "USD",
     }).format(price);
 }
+

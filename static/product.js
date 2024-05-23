@@ -1,5 +1,21 @@
 const isOwner = document.getElementById("is-owner").value;
-console.log(isOwner)
+console.log(isOwner);
+
+const categoryCarousel = new bootstrap.Carousel(
+    document.getElementById("same-category-carousel"),
+    {
+        interval: 2000,
+        touch: false
+    }
+);
+
+const sellerCarousel = new bootstrap.Carousel(
+    document.getElementById("same-seller-carousel"),
+    {
+        interval: 2000,
+        touch: false
+    }
+);
 
 if (isOwner == "true") {
     const inputs = Array.from(document.getElementsByClassName("input"));

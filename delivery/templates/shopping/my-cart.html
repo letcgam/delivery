@@ -1,28 +1,34 @@
 {% extends "layout.html" %}
 {% load static %}
- {% block body %}
-<div class="container d-flex flex-column align-items-center">
-    <h1 class="col-12 col-ls-10 col-xl-8 p-3">My cart</h1>
-    <table class="col-12 col-ls-10 col-xl-8 cart-table rounded-4 glass p-3">
+
+{% block body %}
+<form action="{% url 'my_cart' %}" method="post" class="container d-flex flex-column align-items-center">
+    {% csrf_token %}
+    <table class="col-12 col-lg-10 col-xl-8 cart-table rounded-4 glass p-3">
+        <h1 class="col-12 col-lg-10 col-xl-8 p-4">My cart</h1>
         <thead>
-            <tr class="row cart-product bg-black rounded-3 row p-3 m-2">
-                <th class="col-4"><h5>Product</h5></th>
-                <th class="text-end col-4">Unit price</th>
-                <th class="text-center quantity-input-col col-2">Quantity</th>
-                <th class="text-end col-2">Total</th>
+            <tr class="cart-product bg-black rounded-3 justify-content-center px-3 pt-3 m-2 row">
+                <th class="w-100 d-flex row">
+                    <span class="col-12 col-md-6 d-flex align-items-center p-0 mb-3">Product</span>
+                    <hr class="d-md-none">
+                    <span class="col-4 col-md-2 d-flex align-items-center p-0 mb-3">Unit price</span>
+                    <span class="col-4 col-md-2 d-flex align-items-center p-0 mb-3 justify-content-center">Quantity</span>
+                    <span class="col-4 col-md-2 d-flex align-items-center p-0 mb-3 justify-content-end">Total</span>
+                </th>
             </tr>
         </thead>
         <tbody>
             {% if not products %}
-            <tr class="m-3 bg-black rounded-3 pe-3 py-4">
-                    <td id="message"><h3 class="text-secondary p-3">Add poducts to your cart to see them here.</h3></td>
-            </tr>
+            <tr class="bg-black rounded-3 justify-content-center p-2 m-2 row">
+                <td id="message">
+                            <h3 class="text-secondary p-3">Add poducts to your cart to see them here.</h3>
+                        </td>
+                </tr>
             {% else %}
-            <form action="{% url 'my_cart' %}" method="post" >
-                {% csrf_token %}
                 {% for product in products %}
-                <tr class="row cart-product bg-black rounded-3 m-2 p-2 align-items-center">
-                    <td class="d-flex w-50 align-items-center">
+                <tr class="cart-product bg-black rounded-3 justify-content-center p-2 m-2 row">
+                    <td class="d-flex align-items-center justify-content-center w-100 row">
+                        <span class="col-12 col-md-6 d-flex">
                             <span class="d-flex align-items-center">
                                 <div class="btn-group btn-group-vertical">
                                     <!-- Link trigger modal - Delete item from cart -->
@@ -30,99 +36,102 @@
                                         <i class="bi bi-trash3-fill text-secondary"></i>
                                     </a>
                                     <!-- Link trigger modal - Move item to favorites -->
-                                    <a class="btn m-0 p-1 bg-black rounded-bottom-2" data-bs-toggle="modal" data-bs-target="#moveModal{{ product.product.id }}">
+                                    <a class="btn m-0 mt-1 p-0 bg-black rounded-bottom-2" data-bs-toggle="modal" data-bs-target="#moveModal{{ product.product.id }}">
                                             <i class="bi bi-heart-fill text-danger"></i>
                                     </a>
                                 </div>
                             </span>
-                            <a href="{% url 'product' product_id=product.product.id %}" class="d-flex link-underline link-underline-opacity-0 link-light ms-3">
-                                <span class="d-flex justify-content-center align-items-center mb-2 w-25">
+                            <a href="{% url 'product' product_id=product.product.id %}" class="d-flex align-items-center link-underline link-underline-opacity-0 link-light ms-2 row">
+                                <span class="d-flex justify-content-center align-items-center mb-2 col-3">
                                     {% if product.product.image_url != "" %}
                                         <img name="product-image" src="{{ product.product.image_url }}" class="w-100 m-2 rounded-3">
                                     {% else %}
                                         <img name="product-image" src="{% static 'icon.png' %}" class="glass p-5">
                                     {% endif %}
                                 </span>
-                                <span class="w-50 m-0 ms-3 h-100 d-flex align-items-center">
-                                    <p class="lh-sm">{{ product.product.name }}</p>
+                                <span class="col-9">
+                                    <h5 class="lh-sm">{{ product.product.name }}</h5>
                                 </span>
                             </a>
-                    </td>
-                    <td class="text-end col-2" name="product-price">
+                        </span>
+                        <hr class="d-md-none">
+                        <span class="col-4 col-md-2 d-flex justify-content-end pe-4" name="product-price">
                             <span class="product-price-visible">{{ product.product.price }}</span>
                             <input name="product-price-input" value="{{ product.product.price }}" hidden />
-                    </td>
-                    <td class="text-center quantity-input-col col-2">
+                        </span>
+                        <span class="col-4 col-md-2 d-flex">
                             <input name="quantity-input-{{ product.product.id }}" class="form-control bg-dark text-light" type="number" min="1" max="{{ product.product.stock }}" value="{{ product.quantity }}" />
-                    </td>
-                    <td class="text-end col-2" name="total-price">
+                        </span>
+                        <span class="col-4 col-md-2 d-flex justify-content-end" name="total-price">
                             <span class="total-price-visible">{{ product.product.price }}</span>
                             <input name="total-price-input" value="{{ product.product.price }}" hidden />
+                        </span>
                     </td>
                 </tr>
                 <!-- Modal - Delete item from cart -->
                 <div class="modal fade" id="removeModal{{ product.product.id }}" aria-labelledby="removeModalLabel" aria-hidden="true" >
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content rounded-5">
-                                <div class="d-flex justify-content-end bg-dark rounded-top-4">
-                                    <a class="fs-3 me-3 mt-2" data-bs-dismiss="modal" aria-label="Close" >
-                                        <i class="bi bi-x-square-fill"></i>
-                                    </a>
-                                </div>
-                                <div class="modal-body bg-dark d-flex flex-column align-items-center rounded-bottom-4">
-                                    <p>Are you sure you would like to delete "{{ product.product.name }}" from your cart?</p>
-                                    <span>
-                                        <a href="{% url 'remove_from_cart' product_id=product.product.id %}" type="button" class="btn btn-secondary">
-                                            Yes, remove from my cart
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content rounded-5">
+                                    <div class="d-flex justify-content-end bg-dark rounded-top-4">
+                                        <a class="fs-3 me-3 mt-2" data-bs-dismiss="modal" aria-label="Close" >
+                                            <i class="bi bi-x-square-fill"></i>
                                         </a>
-                                        <button type="button" class="btn btn-theme" data-bs-dismiss="modal">
-                                            No, keep in the cart
-                                        </button>
-                                    </span>
+                                    </div>
+                                    <div class="modal-body bg-dark d-flex flex-column align-items-center rounded-bottom-4">
+                                        <p>Are you sure you would like to delete "{{ product.product.name }}" from your cart?</p>
+                                        <span>
+                                            <a href="{% url 'remove_from_cart' product_id=product.product.id %}" type="button" class="btn btn-secondary">
+                                                Yes, remove from my cart
+                                            </a>
+                                            <button type="button" class="btn btn-theme" data-bs-dismiss="modal">
+                                                No, keep in the cart
+                                            </button>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                 </div>
                 <!-- Modal - Move item to favorites -->
                 <div class="modal fade" id="moveModal{{ product.product.id }}" aria-labelledby="removeModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content rounded-5">
-                                <div class="d-flex justify-content-end bg-dark rounded-top-4">
-                                    <a type="button" class="fs-3 me-3 mt-2" data-bs-dismiss="modal" aria-label="Close">
-                                        <i class="bi bi-x-square-fill"></i>
-                                    </a>
-                                </div>
-                                <div class="modal-body bg-dark d-flex flex-column align-items-center rounded-bottom-4">
-                                    <p>Move "{{ product.product.name }}" to your wishlist?</p>
-                                    <span>
-                                        <a href="{% url 'move_to_wishlist' product_id=product.product.id %}" type="button" class="btn btn-secondary">
-                                            Yes, move to my wishlist
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content rounded-5">
+                                    <div class="d-flex justify-content-end bg-dark rounded-top-4">
+                                        <a type="button" class="fs-3 me-3 mt-2" data-bs-dismiss="modal" aria-label="Close">
+                                            <i class="bi bi-x-square-fill"></i>
                                         </a>
-                                        <button type="button" class="btn btn-theme" data-bs-dismiss="modal">
-                                            No, keep in the cart
-                                        </button>
-                                    </span>
+                                    </div>
+                                    <div class="modal-body bg-dark d-flex flex-column align-items-center rounded-bottom-4">
+                                        <p>Move "{{ product.product.name }}" to your wishlist?</p>
+                                        <span>
+                                            <a href="{% url 'move_to_wishlist' product_id=product.product.id %}" type="button" class="btn btn-secondary">
+                                                Yes, move to my wishlist
+                                            </a>
+                                            <button type="button" class="btn btn-theme" data-bs-dismiss="modal">
+                                                No, keep in the cart
+                                            </button>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                 </div>
                 <!-- End Modal -->
                 {% endfor %}
-            <tr class="m-2 row bg-black rounded-3 p-3 py-4 mt-5 d-flex">
-                    <td class="w-25"><h4>Total:</h4></td>
-                    <td class="w-75 text-end"><h4 id="total">0</h4></td>
-                    <td><input id="total-input" hidden value="0"/></td>
+                <tr class="cart-product bg-black rounded-3 p-3 m-2 mt-4 row">
+                    <td class="d-flex justify-content-between w-100">
+                        <h4>Total:</h4>
+                        <h4 id="total">0</h4></td>
+                        <input id="total-input" hidden value="0"/>
+                    </td>
             </tr>
             <tr class="d-flex justify-content-center">
-                <td>
-                        <input class="btn btn-theme border-3 my-4 rounded-4 p-2 px-3 fs-3" type="submit" value="Purchase"></input>
-                </td>
+                    <td>
+                            <input class="btn btn-theme border-3 my-4 rounded-4 p-2 px-3 fs-3" type="submit" value="Purchase"></input>
+                    </td>
             </tr>
-        </form>
             {% endif %}
         </tbody>
     </table>
-</div>
+</form>
 
 <script src="{% static 'shopping/cart.js' %}"></script>
 {% endblock %}

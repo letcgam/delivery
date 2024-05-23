@@ -1,3 +1,9 @@
+:root {
+    --text-color: #00b3aa;
+    --link-hover-color: #61fff7;
+    --btn-color: #008f88;
+}
+
 body {
     background-image: linear-gradient(#31807a, #523e8a);
     background-attachment: fixed;
@@ -175,5 +181,26 @@ a:hover {
 }
 
 .text-theme { 
-    color: #208ab1;
+    color: var(--text-color) !important;
+}
+
+.btn-theme {
+    background-color: var(--btn-color) !important;
+    border: none;
+    color: white;
+}
+
+.link-theme {
+    color: var(--text-color) !important;
+}
+
+.link-theme:hover {
+    color: var(--link-hover-color) !important;
+}
+
+.product-card {
+    overflow: hidden; /* Removendo barra de rolagem */
+    text-overflow: ellipsis; /* Adicionando "..." ao final */
+    -webkit-line-clamp: 2; /* Quantidade de linhas */
+    -webkit-box-orient: vertical; 
 }

@@ -227,7 +227,7 @@
 
     <!-- Billing adress form -->
     <div class="row col-12 col-md-10 col-lg-8 col-xl-8 my-4">
-        <form class="needs-validation p-0" method="post" action="{% url 'add_adress' is_billing=1 %}">
+        <form class="needs-validation p-0" method="post" action="{% url 'add_adress' %}">
             {% csrf_token %}
             <div class="accordion" id="billing-adress-accordion">
                 <div class="accordion-item rounded-4 border-0 glass">

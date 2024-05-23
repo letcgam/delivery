@@ -5,7 +5,6 @@ const orderStatus = Array.from(document.getElementById("status").children);
 orderStatus[0].classList.add("text-light");
 orderStatus[0].children[0].classList.add("text-light");
 
-
 document.addEventListener("DOMContentLoaded", () => {
     price.forEach(price => {
         price.innerHTML = formatPrice(price.innerHTML)
