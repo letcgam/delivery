@@ -1,8 +1,9 @@
 const isOwner = document.getElementById("is-owner").value;
-const productCards = document.getElementsByName("product-card-image");
+const prices = document.getElementsByName("price");
 
-productCards.forEach(card => {
-    console.log(card)
+prices.forEach(price => {
+    price.innerHTML = formatPrice(price.innerHTML);
+    console.log(price)
 })
 
 const categoryCarousel = new bootstrap.Carousel(

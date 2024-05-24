@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.contrib.auth.models import User
 from .signals import user_signals, product_signals
@@ -540,11 +540,11 @@ def product(request, product_id, success=False, message=""):
     same_seller_products = [[]]
 
     for item in products:
-        if item.category == product.category:
+        if item.category == product.category and item != product:
             if (len(same_category_products[-1]) + 1) % 6 == 0:
                 same_category_products.append([])
             same_category_products[-1].append(item)
-        if item.owner == product.owner:
+        if item.owner == product.owner and item != product:
             if (len(same_seller_products[-1]) + 1) % 6 == 0:
                 same_seller_products.append([])
             same_seller_products[-1].append(item)
@@ -841,3 +841,8 @@ def update_order_status(request, status_id, order_id):
     context.update({"order": order, "items": items})
     if context['type'] == 'seller':
         return render(request, "seller/sale.html", context)
+    
+
+
+def deliveryman_menu(request):
+    return render(request, "delivery/deliveryman-menu.html")

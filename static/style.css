@@ -198,9 +198,26 @@ a:hover {
     color: var(--link-hover-color) !important;
 }
 
-.product-card {
+.product-card-name {
+    display: -webkit-box;
     overflow: hidden; /* Removendo barra de rolagem */
     text-overflow: ellipsis; /* Adicionando "..." ao final */
     -webkit-line-clamp: 2; /* Quantidade de linhas */
     -webkit-box-orient: vertical; 
+}
+
+.product-card-image {
+    width: 100%; /* ou um valor fixo, por exemplo, 300px */
+    padding-top: 100%; /* Mantém a proporção de um quadrado */
+    position: relative;
+    overflow: hidden; /* Esconde o excesso de imagem fora do quadrado */
+}
+
+.product-card-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Garante que a imagem cubra o quadrado sem distorção */
 }

@@ -8,4 +8,4 @@ add product sub sections (same category and from the same store)
 
 add pages for products list
 
-product cards at product template view
+delivery options
