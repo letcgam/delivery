@@ -3,5 +3,64 @@
 
 
 {% block body %}
-deliveryman menu
+<div class="container d-flex flex-column col-12 col-lg-8 col-xl-6">
+    <div class="row d-flex justify-content-center text-light glass py-3 rounded-4">
+        <div class="col-12 col-lg-6 col-xl-6">
+            <ul class="list-group">
+                <li class="list-group-item px-4 pt-3 bg-black border-0 rounded-top-3 mb-2">
+                    <h3>Delivery in progress</h3>
+                </li>
+                <div class="p-3">
+                    {% if order_in_progress == None %}
+                        <p class="text-secondary">No orders in progress.</p>
+                    {% else %}
+                        <span class="d-flex justify-content-between">
+                            <span>
+                                <p class="m-0 fw-bold">Order <span name="order-id">{{ order_in_progress.id }}</span></p>
+                                <p name="order-quant">{{ order_in_progress.quant }}&times; Itens</p>
+                            </span>
+                            <span><div class="border rounded-pill p-2 px-3 text-center" name="order-status">{{ order.status.description }}</div></span>
+                        </span>
+                    {% endif %}
+                </div>
+                <li class="list-group-item px-4 pt-3 bg-black border-0 rounded-top-3 mb-2">
+                    <h3>Orders awaiting withdraw</h3>
+                </li>
+                <div class="p-3">
+                    {% for order in orders_awaiting %}
+                        <div data-bs-toggle="modal" data-bs-target="#modal{{ order.id }}">
+                            <span class="d-flex justify-content-between">
+                                <span class="fw-bold">Order <span name="order-id">{{ order.id }}</span></span>
+                                <span name="order-quant">Itens: {{ order.quant }}</span>
+                            </span>
+                            <p>{{ order.delivery_adress }}</p>
+                        </div>
+                        {% if not forloop.last %}
+                            <hr>
+                        {% endif %}
+                        <!-- Modal -->
+                        <div class="modal fade" id="modal{{ order.id }}" tabindex="-1" aria-labelledby="modal{{ order.id }}Label" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h1 class="modal-title fs-5 text-dark" id="modal{{ order.id }}Label">{{ order.id }}</h1>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                  ...
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                  <button type="button" class="btn btn-primary">Save changes</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                    {% endfor %}
+                </div>
+            </ul>
+        </div>
+    </div>
+</div>
+</div>
 {% endblock %}

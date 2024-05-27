@@ -1,3 +1,5 @@
+from ast import Str
+from tokenize import String
 from django.db import models
 from django.contrib.auth.models import User as AuthUser
 
@@ -92,8 +94,8 @@ class DriversLicense(models.Model):
 
 class Driver(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    license = models.ForeignKey(DriversLicense, on_delete=models.CASCADE)
+    deliveryman = models.OneToOneField(AuthUser, on_delete=models.CASCADE, unique=True, default=1)
+    license = models.OneToOneField(DriversLicense, on_delete=models.CASCADE, unique=True)
 
     class Meta:
         db_table = "driver"
@@ -166,6 +168,9 @@ class Adress(models.Model):
 
     class Meta:
         db_table = "adress"
+    
+    def __str__(self):
+        return str(self.street + ", " + self.city + ", " + self.state + " - " + self.postal_code)
     
     def fields_values(self):
         fields = [field.name for field in self._meta.get_fields()]

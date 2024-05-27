@@ -1,16 +1,10 @@
 const isOwner = document.getElementById("is-owner").value;
-const productCardImages = Array.from(document.getElementsByClassName("product-card-image"));
+const prices = document.getElementsByName("price");
 
-// document.addEventListener("DOMContentLoaded", () => {
-//     productCardImages.forEach(card => { 
-//         card.style.height = String(card.clientWidth) + "px";
-//         card.children[0].style.maxHeight = "100%";
-//         card.children[0].style.width = String((card.children[0].style.height * card.children[0].clientWidth) / card.children[0].clientWidth) + "px";
-//         console.log(card.children[0].style.width)
-//     });
-// });
-// document.addEventListener("resize", () => {
-// });
+prices.forEach(price => {
+    price.innerHTML = formatPrice(price.innerHTML);
+    console.log(price)
+})
 
 const categoryCarousel = new bootstrap.Carousel(
     document.getElementById("same-category-carousel"),

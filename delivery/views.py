@@ -1,4 +1,5 @@
 import decimal
+from os import name
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -7,10 +8,9 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.contrib.auth.models import User
 from .signals import user_signals, product_signals
-from .models import Document, User as UserInfo
+from .models import DeliveryRecord, Document, User as UserInfo
 from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense
 from .exceptions.exceptions import FieldError
-
 
 def index(request):
     products = Product.objects.all()
@@ -843,6 +843,24 @@ def update_order_status(request, status_id, order_id):
         return render(request, "seller/sale.html", context)
     
 
-
+@login_required
 def deliveryman_menu(request):
-    return render(request, "delivery/deliveryman-menu.html")
+    deliveryman = request.user
+    driver = Driver.objects.get(deliveryman = deliveryman)
+    context = get_layout_context(request)
+    
+    order_in_progress = DeliveryRecord.objects.filter(driver = driver).last()
+    if order_in_progress != None and order_in_progress.order.status in ["AWAITING WITHDRAW", "EN ROUTE"]:
+        context.update({"order_in_progress": order_in_progress})
+    
+    orders = Order.objects.all()
+    orders_awaiting = [order for order in orders if order.status.description == "AWAITING WITHDRAW"]
+    for order in orders_awaiting:
+        quant = 0
+        for item in OrderItem.objects.filter(order = order):
+            quant += item.quant
+        order.quant = quant
+    
+    context.update({"orders_awaiting": orders_awaiting})
+            
+    return render(request, "delivery/deliveryman-menu.html", context)
