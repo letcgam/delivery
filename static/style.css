@@ -219,3 +219,9 @@ a:hover {
     height: 100%;
     object-fit: contain;
 }
+
+.shadow {
+    -webkit-box-shadow: inset 0px 0px 33px 1px rgba(255,255,255,1);
+    -moz-box-shadow: inset 0px 0px 33px 1px rgba(255,255,255,1);
+    box-shadow: inset 0px 0px 33px 1px rgba(255,255,255,1);
+}
