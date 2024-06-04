@@ -1,5 +1,4 @@
 import decimal
-from os import name
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -512,6 +511,7 @@ def my_sales(request):
         "sales": sales,
         "reverse_sales": reverse_sales
     })
+    
     return render(request, "seller/my-sales.html", context)
 
 
@@ -844,7 +844,7 @@ def update_order_status(request, status_id, order_id):
     
 
 @login_required
-def deliveryman_menu(request):
+def deliveryman_menu(request, message=""):
     deliveryman = request.user
     driver = Driver.objects.get(deliveryman = deliveryman)
     context = get_layout_context(request)
@@ -861,6 +861,27 @@ def deliveryman_menu(request):
             quant += item.quant
         order.quant = quant
     
-    context.update({"orders_awaiting": orders_awaiting})
+    context.update({
+        "orders_awaiting": orders_awaiting,
+        "message": message
+    })
             
     return render(request, "delivery/deliveryman-menu.html", context)
+
+
+@login_required
+def take_delivery_order(request, order_id):
+    deliveryman = Driver.objects.get(deliveryman = request.user)
+    context = get_layout_context(request)
+    order = Order.objects.get(pk = order_id)
+    try:
+        record = DeliveryRecord.objects.create(
+            driver = deliveryman,
+            order = order
+        )
+        record.save()
+        
+        
+    except:
+        message = {"class": "text-danger", "text": "Error registering order."}
+        return deliveryman_menu(request, message)

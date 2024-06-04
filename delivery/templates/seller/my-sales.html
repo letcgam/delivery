@@ -41,19 +41,7 @@
                             <p class="p-2 m-0">Order  
                                 <span name="order-id">{{ order }}</span>
                             </p>
-                            <span name="status">
-                                {% if items.order.status.description == "PROCESSING" %}
-                                    Confirmation needed
-                                {% elif items.order.status.description == "IN PREPARATION" %}
-                                    In preparation
-                                {% elif items.order.status.description == "AWAITING WITHDRAW" %}
-                                    Awaiting withdraw
-                                {% elif items.order.status.description == "EN ROUTE" %}
-                                    En route
-                                {% else %}
-                                    Deliver
-                                {% endif %}
-                            </span>
+                            <span name="status">{{ order.status.description }}</span>
                         </div>
                         <ul class="list-group mt-1 p-0 border-top border-secondary rounded-0">
                             {% for item in items.items %}
@@ -79,19 +67,7 @@
                             <p class="p-2 m-0">Order  
                                 <span name="order-id">{{ order }}</span>
                             </p>
-                            <span name="status">
-                                {% if items.order.status.description == "PROCESSING" %}
-                                    Confirmation needed
-                                {% elif items.order.status.description == "IN PREPARATION" %}
-                                    In preparation
-                                {% elif items.order.status.description == "AWAITING WITHDRAW" %}
-                                    Awaiting withdraw
-                                {% elif items.order.status.description == "EN ROUTE" %}
-                                    En route
-                                {% else %}
-                                    Deliver
-                                {% endif %}
-                            </span>
+                            <span name="status">{{ order.status.description }}</span>
                         </div>
                         <ul class="list-group mt-1 p-0 border-top border-secondary rounded-0">
                             {% for item in items.items %}

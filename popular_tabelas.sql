@@ -80,6 +80,14 @@ INSERT INTO product (name, description, category_id, price, stock, owner_id) VAL
     ('Stainless Steel Cookware Set', 'High-quality cookware set for professional cooking.', 8, 149.99, 25, 3);
 
 
+INSERT INTO order_status(id, description) VALUES
+(1, 'Processing'),
+(2, 'In preparation'),
+(3, 'Ready for pick up'),
+(4, 'Awaiting withdrawal'),
+(5, 'En route'),
+(6, 'Deliver');
+
 
 
 APLICAR NA MIGRATIONS ANTES DE EXECUTAR:
@@ -91,6 +99,7 @@ def create_order_statuses(apps, schema_editor):
     statuses = [
         ("PROCESSING", "Processing"),
         ("IN PREPARATION", "In preparation"),
+        ("READY FOR PICKUP", "Ready for pick up")
         ("AWAITING WITHDRAW", "Awaiting withdrawal"),
         ("EN ROUTE", "En route"),
         ("DELIVER", "Deliver"),

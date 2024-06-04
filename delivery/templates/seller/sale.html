@@ -30,7 +30,7 @@
             <div class="d-flex flex-column align-items-center m-4">
                 <p>Current status: {{ order.status.description }}</p>
                 <div action="" class="d-flex flex-column">
-                    {% if order.status.description == "PROCESSING" %}
+                    {% if order.status.description == "Processing" %}
                         <a href="{% url 'update_order_status' status_id=2 order_id=order.id %}" class="btn btn-theme my-3">Confirm order</a>
                         <a class="btn bg-black text-light" data-bs-toggle="modal" data-bs-target="#exampleModal">Reject order</a>
                         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

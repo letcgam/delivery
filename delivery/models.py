@@ -257,14 +257,7 @@ class Recipient(models.Model):
 
 class OrderStatus(models.Model):
     id = models.AutoField(primary_key=True)
-    description = models.CharField(max_length=25, choices=[
-        ("PROCESSING", "Processing"),
-        ("IN PREPARATION", "In preparation"),
-        ("AWAITING WITHDRAW", "Awaiting withdrawal"),
-        ("EN ROUTE", "En route"),
-        ("DELIVER", "Deliver"),
-        ("CANCELED", "Canceled")
-    ])
+    description = models.CharField(max_length=60)
 
     class Meta:
         db_table = "order_status"
