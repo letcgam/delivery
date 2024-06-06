@@ -474,43 +474,20 @@ def my_products(request):
 
 @login_required
 def my_sales(request):
+    seller = request.user
     context = get_layout_context(request)
     orders = Order.objects.all().order_by("creation_date")
     order_items = OrderItem.objects.all()
-
-    # sale["order_id"] = {"order": order,
-    #                     "items": [order_items]
-    #                     }
-    sales = {}
-    reverse_sales = {}
-
+    
     for order in orders:
-        sales.update({str(order.id): {"order": order, "items": []}})
-
+        order.items = []
         for item in order_items:
-            if item.order == order and item.product.owner == request.user:
-                sales[str(order.id)]["items"].append({
-                    "product": item.product,
-                    "quant": item.quant
-                })
+            if item.order == order and item.product.owner == seller:
+                order.items.append(item)
     
-    for order in orders.reverse():
-        reverse_sales.update({str(order.id): {"order": order, "items": []}})
-
-        for item in order_items:
-            if item.order == order and item.product.owner == request.user:
-                reverse_sales[str(order.id)]["items"].append({
-                    "product": item.product,
-                    "quant": item.quant
-                })
-
-    sales = {key: value for key, value in sales.items() if value["items"] != []}
-    reverse_sales = {key: value for key, value in reverse_sales.items() if value["items"] != []}
+    orders = [order for order in orders if order.items != []]
     
-    context.update({
-        "sales": sales,
-        "reverse_sales": reverse_sales
-    })
+    context.update({"orders": orders})
     
     return render(request, "seller/my-sales.html", context)
 

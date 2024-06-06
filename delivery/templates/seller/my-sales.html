@@ -14,13 +14,14 @@
                         <option value="Confirmation needed">Confirmation needed</option>
                         <option value="In preparation">In preparation</option>
                         <option value="Awaiting withdraw">Awaiting withdraw</option>
+                        <option value="Ready for pick up">Ready for pick up</option>
                         <option value="En route">En route</option>
                         <option value="Deliver">Deliver</option>
                     </select>
                 </div>
                 <div class="d-flex flex-column col col-3">
-                    Order by
-                    <select id="order-by-filter" class="bg-dark text-light p-2 rounded-2">
+                    Sort by
+                    <select id="sort-by-filter" class="bg-dark text-light p-2 rounded-2">
                         <option value="newest">Newest</option>
                         <option value="oldest">Oldest</option>
                     </select>
@@ -35,16 +36,16 @@
                 </div>
             </li>
             <div id="sales-div" hidden>
-                {% for order, items in sales.items %}
-                    <a href="{% url 'sale' order_id=order %}" name="order" class="list-group-item glass text-light rounded-3 m-2 border-0">
+                {% for order in orders %}
+                    <a href="{% url 'sale' order_id=order.id %}" name="order" class="list-group-item text-light rounded-3 m-2 border-0 glass">
                         <div class="d-flex justify-content-between align-items-center">
                             <p class="p-2 m-0">Order  
-                                <span name="order-id">{{ order }}</span>
+                                <span name="order-id">{{ order.id }}</span>
                             </p>
                             <span name="status">{{ order.status.description }}</span>
                         </div>
                         <ul class="list-group mt-1 p-0 border-top border-secondary rounded-0">
-                            {% for item in items.items %}
+                            {% for item in order.items %}
                                 <li class="list-group-item full-glass text-light d-flex justify-content-between border-0">
                                     <div class="d-flex flex-column">
                                         <span>{{ item.product }}</span>
@@ -61,16 +62,16 @@
                 {% endfor %}
             </div>
             <div id="reverse-sales-div">
-                {% for order, items in reverse_sales.items %}
-                    <a href="{% url 'sale' order_id=order %}" name="order" class="list-group-item text-light rounded-3 m-2 border-0 glass">
+                {% for order in orders reversed %}
+                    <a href="{% url 'sale' order_id=order.id %}" name="order" class="list-group-item text-light rounded-3 m-2 border-0 glass">
                         <div class="d-flex justify-content-between align-items-center">
                             <p class="p-2 m-0">Order  
-                                <span name="order-id">{{ order }}</span>
+                                <span name="order-id">{{ order.id }}</span>
                             </p>
                             <span name="status">{{ order.status.description }}</span>
                         </div>
                         <ul class="list-group mt-1 p-0 border-top border-secondary rounded-0">
-                            {% for item in items.items %}
+                            {% for item in order.items %}
                                 <li class="list-group-item full-glass text-light d-flex justify-content-between border-0">
                                     <div class="d-flex flex-column">
                                         <span>{{ item.product }}</span>

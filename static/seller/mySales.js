@@ -3,7 +3,7 @@ const orders = Array.from(document.getElementsByName("order"));
 const ordersStatus = document.getElementsByName("status");
 const price = document.getElementsByName("price");
 const statusFilter = document.getElementById("status-filter");
-const orderByFilter = document.getElementById("order-by-filter");
+const sortByFilter = document.getElementById("sort-by-filter");
 const fromDate = document.getElementById("from-date");
 const toDate = document.getElementById("to-date");
 const salesDiv = document.getElementById("sales-div");
@@ -33,8 +33,8 @@ statusFilter.addEventListener("change", () => {
     }
 })
 
-orderByFilter.addEventListener("change", () => {
-    if (orderByFilter.value == "oldest") {
+sortByFilter.addEventListener("change", () => {
+    if (sortByFilter.value == "oldest") {
         salesDiv.hidden = false;
         reverseSalesDiv.hidden = true;
     } else {
