@@ -4,11 +4,16 @@ finish categories filter
 
 add dashboard info
 
-fix product sub sections (same category and from the same store)
-
 add pages for products list
 
 delivery options
 delivery distance between store and client
 orders w 1+ seller
 
+
+
+
+
+
+
+fix product sub sections (same category and from the same store)

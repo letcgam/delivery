@@ -13,9 +13,11 @@ from .exceptions.exceptions import FieldError
 
 def index(request):
     products = Product.objects.all()
+    products.range = {"3": range(1, len(products)//3+1), "5": range(1, len(products)//5+1)}
+    print(products.range)
 
     context = get_layout_context(request)
-    context.update({"products": products})
+    context.update({"products": products, "same_seller_products": products})
 
     return render(request, "index.html", context)
 
@@ -512,26 +514,14 @@ def product(request, product_id, success=False, message=""):
         user_id = request.user.id
     )
     
-    products = Product.objects.all()
-    same_category_products = [[]]
-    same_seller_products = [[]]
-
-    for item in products:
-        if item.category == product.category and item != product:
-            if (len(same_category_products[-1]) + 1) % 6 == 0:
-                same_category_products.append([])
-            same_category_products[-1].append(item)
-        if item.owner == product.owner and item != product:
-            if (len(same_seller_products[-1]) + 1) % 6 == 0:
-                same_seller_products.append([])
-            same_seller_products[-1].append(item)
+    same_category_products = Product.objects.filter(category = product.category)
+    same_seller_products = Product.objects.filter(owner = product.owner)
 
     context = get_layout_context(request)
     context.update({
         "product": product,
         "category": category,
         "wishlist": wishlist,
-        "image_url": "../static/icon.png",
         "success": success,
         "message": message,
         "same_category_products": same_category_products,

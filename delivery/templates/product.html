@@ -130,73 +130,7 @@
 <div class="d-flex flex-column align-items-center">
     <h1 class="mt-5 pt-5 pb-3 col-8">Similar products</h1>
     <h3 class="mt-2 pt-3 pb-3 border-bottom col-12 col-md-10 col-lg-8">From the same store</h3>
-    <div id="same-category-carousel" class="carousel col-12 col-lg-10 slide my-4 d-flex">
-        <button class="carousel-control-prev position-relative" type="button" data-bs-target="#same-category-carousel" data-bs-slide="prev">
-                {% if same_category_products|length > 1 %}
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                {% endif %}
-        </button>
-        <div class="carousel-inner container">
-                    {% for list in same_category_products %}
-                        {% if forloop.first %}
-                            <div class="carousel-item active">
-                                <div class="row row-cols-5 d-flex m-1">
-                                    {% for product in list %}
-                                        <div class="card p-0 full-glass border-0">
-                                            <a href="{% url 'product' product_id=product.id %}" class="card-body p-2 m-md-1 m-lg-2 py-3 pb-2 glass rounded-2 d-flex flex-column align-items-end justify-content-between">
-                                                <span>
-                                                    <div class="product-card-image mb-2 mb-lg-3">
-                                                        {% if product.image_url != "" %}
-                                                            <img id="product-image" src="{{ product.image_url }}">
-                                                        {% else %}
-                                                            <img id="product-image" src="{% static 'icon.png' %}">
-                                                        {% endif %}
-                                                    </div>
-                                                    <p class="product-card-name lh-sm mb-1 w-100">
-                                                        {{ product.name }}
-                                                    </p>
-                                                </span>
-                                                <small name="price">{{ product.price }}</small>
-                                            </a>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% else %}
-                            <div class="carousel-item">
-                                <div class="row row-cols-5 d-flex m-1">
-                                    {% for product in list %}
-                                        <div class="card p-0 full-glass border-0">
-                                            <a href="{% url 'product' product_id=product.id %}" class="card-body p-2 m-md-1 m-lg-2 py-3 pb-2 glass rounded-2 d-flex flex-column align-items-end justify-content-between">
-                                                <span>
-                                                    <div class="product-card-image mb-2 mb-lg-3">
-                                                        {% if product.image_url != "" %}
-                                                            <img id="product-image" src="{{ product.image_url }}">
-                                                        {% else %}
-                                                            <img id="product-image" src="{% static 'icon.png' %}">
-                                                        {% endif %}
-                                                    </div>
-                                                    <p class="product-card-name lh-sm mb-1 w-100">
-                                                        {{ product.name }}
-                                                    </p>
-                                                </span>
-                                                <small name="price">{{ product.price }}</small>
-                                            </a>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-        </div>
-        <button class="carousel-control-next position-relative" type="button" data-bs-target="#same-category-carousel" data-bs-slide="next">
-                {% if same_category_products|length > 1 %}
-                    <span class="carousel-control-next-icon rounded-circle" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                {% endif %}
-        </button>
-    </div>
+    
     <h3 class="mt-2 pt-3 pb-3 border-bottom col-12 col-md-10 col-lg-8">More of {{ product.category.name }}</h3>
     <div id="same-seller-carousel" class="carousel col-12 col-lg-10 slide my-4 d-flex">
         <button class="carousel-control-prev position-relative" type="button" data-bs-target="#same-seller-carousel" data-bs-slide="prev">
@@ -206,12 +140,13 @@
                 {% endif %}
         </button>
         <div class="carousel-inner container">
+            {% with round=0 %}
+            {% with product=0 %}
             {% for list in same_seller_products %}
-                {% if forloop.first %}
-                    <div class="carousel-item active">
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
                         <div class="row row-cols-5 d-flex m-1">
                             {% for product in list %}
-                                <div class="card p-0 full-glass border-0">
+                                <!-- <div class="card p-0 full-glass border-0">
                                     <a href="{% url 'product' product_id=product.id %}" class="card-body p-2 m-md-1 m-lg-2 py-3 pb-2 glass rounded-2 d-flex flex-column align-items-end justify-content-between">
                                         <div class="product-card-image mb-2 mb-lg-3">
                                             {% if product.image_url != "" %}
@@ -225,35 +160,13 @@
                                         </p>
                                         <small name="price">{{ product.price }}</small>
                                     </a>
-                                </div>
+                                </div> -->
                             {% endfor %}
                         </div>
                     </div>
-                {% else %}
-                    <div class="carousel-item">
-                        <div class="row row-cols-5 d-flex m-1">
-                            {% for product in list %}
-                                <div class="card p-0 full-glass border-0">
-                                    <a href="{% url 'product' product_id=product.id %}" class="card-body p-2 m-md-1 m-lg-2 py-3 pb-2 glass rounded-2 d-flex flex-column align-items-end justify-content-between">
-                                        <div class="product-card-image mb-2 mb-lg-3">
-                                            {% if product.image_url != "" %}
-                                                <img id="product-image" src="{{ product.image_url }}">
-                                            {% else %}
-                                                <img id="product-image" src="{% static 'icon.png' %}">
-                                            {% endif %}
-                                        </div>
-                                        <p class="product-card-name lh-sm mb-1 w-100">
-                                            {{ product.name }}
-                                        </p>
-                                        <small name="price">{{ product.price }}</small>
-                                    </a>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
             {% endfor %}
         </div>
+        <div class="carousel-inner container"></div>
         <button class="carousel-control-next position-relative" type="button" data-bs-target="#same-seller-carousel" data-bs-slide="next">
                 {% if same_seller_products|length > 1 %}
                     <span class="carousel-control-next-icon rounded-circle" aria-hidden="true"></span>
