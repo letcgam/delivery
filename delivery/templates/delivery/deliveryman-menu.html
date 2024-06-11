@@ -4,53 +4,82 @@
 
 {% block body %}
 <div class="container d-flex flex-column col-12 col-lg-8 col-xl-6">
-        <div>
-            <ul class="list-group">
-                <li class="list-group-item rounded-4 border-0 mb-3 glass p-0 m-0">
-                    <span class="d-flex bg-black rounded-top-4 pb-2 pt-3 px-4">
-                        <h3>Delivery in progress</h3>
-                    </span>
-                    <div class="p-3 px-4">
-                        {% if order_in_progress == None %}
-                            <p class="text-secondary">No orders in progress.</p>
-                        {% else %}
-                            <span class="d-flex justify-content-between">
-                                <span>
-                                    <p class="m-0 fw-bold">Order <span name="order-id">{{ order_in_progress.id }}</span></p>
-                                    <p name="order-quant">{{ order_in_progress.quant }}&times; Itens</p>
-                                </span>
-                                <span><div class="rounded-pill p-2 px-3 text-center" name="order-status">{{ order.status.description }}</div></span>
+    <div>
+        <ul class="list-group">
+            <li class="list-group-item rounded-4 border-0 mb-3 glass p-0 m-0">
+                <span class="d-flex bg-black rounded-top-4 pb-2 pt-3 px-4">
+                    <h3>Delivery in progress</h3>
+                </span>
+                <div class="p-3 px-4">
+                    {% if order_in_progress == None %}
+                        <p class="text-secondary">No orders in progress.</p>
+                    {% else %}
+                        <span class="d-flex justify-content-between">
+                            <span>
+                                <p class="m-0 fw-bold">Order <span name="order-id">{{ order_in_progress.id }}</span></p>
+                                <p name="order-quant">{{ order_in_progress.quant }}&times; Itens</p>
                             </span>
-                        {% endif %}
-                    </div>
-                </li>
-                <li class="list-group-item rounded-4 border-0 mb-3 glass p-0 m-0">
-                    <span class="d-flex justify-content-between bg-black rounded-top-4 pb-2 pt-3 px-4">
-                        <h3>Orders awaiting withdraw</h3>
-                        <i class="bi bi-info-circle p-2 py-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Click to see each order specifications"></i>
-                    </span>
-                    <ul class="list-group">
+                            <span><div class="rounded-pill p-2 px-3 text-center" name="order-status">{{ order.status.description }}</div></span>
+                        </span>
+                    {% endif %}
+                </div>
+            </li>
+            <li class="list-group-item rounded-4 border-0 mb-3 glass p-0 m-0">
+                <span class="d-flex justify-content-between bg-black rounded-top-4 pb-2 pt-3 px-4">
+                    <h3>Orders awaiting withdraw</h3>
+                    <i class="bi bi-info-circle p-2 py-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Click to see each order specifications"></i>
+                </span>
+                <ul class="list-group">
+                    {% if orders_awaiting|length == 0 %}
+                        <li class="list-group-item border-0 full-glass d-flex justify-content-between p-3 px-4">
+                            <p class="text-secondary">No orders to deliver.</p>
+                        </li>
+                    {% else %}
                         {% for order in orders_awaiting %}
                             <li class="list-group-item border-0 full-glass d-flex justify-content-between p-3 px-4">
                                 <div class="d-flex flex-column">
                                     <b>Order <span name="order-id">{{ order.id }}</span></b>
                                     <span>Packages: {{ order.quant }}</span>
                                     <span>Adress: {{ order.delivery_adress.city }}, {{ order.delivery_adress.state }}</span>
-                                    <span>Distance: XX,Xkm</span>
+                                    <span>Seller adress: {{ order }}</span>
                                 </div>
                                 <form action="" class="d-flex align-items-center">
                                     <input value="{{ order.id }}" hidden>
-                                    <button class="btn btn-theme my-2">Take order</button>
+                                    <!-- Button trigger modal -->
+                                    <a class="btn btn-theme" data-bs-toggle="modal" data-bs-target="#take-order-modal-{{ order.id }}">
+                                        Take order
+                                    </a>
                                 </form>
                             </li>
                             {% if not forloop.last %}
                                 <hr class="m-0 mx-3">
                             {% endif %}
                         {% endfor %}
-                    </ul>
-                </li>
-            </ul>
+                    {% endif %}
+                </ul>
+            </li>
+        </ul>
+    </div>
+    {% for order in orders_awaiting %}
+        <!-- Modal -->
+        <div class="modal fade" id="take-order-modal-{{ order.id }}" aria-labelledby="take-order-modal-label" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark p-3">
+                    <div class="modal-body d-flex flex-column justify-content-center align-items-center">
+                        <h3 class="w-100">Take order <span name="order-id">{{ order.id }}</span></h3>
+                        <div class="w-100 d-flex flex-column">
+                            <span>Packages: {{ order.quant }}</span>
+                            <span>Adress: {{ order.delivery_adress.city }}, {{ order.delivery_adress.state }}</span>
+                        </div>
+                        <span class="d-flex justify-content-center mt-3">
+                            <button type="button" class="btn btn-secondary m-2" data-bs-dismiss="modal">Cancel</button>
+                            <a href="{% url 'take_delivery_order' order_id=order.id %}" class="btn btn-theme m-2">Confirm</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
+    {% endfor %}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

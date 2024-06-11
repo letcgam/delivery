@@ -19,10 +19,10 @@
             <input type="text" id="seller-search" class="form-control bg-dark text-light">
         </span>
     </div>
-    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6">
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 w-100">
         {% for product in products %}
             <div class="p-2" name="product">
-                <a href="{% url 'product' product_id=product.id %}" class="glass d-flex flex-column p-3 text-light link-underline link-underline-opacity-0">
+                <a href="{% url 'product' product_id=product.id %}" class="d-flex flex-column p-3 rounded-3 text-light link-underline link-underline-opacity-0 product-section glass">
                     <span class="d-flex justify-content-center align-items-center mb-2 w-100 square">
                         {% if product.image_url != "" %}
                             <img name="product-image" src="{{ product.image_url }}" class="full-glass rounded-3 ">

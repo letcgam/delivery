@@ -1,7 +1,3 @@
-create user adress edit log
-add a bunch of logs
-finish categories filter
-
 add dashboard info
 
 add pages for products list
@@ -10,10 +6,5 @@ delivery options
 delivery distance between store and client
 orders w 1+ seller
 
-
-
-
-
-
-
-fix product sub sections (same category and from the same store)
+end take delivery processing
+limit of 1 seller per order

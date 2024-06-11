@@ -1,4 +1,5 @@
 import decimal
+from math import ceil
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -13,11 +14,9 @@ from .exceptions.exceptions import FieldError
 
 def index(request):
     products = Product.objects.all()
-    products.range = {"3": range(1, len(products)//3+1), "5": range(1, len(products)//5+1)}
-    print(products.range)
-
+    
     context = get_layout_context(request)
-    context.update({"products": products, "same_seller_products": products})
+    context.update({"products": products})
 
     return render(request, "index.html", context)
 
@@ -508,24 +507,28 @@ def sale(request, order_id):
 
 def product(request, product_id, success=False, message=""):
     product = Product.objects.get(pk=product_id)
-    category = Category.objects.get(pk=product.category_id).name
     wishlist = WishList.objects.filter(
         product_id = product_id,
         user_id = request.user.id
     )
+
+    same_seller = Product.objects.filter(owner = product.owner)
+    same_seller.len = len(same_seller)
+    same_seller.range = {"3": range(1, ceil(len(same_seller)/3+1)), "5": range(1, ceil(len(same_seller)/5+1))}
     
-    same_category_products = Product.objects.filter(category = product.category)
-    same_seller_products = Product.objects.filter(owner = product.owner)
+    same_category = Product.objects.filter(category = product.category)
+    same_category.len = len(same_category)
+    same_category.range = {"3": range(1, ceil(len(same_category)/3+1)), "5": range(1, ceil(len(same_category)/5+1))}
+
 
     context = get_layout_context(request)
     context.update({
-        "product": product,
-        "category": category,
+        "main_product": product,
         "wishlist": wishlist,
         "success": success,
         "message": message,
-        "same_category_products": same_category_products,
-        "same_seller_products": same_seller_products
+        "same_category": same_category,
+        "same_seller": same_seller
     })
     
     return render(request, "product.html", context)
@@ -630,6 +633,12 @@ def my_cart(request):
     if request.method == "GET":
         cart = Cart.objects.filter(user_id = user.id).first()
         items = CartItem.objects.filter(cart_id = cart.id)
+        
+        sellers = []######################################################################################
+        for item in items:#################################################################################
+            if item.product.owner not in sellers:#########################################################
+                sellers.append(item.product.owner)#########################################################
+                
         products = []
         for item in items:
             product = {
@@ -817,11 +826,11 @@ def deliveryman_menu(request, message=""):
     context = get_layout_context(request)
     
     order_in_progress = DeliveryRecord.objects.filter(driver = driver).last()
-    if order_in_progress != None and order_in_progress.order.status in ["AWAITING WITHDRAW", "EN ROUTE"]:
+    if order_in_progress != None and order_in_progress.order.status.description.lower() in ["awaiting withdraw", "en route"]:
         context.update({"order_in_progress": order_in_progress})
     
     orders = Order.objects.all()
-    orders_awaiting = [order for order in orders if order.status.description == "AWAITING WITHDRAW"]
+    orders_awaiting = [order for order in orders if order.status.description.lower() == "ready for pick up"]
     for order in orders_awaiting:
         quant = 0
         for item in OrderItem.objects.filter(order = order):
@@ -839,16 +848,15 @@ def deliveryman_menu(request, message=""):
 @login_required
 def take_delivery_order(request, order_id):
     deliveryman = Driver.objects.get(deliveryman = request.user)
-    context = get_layout_context(request)
     order = Order.objects.get(pk = order_id)
+    
     try:
         record = DeliveryRecord.objects.create(
             driver = deliveryman,
             order = order
         )
         record.save()
-        
-        
     except:
         message = {"class": "text-danger", "text": "Error registering order."}
-        return deliveryman_menu(request, message)
+    
+    return deliveryman_menu(request, message)
