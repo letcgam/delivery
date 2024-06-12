@@ -38,10 +38,12 @@
                         {% for order in orders_awaiting %}
                             <li class="list-group-item border-0 full-glass d-flex justify-content-between p-3 px-4">
                                 <div class="d-flex flex-column">
-                                    <b>Order <span name="order-id">{{ order.id }}</span></b>
-                                    <span>Packages: {{ order.quant }}</span>
-                                    <span>Adress: {{ order.delivery_adress.city }}, {{ order.delivery_adress.state }}</span>
-                                    <span>Seller adress: {{ order }}</span>
+                                    <span>
+                                        <b>Order <span name="order-id">{{ order.id }}</span></b>
+                                        <span class="text-secondary">&bull; {{ order.quant }} items</span>
+                                    </span>
+                                    <span>To: {{ order.delivery_adress.city }}, {{ order.delivery_adress.state }}</span>
+                                    <span>Seller: {{ order.seller }}</span>
                                 </div>
                                 <form action="" class="d-flex align-items-center">
                                     <input value="{{ order.id }}" hidden>
@@ -68,8 +70,29 @@
                     <div class="modal-body d-flex flex-column justify-content-center align-items-center">
                         <h3 class="w-100">Take order <span name="order-id">{{ order.id }}</span></h3>
                         <div class="w-100 d-flex flex-column">
-                            <span>Packages: {{ order.quant }}</span>
-                            <span>Adress: {{ order.delivery_adress.city }}, {{ order.delivery_adress.state }}</span>
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td>Items</td>
+                                        <td>{{ order.quant }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>To</td>
+                                        <td>
+                                            <span>{{ order.user }}</span>
+                                            <span>{{ order.delivery_adress.city }}, {{ order.delivery_adress.state }}</span>
+                                        </td>
+                                    </tr>
+                                    </tr>
+                                    <tr>
+                                        <td>From</td>
+                                        <td>
+                                            <span>{{ order.seller }}</span>
+                                            <span>{{ order.seller_adress }}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <span class="d-flex justify-content-center mt-3">
                             <button type="button" class="btn btn-secondary m-2" data-bs-dismiss="modal">Cancel</button>

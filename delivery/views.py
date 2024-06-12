@@ -457,8 +457,6 @@ def edit_product(request, product_id):
             altered_fields = fields,
         )
     
-    print(old_att)
-    print(new_att)
     message = "Successfully edited product."
     # except:
     #     message = "Failed to edit product."
@@ -512,11 +510,11 @@ def product(request, product_id, success=False, message=""):
         user_id = request.user.id
     )
 
-    same_seller = Product.objects.filter(owner = product.owner)
+    same_seller = Product.objects.filter(owner = product.owner).exclude(pk = product.id)
     same_seller.len = len(same_seller)
     same_seller.range = {"3": range(1, ceil(len(same_seller)/3+1)), "5": range(1, ceil(len(same_seller)/5+1))}
     
-    same_category = Product.objects.filter(category = product.category)
+    same_category = Product.objects.filter(category = product.category).exclude(pk = product.id)
     same_category.len = len(same_category)
     same_category.range = {"3": range(1, ceil(len(same_category)/3+1)), "5": range(1, ceil(len(same_category)/5+1))}
 
@@ -634,28 +632,24 @@ def my_cart(request):
         cart = Cart.objects.filter(user_id = user.id).first()
         items = CartItem.objects.filter(cart_id = cart.id)
         
-        sellers = []######################################################################################
-        for item in items:#################################################################################
-            if item.product.owner not in sellers:#########################################################
-                sellers.append(item.product.owner)#########################################################
-                
-        products = []
+        
+        seller_products = {}
         for item in items:
-            product = {
-                "product": Product.objects.get(pk = item.product_id),
-                "quantity": item.quant
-            }
-            products.append(product)
+            seller = item.product.owner
+            if seller not in seller_products.keys():
+                seller_products.update({seller: []})
+            seller_products[seller].append(item)
 
-        if len(products) == 0:
-            products = None
+        if len(seller_products) == 0:
+            seller_products = None
 
-        context.update({"products": products})
+        context.update({"seller_products": seller_products})
 
         return render(request, "shopping/my-cart.html", context)
     else:
+        seller = User.objects.get(pk = request.POST['seller-radio'])
         cart = Cart.objects.get(user_id = user.id)
-        items = CartItem.objects.filter(cart_id = cart.id)
+        items = [item for item in CartItem.objects.filter(cart_id = cart.id) if item.product.owner == seller]
         products = []
         total = 0
         for item in items:
@@ -679,6 +673,7 @@ def my_cart(request):
         context.update({
             'user': user,
             'user_info': user_info,
+            'seller': seller,
             'total': total,
             'products': products,
             'products_len': len(products),
@@ -702,6 +697,8 @@ def new_order(request):
             if len(error) > 0:
                 raise FieldError(error)
             else:
+                seller = User.objects.get(pk = request.POST["seller-id"])
+                
                 recipient, created_recipient = Recipient.objects.get_or_create(
                     first_name = request.POST["first-name"],
                     last_name = request.POST["last-name"],
@@ -737,14 +734,16 @@ def new_order(request):
 
                 new_order = Order.objects.create(
                     user_id = user.id,
+                    seller = seller,
                     payment_id = payment.id,
                     recipient_id = recipient.id,
                     delivery_adress_id = adress.id
                 )
+                print(new_order)
                 new_order.save()
 
                 cart = Cart.objects.get(user_id = user.id)
-                cart_items = CartItem.objects.filter(cart_id = cart.id)
+                cart_items = [item for item in CartItem.objects.filter(cart_id = cart.id) if item.product.owner == seller]
 
                 message = []
                 for item in cart_items:
@@ -792,9 +791,9 @@ def my_orders(request):
     context = get_layout_context(request)
     orders = Order.objects.filter(user_id = user.id).order_by("-creation_date")
     for order in orders:
-        items = OrderItem.objects.filter(order_id = order.id)
+        order.items = OrderItem.objects.filter(order_id = order.id)
         order.quant = 0
-        for item in items:
+        for item in order.items:
             order.quant += item.quant
 
     context.update({"orders": orders})
@@ -836,6 +835,7 @@ def deliveryman_menu(request, message=""):
         for item in OrderItem.objects.filter(order = order):
             quant += item.quant
         order.quant = quant
+        order.seller_adress = BillingAdress.objects.filter(user = order.seller).first()
     
     context.update({
         "orders_awaiting": orders_awaiting,

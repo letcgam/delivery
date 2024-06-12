@@ -9,7 +9,6 @@
             <span class="badge bg-theme rounded-pill text-dark">{{ products_len }}</span>
           </h4>
           <ul class="list-group mb-3">
-            
             {% for product in products %}
             <li name="product" class="list-group-item d-flex justify-content-between lh-sm bg-black border-0 border-bottom border-dark">
                 <div>
@@ -189,8 +188,9 @@
 
               <hr class="my-4">
             </div>
-    
+  
             <div class="d-flex justify-content-center">
+                <input type="number" value="{{ seller.id }}" name="seller-id" hidden>
                 <button class="w-75 btn btn-theme btn-lg mb-4 rounded-pill" type="submit">Continue to checkout</button>
             </div>
           </form>

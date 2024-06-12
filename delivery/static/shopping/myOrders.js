@@ -3,7 +3,6 @@ const orderId = Array.from(document.getElementsByName("order-id"));
 const orderDate = Array.from(document.getElementsByName("order-date"));
 const orderStatus = Array.from(document.getElementsByName("order-status"));
 
-
 document.addEventListener("DOMContentLoaded", () => {
     price.forEach(price => {
         price.innerHTML = formatPrice(price.innerHTML)

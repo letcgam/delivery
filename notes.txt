@@ -7,4 +7,12 @@ delivery distance between store and client
 orders w 1+ seller
 
 end take delivery processing
-limit of 1 seller per order
+
+
+
+
+
+
+
+take delivery order modals
+fix order seller default to show adress

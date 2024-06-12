@@ -1,10 +1,14 @@
 const unitPrice = document.getElementsByName("product-price");
 const quantity = document.querySelectorAll('[name^="quantity-input"]');
-const totalPrice = document.getElementsByName("total-price");
-const total = document.getElementById("total");
-const totalValue = document.getElementById("total-input");
+var totalItemPrice = document.querySelectorAll('[name^="total-price"]');
+const totalCartPrice = document.getElementById("total");
+const radioBtns = document.getElementsByName("seller-radio");
+const purchaseBtn = document.getElementById("purchase-btn");
 const evt = new Event('change');
 
+// totalItemPrice.forEach(elem => {
+//     console.log(elem.attributes.name.value);
+// })
 
 document.addEventListener('DOMContentLoaded', () => {
     unitPrice.forEach(elem => {
@@ -15,24 +19,32 @@ document.addEventListener('DOMContentLoaded', () => {
         elem.dispatchEvent(evt);
     })
 
-    total.innerHTML = formatPrice(totalValue.value);
+    totalCartPrice.innerHTML = formatPrice(0);
+})
+
+radioBtns.forEach(btn => {
+    btn.addEventListener("input", () => {
+        var name = "total-price-seller" + String(btn.value)
+        totalItemPrice = document.getElementsByName(name);
+
+        var cartPrice = 0;
+        totalItemPrice.forEach(elem => {
+            cartPrice += Number.parseFloat(elem.children[1].value);
+        })
+        totalCartPrice.innerHTML = formatPrice(cartPrice);
+
+        purchaseBtn.disabled = false;
+    })
 })
 
 quantity.forEach((elem, index) => {
     elem.addEventListener('change', () => {
         elem.value = elem.value<1 ? 1 : elem.value;
         var price = unitPrice[index].children[1].value * elem.value;
-        const priceTag = totalPrice[index].children[0]
+        const priceTag = totalItemPrice[index].children[0]
         priceTag.append(formatPrice(price));
         priceTag.removeChild(priceTag.firstChild);
-        totalPrice[index].children[1].value = price;
-
-        var cartPrice = 0;
-        totalPrice.forEach(elem => {
-            cartPrice += Number.parseFloat(elem.children[1].value);
-        })
-        total.innerHTML = formatPrice(cartPrice);
-        totalValue.value = cartPrice;
+        totalItemPrice[index].children[1].value = price;
     })
 });
 

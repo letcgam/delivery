@@ -4,10 +4,10 @@
 {% block body %}
 <form action="{% url 'my_cart' %}" method="post" class="container d-flex flex-column align-items-center">
     {% csrf_token %}
-    <table class="col-12 col-lg-10 col-xl-8 cart-table rounded-4 glass p-3">
-        <h1 class="col-12 col-lg-10 col-xl-8 p-4">My cart</h1>
-        <!-- <thead>
-            <tr class="cart-product bg-black rounded-3 justify-content-center px-3 pt-3 m-2 row">
+    <table class="col-12 col-lg-10 col-xl-8 cart-table rounded-4 px-2">
+        <h1 class="col-12 col-lg-10 col-xl-8 p-3">My cart</h1>
+        <thead>
+            <tr class="cart-product bg-black rounded-4 justify-content-center px-3 pt-3 row">
                 <th class="w-100 d-flex row">
                     <span class="col-12 col-md-6 d-flex align-items-center p-0 mb-3">Product</span>
                     <hr class="d-md-none">
@@ -16,118 +16,132 @@
                     <span class="col-4 col-md-2 d-flex align-items-center p-0 mb-3 justify-content-end">Total</span>
                 </th>
             </tr>
-        </thead> -->
+        </thead>
         <tbody>
-            {% if not products %}
+            {% if not seller_products %}
             <tr class="bg-black rounded-3 justify-content-center p-2 m-2 row">
                 <td id="message">
-                            <h3 class="text-secondary p-3">Add poducts to your cart to see them here.</h3>
-                        </td>
-                </tr>
+                    <h3 class="text-secondary p-3">Add poducts to your cart to see them here.</h3>
+                </td>
+            </tr>
             {% else %}
-                {% for product in products %}
-                <tr class="cart-product bg-black rounded-3 justify-content-center p-2 m-2 row">
-                    <td class="d-flex align-items-center justify-content-center w-100 row">
-                        <span class="col-12 col-md-6 d-flex">
-                            <span class="d-flex align-items-center">
-                                <div class="btn-group btn-group-vertical">
-                                    <!-- Link trigger modal - Delete item from cart -->
-                                    <a class="btn m-0 p-0 bg-black" data-bs-toggle="modal" data-bs-target="#removeModal{{ product.product.id }}">
-                                        <i class="bi bi-trash3-fill text-secondary"></i>
-                                    </a>
-                                    <!-- Link trigger modal - Move item to favorites -->
-                                    <a class="btn m-0 mt-1 p-0 bg-black rounded-bottom-2" data-bs-toggle="modal" data-bs-target="#moveModal{{ product.product.id }}">
-                                            <i class="bi bi-heart-fill text-danger"></i>
-                                    </a>
-                                </div>
-                            </span>
-                            <a href="{% url 'product' product_id=product.product.id %}" class="d-flex align-items-center link-underline link-underline-opacity-0 link-light ms-2 row">
-                                <span class="d-flex justify-content-center align-items-center mb-2 col-3">
-                                    {% if product.product.image_url != "" %}
-                                        <img name="product-image" src="{{ product.product.image_url }}" class="w-100 m-2 rounded-3">
-                                    {% else %}
-                                        <img name="product-image" src="{% static 'icon.png' %}" class="glass p-5">
-                                    {% endif %}
-                                </span>
-                                <span class="col-9">
-                                    <h5 class="lh-sm">{{ product.product.name }}</h5>
-                                </span>
-                            </a>
-                        </span>
-                        <hr class="d-md-none">
-                        <span class="col-4 col-md-2 d-flex justify-content-end pe-4" name="product-price">
-                            <span class="product-price-visible">{{ product.product.price }}</span>
-                            <input name="product-price-input" value="{{ product.product.price }}" hidden />
-                        </span>
-                        <span class="col-4 col-md-2 d-flex">
-                            <input name="quantity-input-{{ product.product.id }}" class="form-control bg-dark text-light" type="number" min="1" max="{{ product.product.stock }}" value="{{ product.quantity }}" />
-                        </span>
-                        <span class="col-4 col-md-2 d-flex justify-content-end" name="total-price">
-                            <span class="total-price-visible">{{ product.product.price }}</span>
-                            <input name="total-price-input" value="{{ product.product.price }}" hidden />
-                        </span>
-                    </td>
-                </tr>
-                <!-- Modal - Delete item from cart -->
-                <div class="modal fade" id="removeModal{{ product.product.id }}" aria-labelledby="removeModalLabel" aria-hidden="true" >
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content rounded-5">
-                                    <div class="d-flex justify-content-end bg-dark rounded-top-4">
-                                        <a class="fs-3 me-3 mt-2" data-bs-dismiss="modal" aria-label="Close" >
-                                            <i class="bi bi-x-square-fill"></i>
-                                        </a>
-                                    </div>
-                                    <div class="modal-body bg-dark d-flex flex-column align-items-center rounded-bottom-4">
-                                        <p>Are you sure you would like to delete "{{ product.product.name }}" from your cart?</p>
-                                        <span>
-                                            <a href="{% url 'remove_from_cart' product_id=product.product.id %}" type="button" class="btn btn-secondary">
-                                                Yes, remove from my cart
-                                            </a>
-                                            <button type="button" class="btn btn-theme" data-bs-dismiss="modal">
-                                                No, keep in the cart
-                                            </button>
-                                        </span>
-                                    </div>
-                                </div>
+                {% for seller, products in seller_products.items %}
+                    <tr class="rounded-top-4 d-flex mt-3 row glass">
+                        <td class="w-100">
+                            <div class="form-check d-flex align-items-center ps-5 fs-5">
+                                <input type="radio" name="seller-radio" id="seller-radio-{{ seller.id }}" class="form-check-input me-2" value="{{ seller.id }}">
+                                <label for="seller-radio-{{seller.id}}" class="form-check-label w-100 py-3">From: <b>{{ seller }}</b></label>
                             </div>
-                </div>
-                <!-- Modal - Move item to favorites -->
-                <div class="modal fade" id="moveModal{{ product.product.id }}" aria-labelledby="removeModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content rounded-5">
-                                    <div class="d-flex justify-content-end bg-dark rounded-top-4">
-                                        <a type="button" class="fs-3 me-3 mt-2" data-bs-dismiss="modal" aria-label="Close">
-                                            <i class="bi bi-x-square-fill"></i>
-                                        </a>
-                                    </div>
-                                    <div class="modal-body bg-dark d-flex flex-column align-items-center rounded-bottom-4">
-                                        <p>Move "{{ product.product.name }}" to your wishlist?</p>
-                                        <span>
-                                            <a href="{% url 'move_to_wishlist' product_id=product.product.id %}" type="button" class="btn btn-secondary">
-                                                Yes, move to my wishlist
+                        </td>
+                    </tr>
+                    {% for product in products %}
+                        <tr class="cart-product bg-black py-3 justify-content-center row glass {% if forloop.last %}rounded-bottom-4{% endif %}">
+                            <td class="d-flex align-items-center justify-content-center w-100 row">
+                                <span class="col-12 col-md-6 d-flex">
+                                    <span class="d-flex align-items-center">
+                                        <div class="btn-group btn-group-vertical">
+                                            <!-- Link trigger modal - Delete item from cart -->
+                                            <a class="btn m-0 p-0 bg-black" data-bs-toggle="modal" data-bs-target="#removeModal{{ product.product.id }}">
+                                                <i class="bi bi-trash3-fill text-secondary"></i>
                                             </a>
-                                            <button type="button" class="btn btn-theme" data-bs-dismiss="modal">
-                                                No, keep in the cart
-                                            </button>
+                                            <!-- Link trigger modal - Move item to favorites -->
+                                            <a class="btn m-0 mt-1 p-0 bg-black rounded-bottom-2" data-bs-toggle="modal" data-bs-target="#moveModal{{ product.product.id }}">
+                                                    <i class="bi bi-heart-fill text-danger"></i>
+                                            </a>
+                                        </div>
+                                    </span>
+                                    <a href="{% url 'product' product_id=product.product.id %}" class="d-flex align-items-center link-underline link-underline-opacity-0 link-light ms-2 row">
+                                        <span class="d-flex justify-content-center align-items-center mb-2 col-3">
+                                            {% if product.product.image_url != "" %}
+                                                <img name="product-image" src="{{ product.product.image_url }}" class="w-100 m-2 rounded-3">
+                                            {% else %}
+                                                <img name="product-image" src="{% static 'icon.png' %}" class="glass p-5">
+                                            {% endif %}
                                         </span>
+                                        <span class="col-9">
+                                            <h5 class="lh-sm">{{ product.product.name }}</h5>
+                                        </span>
+                                    </a>
+                                </span>
+                                <hr class="d-md-none border-secondary">
+                                <span class="col-4 col-md-2 d-flex justify-content-end pe-4" name="product-price">
+                                    <span>{{ product.product.price }}</span>
+                                    <input value="{{ product.product.price }}" hidden />
+                                </span>
+                                <span class="col-4 col-md-2 d-flex">
+                                    <input name="quantity-input-{{ product.product.id }}" class="form-control bg-dark text-light" type="number" min="1" max="{{ product.product.stock }}" value="{{ product.quantity }}" />
+                                </span>
+                                <span class="col-4 col-md-2 d-flex justify-content-end" name="total-price-seller{{ seller.id }}">
+                                    <span>{{ product.product.price }}</span>
+                                    <input value="{{ product.product.price }}" hidden />
+                                </span>
+                            </td>
+                            {% if not forloop.last %}
+                                <td class="p-0">
+                                    <hr class="border-light mb-0">
+                                </td>
+                            {% endif %}
+                        </tr>
+                        <!-- Modal - Delete item from cart -->
+                        <div class="modal fade" id="removeModal{{ product.product.id }}" aria-labelledby="removeModalLabel" aria-hidden="true" >
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content rounded-5">
+                                        <div class="d-flex justify-content-end bg-dark rounded-top-4">
+                                            <a class="fs-3 me-3 mt-2" data-bs-dismiss="modal" aria-label="Close" >
+                                                <i class="bi bi-x-square-fill"></i>
+                                            </a>
+                                        </div>
+                                        <div class="modal-body bg-dark d-flex flex-column align-items-center rounded-bottom-4">
+                                            <p>Are you sure you would like to delete "{{ product.product.name }}" from your cart?</p>
+                                            <span>
+                                                <a href="{% url 'remove_from_cart' product_id=product.product.id %}" type="button" class="btn btn-secondary">
+                                                    Yes, remove from my cart
+                                                </a>
+                                                <button type="button" class="btn btn-theme" data-bs-dismiss="modal">
+                                                    No, keep in the cart
+                                                </button>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                </div>
-                <!-- End Modal -->
+                        </div>
+                        <!-- Modal - Move item to favorites -->
+                        <div class="modal fade" id="moveModal{{ product.product.id }}" aria-labelledby="removeModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content rounded-5">
+                                        <div class="d-flex justify-content-end bg-dark rounded-top-4">
+                                            <a type="button" class="fs-3 me-3 mt-2" data-bs-dismiss="modal" aria-label="Close">
+                                                <i class="bi bi-x-square-fill"></i>
+                                            </a>
+                                        </div>
+                                        <div class="modal-body bg-dark d-flex flex-column align-items-center rounded-bottom-4">
+                                            <p>Move "{{ product.product.name }}" to your wishlist?</p>
+                                            <span>
+                                                <a href="{% url 'move_to_wishlist' product_id=product.product.id %}" type="button" class="btn btn-secondary">
+                                                    Yes, move to my wishlist
+                                                </a>
+                                                <button type="button" class="btn btn-theme" data-bs-dismiss="modal">
+                                                    No, keep in the cart
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                        <!-- End Modal -->
+                    {% endfor %}
                 {% endfor %}
-                <tr class="cart-product bg-black rounded-3 p-3 m-2 mt-4 row">
+                <tr class="cart-product bg-black rounded-4 p-3 mt-4 row">
                     <td class="d-flex justify-content-between w-100">
                         <h4>Total:</h4>
                         <h4 id="total">0</h4></td>
-                        <input id="total-input" hidden value="0"/>
                     </td>
-            </tr>
-            <tr class="d-flex justify-content-center">
+                </tr>
+                <tr class="d-flex justify-content-center">
                     <td>
-                            <input class="btn btn-theme border-3 my-4 rounded-4 p-2 px-3 fs-3" type="submit" value="Purchase"></input>
+                        <input class="btn btn-theme border-3 my-4 rounded-4 p-2 px-3 fs-3" type="submit" value="Purchase" id="purchase-btn" disabled/>
                     </td>
-            </tr>
+                </tr>
             {% endif %}
         </tbody>
     </table>
