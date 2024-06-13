@@ -31,4 +31,5 @@ urlpatterns = [
     path("order/<int:order_id>/", views.order, name="order"),
     path("deliveryman-menu", views.deliveryman_menu, name="deliveryman_menu"),
     path("take-delivery-order/<int:order_id>/", views.take_delivery_order, name="take_delivery_order"),
+    path("pick-order-up/<int:order_id>/", views.pick_order_up, name="pick_order_up"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

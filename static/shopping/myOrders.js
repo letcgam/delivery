@@ -2,13 +2,6 @@ var price = document.getElementsByName("price");
 const orderId = Array.from(document.getElementsByName("order-id"));
 const orderDate = Array.from(document.getElementsByName("order-date"));
 const orderStatus = Array.from(document.getElementsByName("order-status"));
-const orderItemPictures = Array.from(document.getElementsByClassName("square"));
-
-orderItemPictures.forEach(image => {
-    width = image.clientWidth
-    image.children[0].style.heigth = String(width) + "px"
-    console.log(image.children[0].style.heigth)
-});
 
 document.addEventListener("DOMContentLoaded", () => {
     price.forEach(price => {

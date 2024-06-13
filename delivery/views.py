@@ -1,4 +1,7 @@
 import decimal
+import random
+import secrets
+import string
 from math import ceil
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -9,8 +12,9 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from .signals import user_signals, product_signals
 from .models import DeliveryRecord, Document, User as UserInfo
-from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense
+from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense, ClientCode, SellerCode
 from .exceptions.exceptions import FieldError
+
 
 def index(request):
     products = Product.objects.all()
@@ -496,10 +500,15 @@ def sale(request, order_id):
     user = request.user
     order = Order.objects.get(pk = order_id)
     order_items = OrderItem.objects.filter(order=order)
+    seller_code = SellerCode.objects.filter(order = order).first()
     items = [item for item in order_items if item.product.owner == user]
     context = get_layout_context(request)
 
-    context.update({"order": order, "items": items})
+    context.update({
+        "order": order,
+        "items": items,
+        "seller_code": seller_code
+    })
     return render(request, "seller/sale.html", context)
 
 
@@ -737,7 +746,8 @@ def new_order(request):
                     seller = seller,
                     payment_id = payment.id,
                     recipient_id = recipient.id,
-                    delivery_adress_id = adress.id
+                    delivery_adress_id = adress.id,
+                    shipping = round(random.uniform(10, 60), 2)
                 )
                 print(new_order)
                 new_order.save()
@@ -780,7 +790,7 @@ def order(request, order_id, new_order=False):
         context.update({
             "order": order,
             "order_items": order_items,
-            "new_order": new_order
+            "new_order": new_order,
         })
         return render(request, "shopping/order.html", context)
 
@@ -825,7 +835,13 @@ def deliveryman_menu(request, message=""):
     context = get_layout_context(request)
     
     order_in_progress = DeliveryRecord.objects.filter(driver = driver).last()
-    if order_in_progress != None and order_in_progress.order.status.description.lower() in ["awaiting withdraw", "en route"]:
+    if order_in_progress:
+        order_in_progress = order_in_progress.order
+        order_in_progress.quant = 0
+        for item in OrderItem.objects.filter(order = order_in_progress):
+            order_in_progress.quant += item.quant
+        if SellerCode.objects.filter(order = order_in_progress):
+            order_in_progress.seller_code = SellerCode.objects.filter(order = order_in_progress).first()
         context.update({"order_in_progress": order_in_progress})
     
     orders = Order.objects.all()
@@ -856,7 +872,20 @@ def take_delivery_order(request, order_id):
             order = order
         )
         record.save()
+        
+        code = "".join(secrets.choice(string.digits) for _ in range(6))
+        seller_code = SellerCode.objects.create(
+            order = order,
+            code = code
+        )
+        seller_code.save()
+
+        message = {"class": "", "text": "Successfully registered order."}
     except:
         message = {"class": "text-danger", "text": "Error registering order."}
     
     return deliveryman_menu(request, message)
+
+
+def pick_order_up(request, order_id):
+    pass

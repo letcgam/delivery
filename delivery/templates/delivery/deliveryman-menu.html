@@ -3,107 +3,143 @@
 
 
 {% block body %}
-<div class="container d-flex flex-column col-12 col-lg-8 col-xl-6">
-    <div>
-        <ul class="list-group">
-            <li class="list-group-item rounded-4 border-0 mb-3 glass p-0 m-0">
-                <span class="d-flex bg-black rounded-top-4 pb-2 pt-3 px-4">
-                    <h3>Delivery in progress</h3>
-                </span>
-                <div class="p-3 px-4">
-                    {% if order_in_progress == None %}
-                        <p class="text-secondary">No orders in progress.</p>
-                    {% else %}
-                        <span class="d-flex justify-content-between">
-                            <span>
-                                <p class="m-0 fw-bold">Order <span name="order-id">{{ order_in_progress.id }}</span></p>
-                                <p name="order-quant">{{ order_in_progress.quant }}&times; Itens</p>
-                            </span>
-                            <span><div class="rounded-pill p-2 px-3 text-center" name="order-status">{{ order.status.description }}</div></span>
-                        </span>
-                    {% endif %}
-                </div>
-            </li>
-            <li class="list-group-item rounded-4 border-0 mb-3 glass p-0 m-0">
-                <span class="d-flex justify-content-between bg-black rounded-top-4 pb-2 pt-3 px-4">
-                    <h3>Orders awaiting withdraw</h3>
-                    <i class="bi bi-info-circle p-2 py-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Click to see each order specifications"></i>
-                </span>
-                <ul class="list-group">
-                    {% if orders_awaiting|length == 0 %}
-                        <li class="list-group-item border-0 full-glass d-flex justify-content-between p-3 px-4">
-                            <p class="text-secondary">No orders to deliver.</p>
-                        </li>
-                    {% else %}
-                        {% for order in orders_awaiting %}
-                            <li class="list-group-item border-0 full-glass d-flex justify-content-between p-3 px-4">
-                                <div class="d-flex flex-column">
-                                    <span>
-                                        <b>Order <span name="order-id">{{ order.id }}</span></b>
-                                        <span class="text-secondary">&bull; {{ order.quant }} items</span>
-                                    </span>
-                                    <span>To: {{ order.delivery_adress.city }}, {{ order.delivery_adress.state }}</span>
-                                    <span>Seller: {{ order.seller }}</span>
-                                </div>
-                                <form action="" class="d-flex align-items-center">
-                                    <input value="{{ order.id }}" hidden>
-                                    <!-- Button trigger modal -->
-                                    <a class="btn btn-theme" data-bs-toggle="modal" data-bs-target="#take-order-modal-{{ order.id }}">
-                                        Take order
-                                    </a>
-                                </form>
-                            </li>
-                            {% if not forloop.last %}
-                                <hr class="m-0 mx-3">
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
-                </ul>
-            </li>
-        </ul>
-    </div>
-    {% for order in orders_awaiting %}
-        <!-- Modal -->
-        <div class="modal fade" id="take-order-modal-{{ order.id }}" aria-labelledby="take-order-modal-label" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content bg-dark p-3">
-                    <div class="modal-body d-flex flex-column justify-content-center align-items-center">
-                        <h3 class="w-100">Take order <span name="order-id">{{ order.id }}</span></h3>
-                        <div class="w-100 d-flex flex-column">
-                            <table>
-                                <tbody>
-                                    <tr>
-                                        <td>Items</td>
-                                        <td>{{ order.quant }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>To</td>
-                                        <td>
-                                            <span>{{ order.user }}</span>
-                                            <span>{{ order.delivery_adress.city }}, {{ order.delivery_adress.state }}</span>
-                                        </td>
-                                    </tr>
-                                    </tr>
-                                    <tr>
-                                        <td>From</td>
-                                        <td>
-                                            <span>{{ order.seller }}</span>
-                                            <span>{{ order.seller_adress }}</span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+<div class="container col-12 col-lg-8 col-xl-6 p-0">
+    <div class="row">
+        <div class="p-0 m-0 col-12 col-md-6 p-3">
+            <span class="d-flex bg-black rounded-top-4 pb-2 pt-3 px-4">
+                <h3>Delivery in progress</h3>
+            </span>
+            <div class="p-3 px-4 rounded-bottom-4 glass">
+                {% if order_in_progress == None %}
+                    <p class="text-secondary">No order in progress.</p>
+                {% else %}
+                    <table class="table border-secondary">
+                        <tbody>
+                            <tr>
+                                <td class="px-0 py-2 full-glass text-light fs-5" colspan="2">
+                                    <b>Order <span name="order-id">{{ order_in_progress.id }}</span></b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-0 py-2 full-glass text-light">Items</td>
+                                <td class="px-0 py-2 full-glass text-light">{{ order_in_progress.quant }}</td>
+                            </tr>
+                            <tr>
+                                <td class="px-0 py-2 full-glass text-light">Shipping</td>
+                                <td class="px-0 py-2 full-glass text-light" name="price">{{ order_in_progress.shipping }}</td>
+                            </tr>
+                                <td class="px-0 py-2 full-glass text-light">To</td>
+                                <td class="px-0 py-2 full-glass text-light">
+                                    <p class="mx-0 mb-1 pb-2 px-0 border-bottom border-secondary">{{ order_in_progress.user }}</p>
+                                    <span>{{ order_in_progress.delivery_adress }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-0 py-2 full-glass text-light">From</td>
+                                <td class="px-0 py-2 full-glass text-light">
+                                    <p class="mx-0 mb-1 pb-2 px-0 border-bottom border-secondary">{{ order_in_progress.seller }}</p>
+                                    <span>{{ order_in_progress.seller_adress.adress }}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="d-flex justify-content-center">
+                        {% if order_in_progress.seller_code %}
+                            <button class="btn btn-theme m-2">
+                                Insert code for pick up
+                            </button>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="p-0 m-0 col-12 col-md-6 p-3">
+            <span class="d-flex justify-content-between bg-black rounded-top-4 pb-2 pt-3 px-4">
+                <h3>Orders awaiting withdraw</h3>
+                <i class="bi bi-info-circle p-2 py-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Click to see each order specifications"></i>
+            </span>
+            <ul class="list-group rounded-0 rounded-bottom-4 glass">
+                {% if orders_awaiting|length == 0 %}
+                    <li class="list-group-item border-0 full-glass d-flex justify-content-between p-3 px-4">
+                        <p class="text-secondary">No orders to deliver.</p>
+                    </li>
+                {% else %}
+                    <li class="list-group-item border-0 full-glass d-flex p-3 px-4">
+                        <div class="d-flex w-100 align-items-center">
+                            <span class="col-4">Order ID</span>
+                            <span class="text-center col-4 text-secondary">Items</span>
+                            <span class="text-end col-4">Shipping</span>
                         </div>
+                    </li>
+                    {% for order in orders_awaiting %}
+                        <hr class="m-0 mx-3">
+                        <a data-bs-toggle="modal" data-bs-target="#take-order-modal-{{ order.id }}">
+                            <li class="list-group-item border-0 full-glass d-flex justify-content-between p-3 px-4">
+                                <div class="d-flex w-100 align-items-center">
+                                    <span class="col-4" name="order-id">{{ order.id }}</span>
+                                    <span class="text-center col-4 text-secondary">{{ order.quant }}</span>
+                                    <span class="text-end col-4" name="price">{{ order.shipping }}</span>
+                                </div>
+                            </li>
+                            </a>
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% for order in orders_awaiting %}
+    <!-- Modal -->
+    <div class="modal fade" id="take-order-modal-{{ order.id }}" aria-labelledby="take-order-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark p-3">
+                <div class="modal-body d-flex flex-column justify-content-center align-items-center">
+                    {% if order_in_progress %}
+                        <a class="text-end w-100" data-bs-dismiss="modal">
+                            <i class="bi bi-x-lg btn btn-theme"></i>
+                        </a>
+                        <h4 class="w-100">Order <span name="order-id">{{ order.id }}</span></h4>
+                    {% else %}
+                        <h4 class="w-100">Take order <span name="order-id">{{ order.id }}</span>?</h4>
+                    {% endif %}
+                    <div class="w-100 d-flex flex-column">
+                        <table class="table table-dark border-secondary">
+                            <tbody>
+                                <tr>
+                                    <td class="px-0 py-2">Items</td>
+                                    <td class="px-0 py-2">{{ order.quant }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-0 py-2">Shipping</td>
+                                    <td name="price">{{ order.shipping }}</td>
+                                </tr>
+                                    <td class="px-0 py-2">To</td>
+                                    <td class="px-0 py-2">
+                                        <p class="mx-0 mb-1 pb-2 px-0 border-bottom border-secondary">{{ order.user }}</p>
+                                        <span>{{ order.delivery_adress }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-0 py-2">From</td>
+                                    <td class="px-0 py-2">
+                                        <p class="mx-0 mb-1 pb-2 px-0 border-bottom border-secondary">{{ order.seller }}</p>
+                                        <span>{{ order.seller_adress.adress }}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if not order_in_progress %}
                         <span class="d-flex justify-content-center mt-3">
                             <button type="button" class="btn btn-secondary m-2" data-bs-dismiss="modal">Cancel</button>
                             <a href="{% url 'take_delivery_order' order_id=order.id %}" class="btn btn-theme m-2">Confirm</a>
                         </span>
-                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
-    {% endfor %}
-</div>
+    </div>
+{% endfor %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="{% static 'delivery/deliverymanMenu.js' %}"></script>

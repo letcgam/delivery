@@ -2,10 +2,6 @@ add dashboard info
 
 add pages for products list
 
-delivery options
-delivery distance between store and client
-orders w 1+ seller
-
 end take delivery processing
 
 
@@ -13,6 +9,4 @@ end take delivery processing
 
 
 
-
-take delivery order modals
-fix order seller default to show adress
+client delivery code and deliveryman code confirmations

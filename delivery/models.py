@@ -1,5 +1,3 @@
-from ast import Str
-from tokenize import String
 from django.db import models
 from django.contrib.auth.models import User as AuthUser
 
@@ -269,6 +267,7 @@ class Order(models.Model):
     seller = models.ForeignKey(AuthUser, on_delete=models.CASCADE, related_name="seller")
     creation_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
+    shipping = models.FloatField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     status = models.ForeignKey(OrderStatus, on_delete=models.PROTECT, default=1)
     payment = models.ForeignKey(Payment, on_delete=models.CASCADE)
@@ -323,3 +322,14 @@ class Comment(models.Model):
 
     class Meta:
         db_table = "comment"
+
+
+class SellerCode(models.Model):
+    code = models.CharField(max_length=6)
+    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    
+
+class ClientCode(models.Model):
+    code = models.CharField(max_length=6)
+    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    
