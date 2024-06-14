@@ -327,9 +327,15 @@ class Comment(models.Model):
 class SellerCode(models.Model):
     code = models.CharField(max_length=6)
     order = models.OneToOneField(Order, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "seller_code"
     
 
 class ClientCode(models.Model):
     code = models.CharField(max_length=6)
     order = models.OneToOneField(Order, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "client_code"
     

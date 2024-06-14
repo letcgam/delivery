@@ -1,12 +1,9 @@
-add dashboard info
-
-add pages for products list
-
-end take delivery processing
 
 
 
 
 
 
-client delivery code and deliveryman code confirmations
+delivery log
+shipping value
+credits for deliveryman and seller

@@ -37,7 +37,7 @@
                     {% elif order.status.description == "In preparation" %}
                         <a href="{% url 'update_order_status' status_id=3 order_id=order.id %}" class="btn btn-theme">Ready for pick up</a>
                     {% elif order.status.description == "Ready for pick up" %}
-                        {% if seller_code %}
+                        {% if order.seller_code %}
                             <div class="d-flex align-items-center">
                                 <i class="bi bi-info-circle text-secondary me-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Give the deliveryman this code to confirm orders and keep safety."></i>
                                 <span class="fs-3">Order code:&nbsp;</span>

@@ -9,14 +9,40 @@
             <span class="d-flex bg-black rounded-top-4 pb-2 pt-3 px-4">
                 <h3>Delivery in progress</h3>
             </span>
+                {% if message %}
+                    <div class="bg-black p-4 pb-3 pt-0" id="message">
+                        {% if message == 'Order registered' %}
+                            <i class="bi bi-check2-all text-success"></i>
+                            <b>Successfully registered order.</b> You can now deliver the order.
+                        {% elif message == 'Error registering order' %}
+                            <i class="bi bi-x-octagon text-danger"></i>
+                            <b>Error registering order.</b> Try again later.
+                        {% elif message == 'Error verifying code' %}
+                            <i class="bi bi-x-octagon text-danger"></i>
+                            <b>Error verifying code.</b> Try again later.
+                        {% elif message == 'Seller code ok' %}
+                            <i class="bi bi-check2-all text-success"></i>
+                            <b>Code verified.</b> You can now deliver the order.
+                        {% elif message == 'Wrong seller code' %}
+                            <i class="bi bi-x-octagon text-danger"></i>
+                            <b>Invalid code.</b> Try again.
+                        {% elif message == 'Client code ok' %}
+                            <i class="bi bi-check2-all text-success"></i>
+                            <b>Code verified.</b> Order delivered. You can check delivered orders in your orders history.
+                        {% elif message == 'Wrong client code' %}
+                            <i class="bi bi-x-octagon text-danger"></i>
+                            <b>Invalid code.</b> Try again.
+                        {% endif %}
+                    </div>
+                {% endif %}
             <div class="p-3 px-4 rounded-bottom-4 glass">
                 {% if order_in_progress == None %}
-                    <p class="text-secondary">No order in progress.</p>
+                    <p class="text-secondary my-3">No delivery in progress.</p>
                 {% else %}
                     <table class="table border-secondary">
                         <tbody>
                             <tr>
-                                <td class="px-0 py-2 full-glass text-light fs-5" colspan="2">
+                                <td class="px-0 py-2 full-glass text-light fs-5 pb-4" colspan="2">
                                     <b>Order <span name="order-id">{{ order_in_progress.id }}</span></b>
                                 </td>
                             </tr>
@@ -41,18 +67,62 @@
                                     <span>{{ order_in_progress.seller_adress.adress }}</span>
                                 </td>
                             </tr>
+                            <tr>
+                                <td class="px-0 py-2 full-glass text-light">Status</td>
+                                <td class="px-0 py-2 full-glass text-light">{{ order_in_progress.status.description }}</td>
+                            </tr>
                         </tbody>
                     </table>
                     <div class="d-flex justify-content-center">
-                        {% if order_in_progress.seller_code %}
-                            <button class="btn btn-theme m-2">
-                                Insert code for pick up
-                            </button>
+                        {% if order_in_progress.status.description == 'Ready for pick up' %}
+                            <a class="btn btn-theme m-2" data-bs-toggle="modal" data-bs-target="#code-modal-{{ order_in_progress.id }}">
+                                Confirm pick up
+                            </a>
+                        {% elif order_in_progress.status.description == 'On route' %}
+                            <a class="btn btn-theme m-2" data-bs-toggle="modal" data-bs-target="#code-modal-{{ order_in_progress.id }}">
+                                Confirm delivery
+                            </a>
                         {% endif %}
                     </div>
                 {% endif %}
             </div>
         </div>
+        <!-- Code modal -->
+        <div class="modal fade" id="code-modal-{{ order_in_progress.id }}" aria-labelledby="code-modal-label" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark p-3">
+                    <div class="modal-body d-flex flex-column justify-content-center align-items-center">
+                        <a data-bs-dismiss="modal" class="w-100 text-end">
+                            <i class="bi bi-x-lg btn btn-theme"></i>
+                        </a>
+                        {% if order_in_progress.status.description == 'Ready for pick up' %}
+                            <span>
+                                <h3>Pick up code</h3>
+                                <p>Insert here the code given by the product owner to confirm pick up and update the order status.</p>
+                            </span>
+                            <form method="post" action="{% url 'pick_order_up' %}" class="d-flex justify-content-center">
+                                {% csrf_token %}
+                                <input type="number" value="{{ order_in_progress.id }}" name="order-id-input" hidden>
+                                <input type="text" name="seller-code-input" class="form-control form-control-lg bg-dark text-light w-50 px-0 text-center" placeholder="XXXXXX">
+                                <button type="submit" class="btn btn-lg btn-theme ms-3">Submit</button>
+                            </form>
+                        {% elif order_in_progress.status.description == 'On route' %}
+                            <span>
+                                <h3>Delivery code</h3>
+                                <p>Insert here the code given by the recipient to confirm delivery and update the order status.</p>
+                            </span>
+                            <form method="post" action="{% url 'confirm_delivery' %}" class="d-flex justify-content-center">
+                                {% csrf_token %}
+                                <input type="number" value="{{ order_in_progress.id }}" name="order-id-input" hidden>
+                                <input type="text" name="client-code-input" class="form-control form-control-lg bg-dark text-light w-50 px-0 text-center" placeholder="XXXXXX">
+                                <button type="submit" class="btn btn-lg btn-theme ms-3">Submit</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End modal -->
         <div class="p-0 m-0 col-12 col-md-6 p-3">
             <span class="d-flex justify-content-between bg-black rounded-top-4 pb-2 pt-3 px-4">
                 <h3>Orders awaiting withdraw</h3>
@@ -81,7 +151,7 @@
                                     <span class="text-end col-4" name="price">{{ order.shipping }}</span>
                                 </div>
                             </li>
-                            </a>
+                        </a>
                     {% endfor %}
                 {% endif %}
             </ul>

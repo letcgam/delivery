@@ -6,19 +6,18 @@
     <div class="row d-flex justify-content-center text-light">
         <div class="col-12 col-md-12 col-lg-10 col-xl-8 mb-4">
             <h1 class="w-100 p-3">My orders</h1>
-            <ul class="list-group glass p-2">
                 {% if not orders %}
-                <h3 class="text-secondary p-3">
+                <h3 class="text-secondary p-3 glass p-5 rounded-4">
                     No orders.
                 </h3>
                 {% endif %}
                 {% for order in orders %}
-                <li class="list-group-item bg-black border-0 rounded-3 m-3">
-                    <a href="{% url 'order' order_id=order.id %}" class="d-flex flex-column p-3 link-underline link-underline-opacity-0">
+                <li class="list-group-item glass border-0 rounded-4">
+                    <a href="{% url 'order' order_id=order.id %}" class="d-flex flex-column p-4 mb-3 link-underline link-underline-opacity-0">
                         <span class="d-flex justify-content-between">
-                            <div class="d-flex rounded-2 text-light link-underline link-underline-opacity-0 product-section glass col-8 col-md-6 col-lg-4">
+                            <div class="d-flex rounded-2 text-light link-underline link-underline-opacity-0 product-section col-8 col-md-6 col-lg-4">
                                 {% for item in order.items|slice:":3" %}
-                                    <span class="d-flex justify-content-center align-items-center mb-2 col-4 square p-1 bg-dark rounded-2 me-2">
+                                    <span class="d-flex justify-content-center align-items-center mb-2 col-4 square p-1 bg-black rounded-2 me-2">
                                         {% if product.image_url != "" %}
                                             <img name="product-image" src="{{ item.product.image_url }}" class="full-glass rounded-3">
                                         {% else %}
@@ -41,7 +40,6 @@
                     </a>
                 </li>
                 {% endfor %}
-            </ul>
         </div>
     </div>
 </div>

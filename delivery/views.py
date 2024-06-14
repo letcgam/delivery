@@ -3,6 +3,7 @@ import random
 import secrets
 import string
 from math import ceil
+from .exceptions.exceptions import FieldError
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -11,76 +12,18 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.contrib.auth.models import User
 from .signals import user_signals, product_signals
+from .utilities.functions import get_layout_context, update_type, add_adress, add_drivers_license, update_order_status
 from .models import DeliveryRecord, Document, User as UserInfo
 from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense, ClientCode, SellerCode
-from .exceptions.exceptions import FieldError
 
 
 def index(request):
     products = Product.objects.all()
-    
+            
     context = get_layout_context(request)
     context.update({"products": products})
-
+    
     return render(request, "index.html", context)
-
-
-def get_layout_context(request):
-    # get user type
-    try:
-        type = UserInfo.objects.get(user_id=request.user.id).type
-    except:
-        type = None
-
-    # get all categories
-    categories = Category.objects.all().order_by('name')
-
-    context = {'type': type, 'categories': categories}
-
-    return context
-
-
-def update_type(request):
-    context = get_layout_context(request)
-    if context["type"] == "seller applicant":
-        type_request="seller"
-    elif context["type"] == "deliveryman applicant":
-        type_request="deliveryman"
-    else:
-        return None
-
-    user = request.user
-
-    models = []
-
-    user_info = UserInfo.objects.filter(user_id = user.id).first()
-    document = Document.objects.get(pk = user_info.document.id) if user_info.document else None
-    billing_adress = BillingAdress.objects.filter(user_id = user.id).first()
-    adress = Adress.objects.get(pk = billing_adress.adress.id) if billing_adress else None
-    try:
-        driver = Driver.objects.filter(user_id = user.id).first() if "deliveryman" in context["type"] else None
-        license = DriversLicense.objects.get(pk = driver.license.id) if "deliveryman" in context["type"] else None
-        models += [user_info, document, adress, license]
-    except:
-        pass
-    
-    models += [user_info, document, adress]
-    
-    for model in models:
-        if model == None:
-            return 0
-        else:
-            for field in model.fields_values():
-                if field in ["", None]:
-                    return 0
-    
-    if context["type"] == "seller applicant":
-        user_info.type = "seller"
-    elif context["type"] == "deliveryman applicant":
-        user_info.type = "deliveryman"
-    user_info.save()
-    
-    return 1
 
 
 def login_view(request):
@@ -273,102 +216,6 @@ def my_account(request):
         return render(request, "account/account.html", context)
 
 
-@login_required
-def add_adress(request):
-    context = get_layout_context(request)
-    user = User.objects.get(pk = request.user.id)
-
-    message = {"text": "", "class": ""}
-    try:
-        error_message = []
-        fields = ['adress', 'postal-code', 'city', 'state', 'country']
-        for field in fields:
-            if request.POST[field] == "":
-                error_message.append(field)
-                
-        if error_message != []:
-            raise FieldError(error_message)
-        else:
-            adress, created_adress = Adress.objects.get_or_create(
-                street = request.POST["adress"],
-                postal_code = request.POST["postal-code"],
-                city = request.POST["city"],
-                state = request.POST["state"],
-                country = request.POST["country"]
-            )
-            adress.save()
-
-            billing_adress = BillingAdress.objects.filter(user_id = user.id).first()
-            if billing_adress == None:
-                billing_adress = BillingAdress.objects.create(
-                    user_id = user.id,
-                    adress_id = adress.id
-                )
-            else:
-                billing_adress.adress_id = adress.id
-            billing_adress.save()
-
-    except FieldError as e:
-        message['text'] = "Provide valid data for required fields: " + e.error_message + "."
-        message['class'] = "text-danger"
-    else:
-        message['class'] = "text-success"
-        message['text'] = "Successfully altered billing adress."
-
-    try:
-        billing_adress = BillingAdress.objects.filter(user_id = user.id).first()
-        adress = Adress.objects.get(pk = billing_adress.adress_id)
-        context.update({'adress': adress})
-    except:
-        pass
-
-    if "applicant" in context["type"]:
-        update_type(request)
-
-    context.update({"adress_message": message})
-    return render(request, "account/account.html", context)
-
-
-@login_required
-def add_drivers_license(request):
-    context = get_layout_context(request)
-    user = User.objects.get(pk = request.user.id)
-    message = {}
-    try:
-        license = DriversLicense.objects.create(
-            number = request.POST["license-number"],
-            type = request.POST["license-type"],
-            issue_date = request.POST["license-issue-date"],
-            expiration_date = request.POST["license-expiration-date"]
-        )
-        
-        driver = Driver.objects.filter(user_id = user.id).first()
-        if driver == None:
-            driver = Driver.objects.create(
-                user_id = user.id,
-                license_id = license.id
-            )
-        else:
-            driver.license_id = license.id
-        license.save()
-        driver.save()
-        
-        message['class'] = "text-success"
-        message['text'] = "Successfully altered license."
-    except:
-        message['class'] = "text-danger"
-        message['text'] = "Error saving license."
-
-    if "applicant" in context["type"]:
-        update_type(request)
-
-    context.update({
-        "license_message": message,
-        "license": license
-        })
-    return render(request, "account/account.html", context)
-
-
 def categories_filter(request, category_id):
     if category_id != 0:
         chosen_category = Category.objects.get(pk=category_id)
@@ -500,14 +347,14 @@ def sale(request, order_id):
     user = request.user
     order = Order.objects.get(pk = order_id)
     order_items = OrderItem.objects.filter(order=order)
-    seller_code = SellerCode.objects.filter(order = order).first()
+    order.seller_code = SellerCode.objects.filter(order = order).first()
     items = [item for item in order_items if item.product.owner == user]
     context = get_layout_context(request)
 
     context.update({
         "order": order,
         "items": items,
-        "seller_code": seller_code
+        "seller_code": order.seller_code
     })
     return render(request, "seller/sale.html", context)
 
@@ -785,6 +632,8 @@ def order(request, order_id, new_order=False):
     order = Order.objects.get(pk = order_id)
     context = get_layout_context(request)
 
+    order.client_code = ClientCode.objects.get(order = order)
+
     if order.user_id == user.id:
         order_items = OrderItem.objects.filter(order_id = order.id)
         context.update({
@@ -812,36 +661,25 @@ def my_orders(request):
 
 
 @login_required
-def update_order_status(request, status_id, order_id):
-    user = request.user
-    context = get_layout_context(request)
-    order = Order.objects.get(pk = order_id)
-    status = OrderStatus.objects.get(pk = status_id)
-    order.status = status
-    order.save()
-
-    order_items = OrderItem.objects.filter(order=order)
-    items = [item for item in order_items if item.product.owner == user]
-
-    context.update({"order": order, "items": items})
-    if context['type'] == 'seller':
-        return render(request, "seller/sale.html", context)
-    
-
-@login_required
 def deliveryman_menu(request, message=""):
     deliveryman = request.user
     driver = Driver.objects.get(deliveryman = deliveryman)
     context = get_layout_context(request)
     
-    order_in_progress = DeliveryRecord.objects.filter(driver = driver).last()
+    record = DeliveryRecord.objects.filter(driver = driver).last()
+    if record:
+        order_in_progress = record.order if record.order.status.description != "Deliver" else None
+    
     if order_in_progress:
-        order_in_progress = order_in_progress.order
+        order_in_progress.seller_adress = BillingAdress.objects.filter(user = order_in_progress.seller).first()
+        
         order_in_progress.quant = 0
         for item in OrderItem.objects.filter(order = order_in_progress):
             order_in_progress.quant += item.quant
-        if SellerCode.objects.filter(order = order_in_progress):
-            order_in_progress.seller_code = SellerCode.objects.filter(order = order_in_progress).first()
+            
+        order_in_progress.seller_code = SellerCode.objects.get(order = order_in_progress) if SellerCode.objects.get(order = order_in_progress) else None
+        order_in_progress.client_code = ClientCode.objects.get(order = order_in_progress) if ClientCode.objects.get(order = order_in_progress) else None
+        
         context.update({"order_in_progress": order_in_progress})
     
     orders = Order.objects.all()
@@ -873,19 +711,58 @@ def take_delivery_order(request, order_id):
         )
         record.save()
         
-        code = "".join(secrets.choice(string.digits) for _ in range(6))
-        seller_code = SellerCode.objects.create(
-            order = order,
-            code = code
-        )
-        seller_code.save()
+        if not SellerCode.objects.get(order = order):
+            seller_code = SellerCode.objects.create(
+                order = order,
+                code = "".join(secrets.choice(string.digits) for _ in range(6))
+            )
+            seller_code.save()
 
-        message = {"class": "", "text": "Successfully registered order."}
+        message = "Order registered"
     except:
-        message = {"class": "text-danger", "text": "Error registering order."}
+        message = "Error registering order"
     
     return deliveryman_menu(request, message)
 
 
-def pick_order_up(request, order_id):
-    pass
+def pick_order_up(request):
+    if request.method == 'POST':
+        order = Order.objects.get(pk = request.POST['order-id-input'])
+        code = request.POST['seller-code-input']
+        
+        if SellerCode.objects.get(order = order).code == code:
+            try:
+                order.status = OrderStatus.objects.get(description = "On route")
+                order.save()
+                if not ClientCode.objects.get(order = order):
+                    client_code = ClientCode.objects.create(
+                        order = order,
+                        code = "".join(secrets.choice(string.digits) for _ in range(6))
+                    )
+                    client_code.save()
+                message = "Seller code ok"
+            except:
+                message = "Error verifying code"
+        else:
+            message = "Wrong seller code"
+    
+        return deliveryman_menu(request, message)
+
+
+# 624940
+def confirm_delivery(request):
+    if request.method == 'POST':
+        order = Order.objects.get(pk = request.POST['order-id-input'])
+        code = request.POST['client-code-input']
+        
+        if ClientCode.objects.get(order = order).code == code:
+            try:
+                order.status = OrderStatus.objects.get(description = "Deliver")
+                order.save()
+                message = "Client code ok"
+            except:
+                message = "Error verifying code"
+        else:
+            message = "Wrong client code"
+    
+        return deliveryman_menu(request, message)

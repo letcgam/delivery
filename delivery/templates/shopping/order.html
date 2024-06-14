@@ -3,78 +3,103 @@
 
 
 {% block body %}
-<div class="container d-flex flex-column col-12 col-lg-8 col-xl-6">
-    {% if new_order %}
-        <div class="d-flex flex-column align-items-center rounded-pill p-3 pt-4 m-3" id="thanks">
-            <h3>Thank's for your purchase!</h3>
-            <p>Order received. Stay tuned for shipping updates!</p>
-            <a href="{% url 'my_orders' %}" class="link-underline link-underline-opacity-0 text-light glass p-3 rounded-pill mx-2">
-                Go to My orders
-            </a>
-        </div>
-    {% else %}
-        <div class="d-flex align-items-center">
-            <a href="{% url 'my_orders' %}" class="link-underline link-underline-opacity-0 text-light bg-black p-3 rounded-pill mb-3 mx-2">
-                <i class="bi bi-arrow-left"></i>
-                <span>My orders</span>
-            </a>
-        </div>
-    {% endif %}
-    <div class="row d-flex justify-content-center text-light glass py-3 rounded-4">
-        <div class="col-12 col-lg-6 col-xl-6">
-            <ul class="list-group">
-                <li class="list-group-item px-4 pt-3 bg-black border-0 rounded-top-3 mb-2">
+<div class="container col-12 col-lg-8 col-xl-6">
+    <div class="row">
+        {% if new_order %}
+            <div class="d-flex flex-column align-items-center rounded-pill p-3 pt-4 m-3" id="thanks">
+                <h3>Thank's for your purchase!</h3>
+                <p>Order received. Stay tuned for shipping updates!</p>
+                <a href="{% url 'my_orders' %}" class="link-underline link-underline-opacity-0 text-light glass p-3 rounded-pill mx-2">
+                    Go to My orders
+                </a>
+            </div>
+        {% else %}
+            <div class="d-flex align-items-center">
+                <a href="{% url 'my_orders' %}" class="link-underline link-underline-opacity-0 text-light bg-black p-3 rounded-pill mb-3 mx-2">
+                    <i class="bi bi-arrow-left"></i>
+                    <span>My orders</span>
+                </a>
+            </div>
+        {% endif %}
+        <div class="row d-flex justify-content-center text-light">
+            <div class="col-12 col-lg-6 col-xl-6">
+                <div class="px-4 pt-3 pb-2 bg-black rounded-top-4">
                     <h3>Items</h3>
-                </li>
-                {% for order_item in order_items %}
-                    <a href="{% url 'product' product_id=order_item.product.id %}" class="list-group-item full-glass border-0 w-100 d-flex order-item row">
-                        <span class="d-flex justify-content-center align-items-center col-2 square p-1">
-                            {% if order_item.product.image_url != "" %}
-                                <img name="product-image" src="{{ order_item.product.image_url }}" class="full-glass w-100 rounded-2">
-                            {% else %}
-                                <img name="product-image" src="{% static 'icon.png' %}" class="glass rounded-2">
-                            {% endif %}
-                        </span>
-                        <span class="order-item col d-flex flex-column justify-content-between p-2">
-                            <div>{{ order_item.product.name }}</div>
-                            <div class="d-flex justify-content-between w-100">
-                                <span name="price">{{ order_item.product.price }}</span>
-                                <span>{{ order_item.quant }}</span>
-                            </div>
-                        </span>
-                    </a>
-                {% endfor %}
-                <li class="list-group-item px-4 pt-3 bg-black border-0 rounded-top-3 mt-3">
-                    <h3>Info</h3>
-                </li>
-                <div class="p-3">
-                    <p>Order ID: <span id="order-id">{{ order.id }}</span></p>
-                    <p>Purchase: {{ order.creation_date.date }}</p>
-                    <p>Payment: {{ order.payment.card.type.name }} card</p>
                 </div>
-            </ul>
-        </div>
-        <div class="col-12 col-lg-6 col-xl-6">
-            <ul class="list-group">
-                <li class="list-group-item bg-dark px-4 pt-3 bg-black border-0 rounded-top-3">
+                <div class="glass py-4 px-3 rounded-bottom-4 mb-3">
+                    {% for order_item in order_items %}
+                        <a href="{% url 'product' product_id=order_item.product.id %}" class="d-flex order-item link-underline link-underline-opacity-0">
+                            <span class="col-2 square d-flex justify-content-center">
+                                {% if order_item.product.image_url != "" %}
+                                    <img name="product-image" src="{{ order_item.product.image_url }}" class="full-glass rounded-2">
+                                {% else %}
+                                    <img name="product-image" src="{% static 'icon.png' %}" class="glass rounded-2">
+                                {% endif %}
+                            </span>
+                            <span class="order-item col d-flex flex-column justify-content-between p-2">
+                                <div>{{ order_item.product.name }}</div>
+                                <div class="d-flex justify-content-between w-100">
+                                    <span name="price">{{ order_item.product.price }}</span>
+                                    <span>{{ order_item.quant }}</span>
+                                </div>
+                            </span>
+                        </a>
+                        {% if not forloop.last %}
+                            <hr>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="px-4 pt-3 pb-2 bg-black rounded-top-4">
+                    <h3>Info</h3>
+                </div>
+                <div class="glass p-4 rounded-bottom-4 mb-3">
+                    <table class="table">
+                        <tr>
+                            <td class="full-glass text-light">ID</td>
+                            <td class="full-glass text-light"><span id="order-id">{{ order.id }}</span></td>
+                        </tr>
+                        <tr>
+                            <td class="full-glass text-light">Purchase</td>
+                            <td class="full-glass text-light">{{ order.creation_date.date }}</td>
+                        </tr>
+                        <tr>
+                            <td class="full-glass text-light">Payment</td>
+                            <td class="full-glass text-light">{{ order.payment.card.type.name|title }} card</td>
+                        </tr>
+                    </table>
+                    {% if order.client_code %}
+                        <div class="d-flex justify-content-center align-items-center pt-3">
+                            <i class="bi bi-info-circle text-secondary me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Give the deliveryman this code to receive your order."></i>
+                            <span class="fs-3">Order code:&nbsp;</span>
+                            <b class="fs-3">{{ order.client_code.code }}</b>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 col-xl-6">
+                <div class="px-4 pt-3 pb-2 bg-black rounded-top-4">
                     <h3>Shipping status</h3>
-                </li>
+                </div>
                 {% for update in update_list %}
-                <li class="list-group-item bg-dark">
+                <div class="bg-dark">
                     <h3>Shipping status</h3>
-                </li>
+                </div>
                 {% endfor%}
-                <li id="status" class="list-group-item full-glass rounded-top-0 p-3 px-4 border-0 d-flex flex-column">
+                <div id="status" class="glass p-4 px-5 rounded-bottom-4 mb-3 d-flex flex-column">
+                    {% if order.status.id > 5 %}
+                        <span class="text-secondary align-items-center"><i class="bi bi-house-check-fill"></i> Deliver</span>
+                        <i class="bi bi-arrow-up text-secondary"></i>
+                    {% endif %}
                     {% if order.status.id > 4 %}
-                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-bag-check"></i> Deliver</span>
+                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-truck"></i> On route</span>
                         <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
                     {% if order.status.id > 3 %}
-                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-truck"></i> En route</span>
+                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-bag-check"></i> Ready for pick up</span>
                         <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
                     {% if order.status.id > 2 %}
-                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-hourglass-split"></i> Awaiting withdraw</span>
+                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-clock"></i> Awaiting withdraw</span>
                         <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
                     {% if order.status.id > 1 %}
@@ -82,26 +107,23 @@
                         <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
                         <span class="text-secondary align-items-center"><i class="text-secondary bi bi-person-lines-fill"></i> Processing</span>
-                </li>
-            </ul>
-            <ul class="list-group my-3">
-                <li class="list-group-item bg-dark px-4 pt-3 bg-black border-0 rounded-top-3">
+                </div>
+                <div class="px-4 pt-3 pb-2 bg-black rounded-top-4">
                     <h3>Destination</h3>
-                </li>
-                <li class="list-group-item full-glass rounded-top-0 border-0">
-                    <div class="p-3 d-flex flex-column">
-                        <strong>{{ order.recipient.first_name }} {{ order.recipient.last_name }}</strong>
-                        <span class="text-secondary">{{ order.recipient.email }} | {{ order.recipient.phone }}</span>
-                        <span><i class="bi bi-geo-alt"></i>
-                            {{ order.delivery_adress.street }}, {{ order.delivery_adress.postal_code }}, {{ order.delivery_adress.city }}, {{ order.delivery_adress.state }}, {{ order.delivery_adress.country }}
-                        </span>
-                    </div>
-                </li>
-            </ul>
+                </div>
+                <div class="glass p-4 rounded-bottom-4 mb-3 d-flex flex-column">
+                    <strong>{{ order.recipient.first_name }} {{ order.recipient.last_name }}</strong>
+                    <span class="text-secondary">{{ order.recipient.email }} | {{ order.recipient.phone }}</span>
+                    <span><i class="bi bi-geo-alt"></i>
+                        {{ order.delivery_adress.street }}, {{ order.delivery_adress.postal_code }}, {{ order.delivery_adress.city }}, {{ order.delivery_adress.state }}, {{ order.delivery_adress.country }}
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="{% static 'index.js' %}"></script>
 <script src="{% static 'productList.js' %}"></script>
 <script src="{% static 'shopping/order.js' %}"></script>

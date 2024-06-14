@@ -1,6 +1,8 @@
 var price = document.getElementsByName("price");
 const orderId = document.getElementById("order-id");
 const orderStatus = Array.from(document.getElementById("status").children);
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
 orderStatus[0].classList.add("text-light");
 orderStatus[0].children[0].classList.add("text-light");
