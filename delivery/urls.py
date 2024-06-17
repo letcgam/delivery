@@ -1,6 +1,7 @@
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from .utilities.functions import add_adress, add_drivers_license, update_order_status
 from . import views
 
 urlpatterns = [
@@ -9,15 +10,15 @@ urlpatterns = [
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
     path("my-account", views.my_account, name="my_account"),
-    path("add-adress", views.add_adress, name="add_adress"),
-    path("add-drivers-license", views.add_drivers_license, name="add_drivers_license"),
+    path("add-adress", add_adress, name="add_adress"),
+    path("add-drivers-license", add_drivers_license, name="add_drivers_license"),
     path("seller", views.seller, name="seller"),
     path("new-product", views.add_product, name="add_product"),
     path("edit-product/<int:product_id>/", views.edit_product, name="edit_product"),
     path("my-products", views.my_products, name="my_products"),
     path("my-sales", views.my_sales, name="my_sales"),
     path("sale/<int:order_id>/", views.sale, name="sale"),
-    path("update-order-status/<int:status_id>/<int:order_id>/", views.update_order_status, name="update_order_status"),
+    path("update-order-status/<int:status_id>/<int:order_id>/", update_order_status, name="update_order_status"),
     path("product/<int:product_id>/", views.product, name="product"),
     path("my-cart", views.my_cart, name="my_cart"),
     path("my-wishlist", views.my_wishlist, name="my_wishlist"),

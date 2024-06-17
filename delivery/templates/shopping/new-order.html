@@ -1,36 +1,44 @@
 {% extends "layout.html" %}
 {% load static %}
- {% block body %}
+
+{% block body %}
+
 <div class="container">
-    <div class="row g-5 glass rounded-5 my-4">
+    <div class="row g-5 glass rounded-5 my-4 pb-4">
         <div class="col-md-5 col-lg-4 order-md-last">
-          <h4 class="d-flex justify-content-between align-items-center mb-3">
-            <span>My cart</span>
-            <span class="badge bg-theme rounded-pill text-dark">{{ products_len }}</span>
-          </h4>
-          <ul class="list-group mb-3">
-            {% for product in products %}
-            <li name="product" class="list-group-item d-flex justify-content-between lh-sm bg-black border-0 border-bottom border-dark">
-                <div>
-                    <h6 class="my-0">{{ product.product.name }}</h6>
-                    <small name="product-price">
-                        <input value="{{ product.product.price }}" hidden/>
-                        <span class="quantity-input text-secondary" name="quantity">{{ product.quantity }}</span>
-                        <span class="text-secondary">&times;</span>
-                        <span class="text-secondary">{{ product.product.price }}</span>
-                    </small>
+            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                <span>My cart</span>
+                <span class="badge btn-theme rounded-pill">{{ products|length }}</span>
+            </h4>
+            <ul class="list-group mb-3">
+                {% for product in products %}
+                    <li name="product" class="list-group-item d-flex justify-content-between lh-sm bg-black border-0 border-bottom border-dark">
+                        <div>
+                            <h6 class="my-0">{{ product.product.name }}</h6>
+                            <small name="product-price">
+                                <input value="{{ product.product.price }}" hidden/>
+                                <span class="quantity-input text-secondary" name="quantity">{{ product.quantity }}</span>
+                                <span class="text-secondary">&times;</span>
+                                <span class="text-secondary">{{ product.product.price }}</span>
+                            </small>
+                        </div>
+                        <span name="total-price">{{ product.product.price }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="bg-black p-3 rounded-3 mt-3">
+                <div class="d-flex justify-content-between text-light form2">
+                    <strong>Shipping</strong>
+                    <span id="shipping" class="w-100 text-end">0</span>
+                    <hr>
                 </div>
-                <span name="total-price">{{ product.product.price }}</span>
-            </li>
-            {% endfor %}
-            <li class="list-group-item bg-black py-3 border-0">
-              <h5 class="d-flex justify-content-between text-light">
-                <strong>Total</strong>
-                <span id="total"></span>
-              </h5>
-            </li>
-          </ul>
-          <hr class="d-block d-md-none my-4 mb-0">
+                <h5 class="d-flex justify-content-between text-light">
+                    <strong>Total</strong>
+                    <span id="total"></span>
+                </h5>
+            </div>
+            <hr class="d-block d-md-none mt-4 mb-0">
+            </p>
         </div>
         
         <div class="col-md-7 col-lg-8">
@@ -38,7 +46,7 @@
             {% csrf_token %}
 
             <!-- Recipient information -->
-            <div class="row g-3">
+            <div class="row g-3 form1">
               <h4 class="mb-3">Recipient information</h4>
 
               <div class="col-sm-6">
@@ -73,11 +81,11 @@
                 </div>
               </div>            
 
-              <hr class="my-4">
+              <hr class="mb-4">
             </div>
-              
+            
             <!-- Shipping address -->
-            <div class="my-3">
+            <div class="my-3 form1">
               <h4 class="mb-3">Shipping address</h4>
 
               <div class="row gy-3">
@@ -134,12 +142,14 @@
                   </div>
                 </div>
               </div>
-              
-              <hr class="my-4">
+            </div>
+
+            <div class="mb-3 form2">
+                <button id="return-btn" class="btn btn-dark bg-black rounded-pill"><i class="bi bi-arrow-left"></i> Return</button>
             </div>
 
             <!-- Payment -->
-            <div class="my-3">
+            <div class="my-3 form2">
               <h4 class="mb-3">Payment</h4>
 
               <div class="form-check">
@@ -186,12 +196,15 @@
                 </div>
               </div>
 
-              <hr class="my-4">
+              <hr class="mb-4">
             </div>
   
-            <div class="d-flex justify-content-center">
-                <input type="number" value="{{ seller.id }}" name="seller-id" hidden>
-                <button class="w-75 btn btn-theme btn-lg mb-4 rounded-pill" type="submit">Continue to checkout</button>
+            <div class="d-flex justify-content-center my-3">
+                <button type="button" class="w-75 btn btn-theme btn-lg rounded-pill form1" id="checkout-btn">Continue to checkout</button>
+
+                <input type="number" value="{{ seller.id }}" name="seller-id" id="complete-btn" hidden>
+                <input id="shipping-price" name="shipping-price" hidden>
+                <button class="w-75 btn btn-theme btn-lg mb-4 rounded-pill form2" type="submit">Complete purchase</button>
             </div>
           </form>
         </div>

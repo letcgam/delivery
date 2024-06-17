@@ -1,25 +1,35 @@
 import decimal
-import random
 import secrets
 import string
 from math import ceil
+
+from delivery.logs.logger import orderUpdateLog
 from .exceptions.exceptions import FieldError
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.models import User
-from .signals import user_signals, product_signals
-from .utilities.functions import get_layout_context, update_type, add_adress, add_drivers_license, update_order_status
+from .signals import user_signals, product_signals, order_signals
+from .utilities.functions import get_layout_context, update_type
 from .models import DeliveryRecord, Document, User as UserInfo
 from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense, ClientCode, SellerCode
 
 
 def index(request):
     products = Product.objects.all()
-            
+    
+    # DELETE EMPTY ORDERS
+    # for order in Order.objects.all():
+    #     quant = 0
+    #     for item in OrderItem.objects.all():
+    #         if item.order == order:
+    #             quant += item.quant
+    #     if quant == 0:
+    #         order.delete()
+    
     context = get_layout_context(request)
     context.update({"products": products})
     
@@ -347,7 +357,7 @@ def sale(request, order_id):
     user = request.user
     order = Order.objects.get(pk = order_id)
     order_items = OrderItem.objects.filter(order=order)
-    order.seller_code = SellerCode.objects.filter(order = order).first()
+    order.seller_code = SellerCode.objects.get(order = order) if SellerCode.objects.filter(order = order) else None
     items = [item for item in order_items if item.product.owner == user]
     context = get_layout_context(request)
 
@@ -488,7 +498,6 @@ def my_cart(request):
         cart = Cart.objects.filter(user_id = user.id).first()
         items = CartItem.objects.filter(cart_id = cart.id)
         
-        
         seller_products = {}
         for item in items:
             seller = item.product.owner
@@ -531,8 +540,7 @@ def my_cart(request):
             'user_info': user_info,
             'seller': seller,
             'total': total,
-            'products': products,
-            'products_len': len(products),
+            'products': products
         })
 
         return render(request, "shopping/new-order.html", context)
@@ -594,9 +602,8 @@ def new_order(request):
                     payment_id = payment.id,
                     recipient_id = recipient.id,
                     delivery_adress_id = adress.id,
-                    shipping = round(random.uniform(10, 60), 2)
+                    shipping = float(request.POST["shipping-price"])
                 )
-                print(new_order)
                 new_order.save()
 
                 cart = Cart.objects.get(user_id = user.id)
@@ -612,10 +619,19 @@ def new_order(request):
                     order_item.save()
                     new_order.total_price += Product.objects.get(pk = order_item.product_id).price
                     new_order.save()
+                    
                     item.product.stock -= 1
                     item.product.save()
                     item.delete()
                     message.append(order_item)
+                
+                new_order.total_price = float(new_order.shipping) + float(new_order.total_price)
+                new_order.save()
+                    
+                order_signals.order_created.send(
+                    sender = user,
+                    order = new_order
+                )
 
         except FieldError as e:
             message = "Provide valid data for required fields: " + e.error_message + "."
@@ -632,8 +648,9 @@ def order(request, order_id, new_order=False):
     order = Order.objects.get(pk = order_id)
     context = get_layout_context(request)
 
-    order.client_code = ClientCode.objects.get(order = order)
-
+    order.client_code = ClientCode.objects.get(order = order) if ClientCode.objects.filter(order = order) else None
+    order.updates = [update.timestamp for update in orderUpdateLog.objects.filter(order = order)]
+    
     if order.user_id == user.id:
         order_items = OrderItem.objects.filter(order_id = order.id)
         context.update({
@@ -670,20 +687,19 @@ def deliveryman_menu(request, message=""):
     if record:
         order_in_progress = record.order if record.order.status.description != "Deliver" else None
     
-    if order_in_progress:
-        order_in_progress.seller_adress = BillingAdress.objects.filter(user = order_in_progress.seller).first()
-        
-        order_in_progress.quant = 0
-        for item in OrderItem.objects.filter(order = order_in_progress):
-            order_in_progress.quant += item.quant
+        if order_in_progress:
+            order_in_progress.quant = 0
+            for item in OrderItem.objects.filter(order = order_in_progress):
+                order_in_progress.quant += item.quant
+                
+            order_in_progress.seller_adress = BillingAdress.objects.filter(user = order_in_progress.seller).first()
+            order_in_progress.seller_code = SellerCode.objects.get(order = order_in_progress) if SellerCode.objects.filter(order = order_in_progress) else None
+            order_in_progress.client_code = ClientCode.objects.get(order = order_in_progress) if ClientCode.objects.filter(order = order_in_progress) else None
             
-        order_in_progress.seller_code = SellerCode.objects.get(order = order_in_progress) if SellerCode.objects.get(order = order_in_progress) else None
-        order_in_progress.client_code = ClientCode.objects.get(order = order_in_progress) if ClientCode.objects.get(order = order_in_progress) else None
-        
-        context.update({"order_in_progress": order_in_progress})
+            context.update({"order_in_progress": order_in_progress})
     
     orders = Order.objects.all()
-    orders_awaiting = [order for order in orders if order.status.description.lower() == "ready for pick up"]
+    orders_awaiting = [order for order in orders if order.status.description.lower() == "ready for pick up" and not SellerCode.objects.filter(order = order)]
     for order in orders_awaiting:
         quant = 0
         for item in OrderItem.objects.filter(order = order):
@@ -695,7 +711,7 @@ def deliveryman_menu(request, message=""):
         "orders_awaiting": orders_awaiting,
         "message": message
     })
-            
+    
     return render(request, "delivery/deliveryman-menu.html", context)
 
 
@@ -705,13 +721,24 @@ def take_delivery_order(request, order_id):
     order = Order.objects.get(pk = order_id)
     
     try:
+        old_status = OrderStatus.objects.get(pk = order.status.id)
+        order.status = OrderStatus.objects.get(description = "Awaiting withdraw")
+        order.save()
+        
+        order_signals.order_edited.send(
+            sender = request.user,
+            order = order,
+            old_status = old_status,
+            new_status = order.status
+        )
+        
         record = DeliveryRecord.objects.create(
             driver = deliveryman,
             order = order
         )
         record.save()
         
-        if not SellerCode.objects.get(order = order):
+        if not SellerCode.objects.filter(order = order):
             seller_code = SellerCode.objects.create(
                 order = order,
                 code = "".join(secrets.choice(string.digits) for _ in range(6))
@@ -732,9 +759,18 @@ def pick_order_up(request):
         
         if SellerCode.objects.get(order = order).code == code:
             try:
+                old_status = OrderStatus.objects.get(pk = order.status.id)
                 order.status = OrderStatus.objects.get(description = "On route")
                 order.save()
-                if not ClientCode.objects.get(order = order):
+                
+                order_signals.order_edited.send(
+                    sender = request.user,
+                    order = order,
+                    old_status = old_status,
+                    new_status = order.status
+                )
+                
+                if not ClientCode.objects.filter(order = order):
                     client_code = ClientCode.objects.create(
                         order = order,
                         code = "".join(secrets.choice(string.digits) for _ in range(6))
@@ -749,19 +785,28 @@ def pick_order_up(request):
         return deliveryman_menu(request, message)
 
 
-# 624940
 def confirm_delivery(request):
     if request.method == 'POST':
         order = Order.objects.get(pk = request.POST['order-id-input'])
         code = request.POST['client-code-input']
         
-        if ClientCode.objects.get(order = order).code == code:
-            try:
-                order.status = OrderStatus.objects.get(description = "Deliver")
-                order.save()
-                message = "Client code ok"
-            except:
-                message = "Error verifying code"
+        if ClientCode.objects.filter(order = order):
+            if ClientCode.objects.get(order = order).code == code:
+                try:
+                    old_status = OrderStatus.objects.get(pk = order.status.id)
+                    order.status = OrderStatus.objects.get(description = "Deliver")
+                    order.save()
+                    
+                    order_signals.order_edited.send(
+                        sender = request.user,
+                        order = order,
+                        old_status = old_status,
+                        new_status = order.status
+                    )
+                    
+                    message = "Client code ok"
+                except:
+                    message = "Error verifying code"
         else:
             message = "Wrong client code"
     

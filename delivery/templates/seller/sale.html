@@ -12,9 +12,10 @@
             </a>
             <div class="d-flex flex-column align-items-center mb-4 p-4 bg-black rounded-4 w-100">
                 <span class="d-flex justify-content-between w-100">
-                    <h3>
-                        <b>Order <span name="order-id">{{ order.id }}</span></b>
-                    </h3>
+                    <span>
+                        <h3 class="mb-0 lh-1 pb-0"><b>Order <span name="order-id">{{ order.id }}</span></b></h3>
+                        <span class="text-secondary">To {{ order.user }}</span>
+                    </span>
                     <span>Total: <span name="price">{{ order.total_price }}</span></span>
                 </span>
                 <hr class="w-100">
@@ -35,17 +36,15 @@
                             </div>
                         </div>
                     {% elif order.status.description == "In preparation" %}
-                        <a href="{% url 'update_order_status' status_id=3 order_id=order.id %}" class="btn btn-theme">Ready for pick up</a>
+                        <a href="{% url 'update_order_status' status_id=3 order_id=order.id %}" class="btn btn-theme my-3">Ready for pick up</a>
                     {% elif order.status.description == "Ready for pick up" %}
-                        {% if order.seller_code %}
+                            <span class="text-secondary">Awaiting deliveryman confirmation</span>
+                    {% elif order.status.description == "Awaiting withdraw" and order.seller_code %}
                             <div class="d-flex align-items-center">
                                 <i class="bi bi-info-circle text-secondary me-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Give the deliveryman this code to confirm orders and keep safety."></i>
                                 <span class="fs-3">Order code:&nbsp;</span>
                                 <b class="fs-3">{{ seller_code.code }}</b>
                             </div>
-                        {% else %}
-                            <span class="text-secondary">Awaiting deliveryman confirmation</span>
-                        {% endif %}
                     {% endif %}
                 </div>
             </div>

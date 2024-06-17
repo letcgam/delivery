@@ -8,7 +8,7 @@ user_edited = Signal()
 
 
 @receiver(user_created)
-def log_create_user(user, fields, sender, **kwargs):
+def create_user_log(user, fields, sender, **kwargs):
     log_entry = userEditLog.objects.create(
         user = user,
         altered_by = sender,
@@ -19,7 +19,7 @@ def log_create_user(user, fields, sender, **kwargs):
 
 
 @receiver(user_edited)
-def log_edit_user(user, altered_fields, sender, **kwargs):
+def edit_user_log(user, altered_fields, sender, **kwargs):
     log_entry = userEditLog.objects.create(
         user = user,
         altered_by = sender,

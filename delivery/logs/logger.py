@@ -1,7 +1,6 @@
-from itertools import product
 from django.db import models
 from django.contrib.auth.models import User as AuthUser
-from ..models import Product
+from ..models import Product, Order, OrderStatus
 
 
 class userEditLog(models.Model):
@@ -20,8 +19,8 @@ class userEditLog(models.Model):
 
 
 class productEditLog(models.Model):
-    user = models.ForeignKey(AuthUser, on_delete=models.SET_NULL, null=True)
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     action = models.CharField(max_length=100)
     details = models.TextField()
@@ -32,4 +31,19 @@ class productEditLog(models.Model):
 
     class Meta:
         db_table = "product_edit_log"
+
+
+class orderUpdateLog(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    user = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    action = models.CharField(max_length=60)
+    old_status = models.ForeignKey(OrderStatus, on_delete=models.CASCADE, related_name="old_status", null=True)
+    new_status = models.ForeignKey(OrderStatus, on_delete=models.CASCADE, related_name="new_status")
+
+    def __str__(self):
+        return f"{self.timestamp} | : User {self.user} {self.action} order {self.order}"
+
+    class Meta:
+        db_table = "order_update_log"
 

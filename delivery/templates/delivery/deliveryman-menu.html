@@ -74,7 +74,7 @@
                         </tbody>
                     </table>
                     <div class="d-flex justify-content-center">
-                        {% if order_in_progress.status.description == 'Ready for pick up' %}
+                        {% if order_in_progress.status.description == 'Awaiting withdraw' %}
                             <a class="btn btn-theme m-2" data-bs-toggle="modal" data-bs-target="#code-modal-{{ order_in_progress.id }}">
                                 Confirm pick up
                             </a>
@@ -95,7 +95,7 @@
                         <a data-bs-dismiss="modal" class="w-100 text-end">
                             <i class="bi bi-x-lg btn btn-theme"></i>
                         </a>
-                        {% if order_in_progress.status.description == 'Ready for pick up' %}
+                        {% if order_in_progress.status.description == 'Awaiting withdraw' %}
                             <span>
                                 <h3>Pick up code</h3>
                                 <p>Insert here the code given by the product owner to confirm pick up and update the order status.</p>

@@ -4,9 +4,9 @@
 
 {% block body %}
 <div class="container col-12 col-lg-8 col-xl-6">
-    <div class="row">
+    <div class="row justify-content-center">
         {% if new_order %}
-            <div class="d-flex flex-column align-items-center rounded-pill p-3 pt-4 m-3" id="thanks">
+            <div class="d-flex flex-column align-items-center rounded-pill p-3 pt-4 m-3 w-100" id="thanks">
                 <h3>Thank's for your purchase!</h3>
                 <p>Order received. Stay tuned for shipping updates!</p>
                 <a href="{% url 'my_orders' %}" class="link-underline link-underline-opacity-0 text-light glass p-3 rounded-pill mx-2">
@@ -66,8 +66,16 @@
                             <td class="full-glass text-light">Payment</td>
                             <td class="full-glass text-light">{{ order.payment.card.type.name|title }} card</td>
                         </tr>
+                        <tr>
+                            <td class="full-glass text-light">Shipping</td>
+                            <td class="full-glass text-light" name="price">{{ order.shipping }}</td>
+                        </tr>
+                        <tr>
+                            <td class="full-glass text-light">Total</td>
+                            <td class="full-glass text-light" name="price">{{ order.total_price }}</td>
+                        </tr>
                     </table>
-                    {% if order.client_code %}
+                    {% if order.client_code and order.status.description == 'On route' %}
                         <div class="d-flex justify-content-center align-items-center pt-3">
                             <i class="bi bi-info-circle text-secondary me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Give the deliveryman this code to receive your order."></i>
                             <span class="fs-3">Order code:&nbsp;</span>
@@ -87,26 +95,44 @@
                 {% endfor%}
                 <div id="status" class="glass p-4 px-5 rounded-bottom-4 mb-3 d-flex flex-column">
                     {% if order.status.id > 5 %}
-                        <span class="text-secondary align-items-center"><i class="bi bi-house-check-fill"></i> Deliver</span>
+                        <span class="d-flex justify-content-between w-100">
+                            <span class="text-secondary"><i class="bi bi-house-check-fill"></i> Deliver</span>
+                            <small class="text-secondary">{{ order.updates.5 }}</small>
+                        </span>
                         <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
                     {% if order.status.id > 4 %}
-                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-truck"></i> On route</span>
+                        <span class="d-flex justify-content-between w-100">
+                            <span class="text-secondary"><i class="text-secondary bi bi-truck"></i> On route</span>
+                            <small class="text-secondary">{{ order.updates.4 }}</small>
+                        </span>
                         <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
                     {% if order.status.id > 3 %}
-                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-bag-check"></i> Ready for pick up</span>
+                        <span class="d-flex justify-content-between w-100">
+                            <span class="text-secondary"><i class="text-secondary bi bi-bag-check"></i> Ready for pick up</span>
+                            <small class="text-secondary">{{ order.updates.3 }}</small>
+                        </span>
                         <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
                     {% if order.status.id > 2 %}
-                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-clock"></i> Awaiting withdraw</span>
+                        <span class="d-flex justify-content-between w-100">
+                            <span class="text-secondary"><i class="text-secondary bi bi-clock"></i> Awaiting withdraw</span>
+                            <small class="text-secondary">{{ order.updates.2 }}</small>
+                        </span>
                         <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
                     {% if order.status.id > 1 %}
-                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-box-seam"></i> In preparation</span>
+                        <span class="d-flex justify-content-between w-100">
+                            <span class="text-secondary"><i class="text-secondary bi bi-box-seam"></i> In preparation</span>
+                            <small class="text-secondary">{{ order.updates.1 }}</small>
+                        </span>
                         <i class="bi bi-arrow-up text-secondary"></i>
                     {% endif %}
-                        <span class="text-secondary align-items-center"><i class="text-secondary bi bi-person-lines-fill"></i> Processing</span>
+                        <span class="d-flex justify-content-between w-100">
+                            <span class="text-secondary"><i class="text-secondary bi bi-person-lines-fill"></i> Processing</span>
+                            <small class="text-secondary">{{ order.updates.0 }}</small>
+                        </span>
                 </div>
                 <div class="px-4 pt-3 pb-2 bg-black rounded-top-4">
                     <h3>Destination</h3>

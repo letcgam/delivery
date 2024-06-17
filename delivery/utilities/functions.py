@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from ..exceptions.exceptions import FieldError
 from django.shortcuts import redirect, render
-from ..models import BillingAdress, Card, DeliveryRecord, Document,Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense, ClientCode, SellerCode, User as UserInfo
+from ..models import BillingAdress, Document,Order, OrderItem, OrderStatus, Category, Adress, Driver, DriversLicense, User as UserInfo
+from ..signals import order_signals
 
 
 def get_layout_context(request):
@@ -161,12 +162,21 @@ def update_order_status(request, status_id, order_id):
     context = get_layout_context(request)
     order = Order.objects.get(pk = order_id)
     status = OrderStatus.objects.get(pk = status_id)
+    
+    old_status = OrderStatus.objects.get(pk = order.status.id)    
     order.status = status
     order.save()
+    
+    order_signals.order_edited.send(
+        sender = user,
+        order = order,
+        old_status = old_status,
+        new_status = order.status
+    )
 
     order_items = OrderItem.objects.filter(order=order)
     items = [item for item in order_items if item.product.owner == user]
 
     context.update({"order": order, "items": items})
-    if context['type'] == 'seller':
-        return render(request, "seller/sale.html", context)
+        
+    return render(request, "seller/sale.html", context)

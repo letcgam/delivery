@@ -8,7 +8,7 @@ product_edited = Signal()
 
 
 @receiver(product_created)
-def log_create_product(sender, product, altered_fields, **kwargs):
+def create_product_log(sender, product, altered_fields, **kwargs):
     log_entry = productEditLog.objects.create(
         user = sender,
         product = product,
@@ -19,7 +19,7 @@ def log_create_product(sender, product, altered_fields, **kwargs):
 
 
 @receiver(product_edited)
-def log_edit_product(sender, product, altered_fields, **kwargs):
+def edit_product_log(sender, product, altered_fields, **kwargs):
     log_entry = productEditLog.objects.create(
         user = sender,
         product = product,

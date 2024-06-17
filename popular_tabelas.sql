@@ -83,6 +83,6 @@ INSERT INTO order_status(id, description) VALUES
 (1, 'Processing'),
 (2, 'In preparation'),
 (3, 'Ready for pick up'),
-(4, 'Awaiting withdrawal'),
+(4, 'Awaiting withdraw'),
 (5, 'On route'),
 (6, 'Deliver');

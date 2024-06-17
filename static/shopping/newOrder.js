@@ -1,3 +1,7 @@
+const firstName = document.getElementById("first-name");
+const lastName = document.getElementById("first-name");
+const phoneNumber = document.getElementById("phone-number");
+const email = document.getElementById("email");
 const billingStreet = document.getElementById("billing-street").value;
 const billingPostalCode = document.getElementById("billing-postal-code").value;
 const billingCity = document.getElementById("billing-city").value;
@@ -16,7 +20,75 @@ var orderTotal = 0;
 const cardCvv = document.getElementById("card-cvv");
 const cardNumber = document.getElementById("card-number");
 const cardExpDate = document.getElementById("card-expiration");
+const shipping = document.getElementById("shipping");
+const shippingPrice = document.getElementById("shipping-price");
+const checkoutBtn = document.getElementById("checkout-btn");
+const completeBtn = document.getElementById("complete-btn");
+const returnBtn = document.getElementById("return-btn");
+const form1 = Array.from(document.getElementsByClassName("form1"));
+const form2 = Array.from(document.getElementsByClassName("form2"));
+const inputsForm1 = [firstName, lastName, phoneNumber, email, sameAdressCheck, streetInput, postalCodeInput, cityInput, stateInput, countryInput]
 
+document.addEventListener("DOMContentLoaded", () => {
+    checkoutBtn.disabled = true;
+
+    form2.forEach(item => {
+        item.style.height = '0px';
+        item.style.opacity = 0;
+        item.hidden = true;
+        console.log(item);
+    });
+
+    inputsForm1.forEach(input => {
+        input.addEventListener("input", () => {
+            if (inputsForm1.every(input => input.value != "")) {
+                checkoutBtn.disabled = false;
+            } else {
+                checkoutBtn.disabled = true;
+            };
+        });
+    });
+});
+
+checkoutBtn.addEventListener("click", () => {
+    shippingPrice.value = randomShipping();
+    shipping.innerHTML = formatPrice(shippingPrice.value);
+    total.value += shippingPrice.value;
+    total.innerHTML = formatPrice(total.shippingPrice.value);
+
+    form1.forEach(item => {
+        item.style.height = '0px';
+        item.style.opacity = 0;
+        item.hidden = true;
+        console.log(item);
+    });
+    form2.forEach(item => {
+        item.style.height = 'auto';
+        item.style.opacity = 1;
+        item.hidden = false;
+        console.log(item);
+    });
+
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+});
+
+returnBtn.addEventListener("click", () => {
+    form1.forEach(item => {
+        item.style.height = 'auto';
+        item.style.opacity = 1;
+        item.hidden = false;
+        console.log(item);
+    });
+    form2.forEach(item => {
+        item.style.height = '0px';
+        item.style.opacity = 0;
+        item.hidden = true;
+        console.log(item);
+    });
+})
 
 cardCvv.addEventListener("input", () => {
     if (cardCvv.value.length > 3) {
@@ -86,6 +158,7 @@ product.forEach(element => {
     orderTotal += unitPrice.value * Number.parseInt(quant.innerHTML);
 });
 
+total.value = orderTotal;
 total.innerHTML = formatPrice(orderTotal);
 
 function formatPrice(price) {
@@ -93,4 +166,9 @@ function formatPrice(price) {
         style: "currency",
         currency: "USD",
     }).format(price);
+}
+
+function randomShipping() {
+    // Returns a random float between 20 and 60.
+    return Math.random() * 40 + 20;
 }
