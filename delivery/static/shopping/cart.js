@@ -45,7 +45,7 @@ quantity.forEach((elem, index) => {
         priceTag.append(formatPrice(price));
         priceTag.removeChild(priceTag.firstChild);
         totalItemPrice[index].children[1].value = price;
-    })
+    });
 });
 
 function formatPrice(price) {

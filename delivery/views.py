@@ -807,7 +807,7 @@ def confirm_delivery(request):
                     message = "Client code ok"
                 except:
                     message = "Error verifying code"
-        else:
-            message = "Wrong client code"
+            else:
+                message = "Wrong client code"
     
         return deliveryman_menu(request, message)
