@@ -11,7 +11,7 @@
             {% if type == 'seller' and main_product.owner == user %}
                 <input id="is-owner" value=true hidden>
                 <!-- SELLER Product area -->
-                <form method="post" action="{% url 'edit_product' product_id=main_product.id %}" class="text-light rounded-5 p-4 glass row row-cols-1 row-cols-md-2">
+                <form method="post" action="{% url 'edit_product' product_id=main_product.id %}" class="text-light rounded-4 p-4 glass row row-cols-1 row-cols-md-2">
                     {% csrf_token %}
                     <h3 class="text-secondary w-100 d-flex justify-content-center mb-3">{{ message }}</h3>
                     <div class="rounded-4 d-flex flex-column mb-3">
@@ -63,7 +63,7 @@
             {% else %}
                 <input id="is-owner" value=false hidden>
                 <!-- Product area -->
-                <div class="text-light rounded-5 p-4 glass row row-cols-1 row-cols-md-2">
+                <div class="text-light rounded-4 p-4 glass row row-cols-1 row-cols-md-2">
                     <div class="d-flex product-section rounded-4">
                         {% if main_product.image_url != "" %}
                             <img id="product-image" src="{{ main_product.image_url }}" class="mb-2 rounded-4 glass w-100 square">
@@ -93,6 +93,12 @@
                             <small class="text-secondary">{{ main_product.category.name }}</small>
                             <h4 name="price">{{ main_product.price }}</h4>
                             <p>{{ main_product.description }}</p>
+                            <span>
+                                <label class="disabled-rating rating-label d-flex align-items-center"></strong>
+                                    <input disabled name="rating-input" class="disabled-rating empty-rating rating full-glass" id="rating" type="range" value="{{ ratings.average }}" style="--value:0">
+                                    <span class="text-secondary">({{ ratings|length }})</span>
+                                </label>
+                            </span>
                         </div>
                         {% if user.is_authenticated %}
                             <form method="post" class="d-flex flex-column mt-3 w-100" action="{% url 'add_to_cart' %}">
@@ -131,7 +137,7 @@
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content bg-dark py-3">
                             <div class="modal-body d-flex flex-column justify-content-center align-items-center">
-                                Log in to add items to your wishlist and cart!
+                                Log in to add items to your wishlist or cart and add comments!
                                 <span class="d-flex justify-content-center">
                                     <button type="button" class="btn btn-secondary m-2" data-bs-dismiss="modal">Close</button>
                                     <a href="{% url 'login' %}" class="btn btn-theme m-2">Log in</a>
@@ -145,6 +151,24 @@
         </div>
     </div>
     <!-- Product card end -->
+    
+    {% if accept_review %}
+        <div class="col-12 col-lg-8">
+            <div id="rating" class="glass p-4 px-5 rounded-5 mb-3 row">
+                <span class="col-12 col-md-6">
+                    <h3>Thank you for your purchase!</h3>
+                    <p>Help us improve by leaving a review. What did you think about "{{ main_product.name }}"?</p>
+                </span>
+                <form method="post" action="{% url 'rate_product' product_id=main_product.id %}" class="col-12 col-md-6 d-flex flex-column align-items-center">
+                    {% csrf_token %}
+                    <label class="rating-label"></strong>
+                        <input name="rating-input" class="rating full-glass" max="5" oninput="this.style.setProperty('--value', `${this.valueAsNumber}`)" step="0.1" style="--value:2.5" type="range" value="2.5">
+                    </label>
+                    <button class="btn btn-theme mb-3" type="submit" onclick="alert('Thank you for your feedback!')">Submit</button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
 
     <div class="col-12 col-lg-10 d-flex flex-column align-items-center">
         <hr class="w-100">
@@ -152,7 +176,7 @@
         {% if same_seller.len > 0 %}
             <!-- Same seller products carrousel -->
             <div class="col-12 col-lg-10">
-                <span class="mt-5 d-flex justify-content-between align-items-center glass p-3 px-4 rounded-pill w-100">
+                <span class="mt-5 d-flex justify-content-between align-items-center bg-black p-3 px-4 rounded-pill w-100">
                     <h2>More from {{ main_product.owner.username }}</h2>
                 </span>
             </div>
@@ -202,7 +226,7 @@
                 </button>
             </div>
 
-                <!-- Show only on md screens or bigger -->
+            <!-- Show only on md screens or bigger -->
             <div id="same-seller-carousel-md" class="carousel slide my-4 d-flex d-none d-md-flex w-100">
                 <button class="carousel-control-prev position-relative {% if same_seller|length < 5 %}pe-none{% endif %}" type="button" data-bs-target="#same-seller-carousel-md" data-bs-slide="prev">
                     {% if same_seller|length > 5 %}
@@ -252,7 +276,7 @@
         {% if same_category.len > 1 %}
             <!-- Same category products carrousel -->
             <div class="col-12 col-lg-10">
-                <span class="mt-5 d-flex justify-content-between align-items-center glass p-3 px-4 rounded-pill w-100">
+                <span class="mt-5 d-flex justify-content-between align-items-center bg-black p-3 px-4 rounded-pill w-100">
                     <h2>More of {{ main_product.category.name }}</h2>
                     <a href="{% url 'categories_filter' category_id=main_product.category.id %}" class="link link-light rounded-pill">See more</a>
                 </span>
@@ -349,6 +373,77 @@
             </div>
             <!-- Same category products carrousel end -->
         {% endif %}
+    </div>
+</div>
+
+<!-- Comment section -->
+<div class="container d-flex justify-content-center">
+    <div class="col-12 col-lg-10 row d-none d-lg-flex">
+        <div class="px-2 col-12 col-lg-6">
+            <form action="{% url 'add_comment' product_id=main_product.id %}" method="post" class="d-flex flex-column align-items-center text-light rounded-4 p-5 bg-black">
+                {% csrf_token %}
+                <h3 class="w-100">Comments or questions about this item?</h3>
+                {% if request.user.is_authenticated %}
+                    <textarea name="comment-input" id="comment" placeholder="Tell us!" class="form-control bg-dark text-light my-3"></textarea>
+                    <button type="submit" class="btn btn-theme">Submit</button>
+                {% else %}
+                    <textarea placeholder="Tell us!" class="form-control bg-dark text-light my-3" data-bs-toggle="modal" data-bs-target="#login-link"></textarea>
+                    <a class="btn btn-theme" data-bs-toggle="modal" data-bs-target="#login-link">Submit</a>
+                {% endif %}
+            </form>
+        </div>
+        <div class="px-2 col-12 col-lg-6">
+            <div class="glass h-100 rounded-4 p-5 text-light">
+                {% if comments %}
+                    {% for comment in comments reversed %}
+                        <section class='box-comment w-100'>
+                            <article class='comment w-100 bg-dark rounded-4 mb-3'>
+                                <header class='comment-user bg-black d-flex align-items-center px-3 rounded-top-4'>
+                                    {{ comment.user.username }}
+                                </header>
+                                <p class="m-3 mb-4">{{ comment.content }}</p>
+                            </article>
+                        </section>
+                    {% endfor %}
+                {% else %}
+                    <h5 class="text-secondary">No comments for this item for now.</h5>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-10 row d-flex d-lg-none">
+        <div class="px-3 col-12 col-lg-6">
+            <form action="{% url 'add_comment' product_id=main_product.id %}" method="post" class="d-flex flex-column align-items-center text-light rounded-top-4 p-5 bg-black">
+                {% csrf_token %}
+                <h3 class="w-100">Comments or questions about this item?</h3>
+                {% if request.user.is_authenticated %}
+                    <textarea name="comment-input" id="comment" placeholder="Tell us!" class="form-control bg-dark text-light my-3"></textarea>
+                    <button type="submit" class="btn btn-theme">Submit</button>
+                {% else %}
+                    <textarea placeholder="Tell us!" class="form-control bg-dark text-light my-3" data-bs-toggle="modal" data-bs-target="#login-link"></textarea>
+                    <a class="btn btn-theme" data-bs-toggle="modal" data-bs-target="#login-link">Submit</a>
+                {% endif %}
+            </form>
+        </div>
+        <div class="px-3 col-12 col-lg-6">
+            <div class="glass h-100 rounded-bottom-4 p-5 text-light">
+                {% if comments %}
+                    {% for comment in comments reversed %}
+                        <section class='box-comment w-100'>
+                            <article class='comment w-100 bg-dark rounded-4 mb-3'>
+                                <header class='comment-user bg-black d-flex align-items-center px-3 rounded-top-4'>
+                                    {{ comment.user.username }}
+                                </header>
+                                <p class="m-3 mb-4">{{ comment.content }}</p>
+                            </article>
+                        </section>
+                    {% endfor %}
+                {% else %}
+                    <h5 class="text-secondary">No comments for this item for now.</h5>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
 

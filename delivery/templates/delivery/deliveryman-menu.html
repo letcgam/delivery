@@ -4,6 +4,24 @@
 
 {% block body %}
 <div class="container col-12 col-lg-8 col-xl-6 p-0">
+
+        <div class="accordion rounded-4 overflow-hidden" id="history-accordion">
+            {% for order in history %}
+                <div class="accordion-item border-0 bg-dark">
+                    <h2 class="accordion-header border-0">
+                        <button class="accordion-button bg-black text-light border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ order.id }}" aria-expanded="true" aria-controls="collapse-{{ order.id }}">
+                            {{ order }}
+                        </button>
+                    </h2>
+                    <div id="collapse-{{ order.id }}" class="accordion-collapse collapse border-0" data-bs-parent="#history-accordion">
+                        <div class="accordion-body border-0">
+                            text
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
     <div class="row">
         <div class="p-0 m-0 col-12 col-md-6 p-3">
             <span class="d-flex bg-black rounded-top-4 pb-2 pt-3 px-4">
@@ -86,7 +104,15 @@
                     </div>
                 {% endif %}
             </div>
+
+            <button id="access-history-btn" class="btn bg-black rounded-4 mt-4 p-3 w-100 text-light">
+                See my delivery history
+            </button>
+
+            
+
         </div>
+
         <!-- Code modal -->
         <div class="modal fade" id="code-modal-{{ order_in_progress.id }}" aria-labelledby="code-modal-label" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">

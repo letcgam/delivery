@@ -2,6 +2,7 @@
     --text-color: rgb(0, 179, 170);
     --link-hover-color: rgb(97, 255, 247);
     --btn-color: rgb(0, 143, 136);
+    --bs-accordion-border-color: none;
 }
 
 body {
@@ -233,4 +234,120 @@ a:hover {
 
 #purchase-btn {
     transition: ease-in-out .2s !important;
+}
+
+.rating:hover {
+    cursor: pointer;
+}
+
+.disabled-rating input {
+    transform: scale(.9);
+}
+
+.disabled-rating:hover {
+    cursor: default !important;
+}
+
+.rating {
+    --dir: right;
+    --fill: gold;
+    --fillbg: rgba(0, 0, 0, 0.486);
+    --star: url('./star-svgrepo-com.svg');
+    --stars: 5;
+    --starsize: 2rem;
+    --symbol: var(--star);
+    --value: 1;
+    --w: calc(var(--stars) * var(--starsize));
+    --x: calc(100% * (var(--value) / var(--stars)));
+    block-size: var(--starsize);
+    inline-size: var(--w);
+    position: relative;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+}
+
+[dir="rtl"] .rating {
+    --dir: left;
+}
+
+.rating::-moz-range-track {
+    background: linear-gradient(to var(--dir), var(--fill) 0 var(--x), var(--fillbg) 0 var(--x));
+    block-size: 100%;
+    mask: repeat left center/var(--starsize) var(--symbol);
+}
+
+.rating::-webkit-slider-runnable-track {
+    background: linear-gradient(to var(--dir), var(--fill) 0 var(--x), var(--fillbg) 0 var(--x));
+    block-size: 100%;
+    mask: repeat left center/var(--starsize) var(--symbol);
+    -webkit-mask: repeat left center/var(--starsize) var(--symbol);
+}
+
+.rating::-moz-range-thumb {
+    height: var(--starsize);
+    opacity: 0;
+    width: var(--starsize);
+}
+
+.rating::-webkit-slider-thumb {
+    height: var(--starsize);
+    opacity: 0;
+    width: var(--starsize);
+    -webkit-appearance: none;
+}
+
+.rating, .rating-label {
+    display: block;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.rating-label {
+    margin-block-end: 1rem;
+}
+          /* NO JS */
+    .rating--nojs::-moz-range-track {
+    background: var(--fillbg);
+}
+
+.rating--nojs::-moz-range-progress {
+    background: var(--fill);
+    block-size: 100%;
+    mask: repeat left center/var(--starsize) var(--star);
+}
+
+.rating--nojs::-webkit-slider-runnable-track {
+    background: var(--fillbg);
+}
+
+.rating--nojs::-webkit-slider-thumb {
+    background-color: var(--fill);
+    box-shadow: calc(0rem - var(--w)) 0 0 var(--w) var(--fill);
+    opacity: 1;
+    width: 1px;
+}
+
+[dir="rtl"] .rating--nojs::-webkit-slider-thumb {
+    box-shadow: var(--w) 0 0 var(--w) var(--fill);
+}
+
+.comment {
+    float: left;
+}
+
+.comment:before {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    color: black;
+    border-width: 8px;
+    border-style: solid;
+    margin-left: -8px;
+    margin-top: 25px;
+    transform:rotate(45deg);
+    -ms-transform:rotate(45deg); /* IE 9 */
+    -webkit-transform:rotate(45deg); /* Opera, Chrome, and Safari */
+}
+
+.comment-user {
+    height: 60px;
 }

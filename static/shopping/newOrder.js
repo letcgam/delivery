@@ -36,7 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
         item.style.height = '0px';
         item.style.opacity = 0;
         item.hidden = true;
-        console.log(item);
     });
 
     inputsForm1.forEach(input => {
@@ -51,22 +50,20 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 checkoutBtn.addEventListener("click", () => {
-    shippingPrice.value = randomShipping();
+    shippingPrice.value = randomShipping().toFixed(2);
     shipping.innerHTML = formatPrice(shippingPrice.value);
-    total.value += shippingPrice.value;
-    total.innerHTML = formatPrice(total.shippingPrice.value);
+    total.value += Number.parseFloat(shippingPrice.value);
+    total.innerHTML = formatPrice(total.value);
 
     form1.forEach(item => {
         item.style.height = '0px';
         item.style.opacity = 0;
         item.hidden = true;
-        console.log(item);
     });
     form2.forEach(item => {
         item.style.height = 'auto';
         item.style.opacity = 1;
         item.hidden = false;
-        console.log(item);
     });
 
     window.scrollTo({

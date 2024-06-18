@@ -1,3 +1,4 @@
+from itertools import product
 from django.db import models
 from django.contrib.auth.models import User as AuthUser
 
@@ -27,7 +28,7 @@ class Document(models.Model):
             except:
                 pass
         return values
-    
+
 
 class User(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.CASCADE, primary_key=True)
@@ -59,7 +60,7 @@ class User(models.Model):
             values.update({str(value): getattr(self, value)})
 
         return values
-    
+
 
 class DriversLicense(models.Model):
     id = models.AutoField(primary_key=True)
@@ -309,6 +310,7 @@ class WishList(models.Model):
 class Rating(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     rating = models.FloatField()
 
     class Meta:
@@ -318,6 +320,7 @@ class Rating(models.Model):
 class Comment(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     content = models.TextField(max_length=255)
 
     class Meta:
@@ -330,7 +333,7 @@ class SellerCode(models.Model):
 
     class Meta:
         db_table = "seller_code"
-    
+
 
 class ClientCode(models.Model):
     code = models.CharField(max_length=6)

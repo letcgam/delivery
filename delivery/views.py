@@ -2,7 +2,6 @@ import decimal
 import secrets
 import string
 from math import ceil
-
 from delivery.logs.logger import orderUpdateLog
 from .exceptions.exceptions import FieldError
 from django.contrib.auth import authenticate, login, logout
@@ -14,21 +13,12 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from .signals import user_signals, product_signals, order_signals
 from .utilities.functions import get_layout_context, update_type
-from .models import DeliveryRecord, Document, User as UserInfo
+from .models import Comment, DeliveryRecord, Document, Rating, User as UserInfo
 from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense, ClientCode, SellerCode
 
 
 def index(request):
     products = Product.objects.all()
-    
-    # DELETE EMPTY ORDERS
-    # for order in Order.objects.all():
-    #     quant = 0
-    #     for item in OrderItem.objects.all():
-    #         if item.order == order:
-    #             quant += item.quant
-    #     if quant == 0:
-    #         order.delete()
     
     context = get_layout_context(request)
     context.update({"products": products})
@@ -370,6 +360,7 @@ def sale(request, order_id):
 
 
 def product(request, product_id, success=False, message=""):
+    context = get_layout_context(request)
     product = Product.objects.get(pk=product_id)
     wishlist = WishList.objects.filter(
         product_id = product_id,
@@ -384,15 +375,32 @@ def product(request, product_id, success=False, message=""):
     same_category.len = len(same_category)
     same_category.range = {"3": range(1, ceil(len(same_category)/3+1)), "5": range(1, ceil(len(same_category)/5+1))}
 
+    if request.user.is_authenticated:
+        complete_orders = Order.objects.filter(user = request.user).filter(status = OrderStatus.objects.get(description = "Deliver"))
+        bought_items = []
+        for order in complete_orders:
+            for item in OrderItem.objects.filter(order = order):
+                bought_items.append(item.product)
+                
+        already_bought = (product in bought_items)
+        already_made_review = len(Rating.objects.filter(user = request.user, product = product)) != 0
 
-    context = get_layout_context(request)
+        context.update({"accept_review": already_bought and not already_made_review})
+
+    ratings = Rating.objects.filter(product = product)
+    ratings.average = sum([rating.rating for rating in ratings]) / len(ratings) if len(ratings) > 0 else 0
+    
+    comments = Comment.objects.filter(product = product)
+        
     context.update({
         "main_product": product,
         "wishlist": wishlist,
         "success": success,
         "message": message,
         "same_category": same_category,
-        "same_seller": same_seller
+        "same_seller": same_seller,
+        "ratings": ratings,
+        "comments": comments
     })
     
     return render(request, "product.html", context)
@@ -698,6 +706,9 @@ def deliveryman_menu(request, message=""):
             
             context.update({"order_in_progress": order_in_progress})
     
+    history = [record.order for record in DeliveryRecord.objects.filter(driver = driver)]
+    print(history)
+    
     orders = Order.objects.all()
     orders_awaiting = [order for order in orders if order.status.description.lower() == "ready for pick up" and not SellerCode.objects.filter(order = order)]
     for order in orders_awaiting:
@@ -709,6 +720,7 @@ def deliveryman_menu(request, message=""):
     
     context.update({
         "orders_awaiting": orders_awaiting,
+        "history": history,
         "message": message
     })
     
@@ -811,3 +823,29 @@ def confirm_delivery(request):
                 message = "Wrong client code"
     
         return deliveryman_menu(request, message)
+
+
+def rate_product(request, product_id):
+    if request.method == 'POST':
+        rating_value = request.POST["rating-input"]
+        rating = Rating.objects.create(
+            user = request.user,
+            product = Product.objects.get(pk = product_id),
+            rating = rating_value
+        )
+        rating.save()
+    
+    return product(request, product_id)
+
+
+def add_comment(request, product_id):
+    if request.method == 'POST':
+        text = request.POST["comment-input"]
+        comment = Comment.objects.create(
+            user = request.user,
+            product = Product.objects.get(pk = product_id),
+            content = text
+        )
+        comment.save()
+    
+    return product(request, product_id)

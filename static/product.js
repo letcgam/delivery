@@ -1,9 +1,15 @@
 const isOwner = document.getElementById("is-owner").value;
 const prices = document.getElementsByName("price");
+const ratingInput = document.getElementById("rating");
+
+document.addEventListener("DOMContentLoaded", () => {
+    var value = String(ratingInput.value)
+    console.log(value)
+    ratingInput.style.setProperty('--value', value)
+})
 
 prices.forEach(price => {
     price.innerHTML = formatPrice(price.innerHTML);
-    console.log(price)
 })
 
 const categoryCarousel = new bootstrap.Carousel(
