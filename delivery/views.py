@@ -1,4 +1,5 @@
 import decimal
+from multiprocessing import context
 import secrets
 import string
 from math import ceil
@@ -13,7 +14,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from .signals import user_signals, product_signals, order_signals
 from .utilities.functions import get_layout_context, update_type
-from .models import Comment, DeliveryRecord, Document, Rating, User as UserInfo
+from .models import BankAccount, Comment, DeliveryRecord, Document, Rating, User as UserInfo, Wallet, Withdraw
 from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment, PaymentType, Recipient, Product, Category, WishList, Cart, CartItem, Adress, Driver, DriversLicense, ClientCode, SellerCode
 
 
@@ -94,6 +95,10 @@ def register(request):
         
         login(request, user)
         context = get_layout_context(request)
+        
+        if "deliveryman" in context["type"] or "seller" in context["type"]:
+            Wallet.objects.create(user = user)
+        
         if context["type"] == "deliveryman applicant":
             return render(request, "account/account.html", context)
         return HttpResponseRedirect(reverse("index"))
@@ -227,12 +232,28 @@ def categories_filter(request, category_id):
     context = get_layout_context(request)
     context.update({"products": products, "chosen_category": chosen_category, 'products_len': len(products)})
 
-    return render(request, "categories-filter.html", context)
+    return render(request, "filter.html", context)
 
 
 @login_required
 def seller(request):
     context = get_layout_context(request)
+    
+    sales = Order.objects.filter(seller = request.user)
+    
+    sold_categories = {}
+    for sale in sales:
+        for item in OrderItem.objects.filter(order = sale):
+            if item.product.category not in sold_categories.keys():
+                sold_categories.update({(item.product.category): 0})
+            sold_categories[item.product.category] += item.quant
+            
+    sold_categories = sorted(sold_categories.items(), key=lambda x: x[1])
+    
+    context.update({"sold_categories": sold_categories})
+    for cat in sold_categories:
+        print(cat[0].name, cat[1])
+            
     return render(request, "seller/seller.html", context)
 
 
@@ -610,7 +631,7 @@ def new_order(request):
                     payment_id = payment.id,
                     recipient_id = recipient.id,
                     delivery_adress_id = adress.id,
-                    shipping = float(request.POST["shipping-price"])
+                    shipping = decimal.Decimal(request.POST["shipping-price"])
                 )
                 new_order.save()
 
@@ -627,14 +648,15 @@ def new_order(request):
                     order_item.save()
                     new_order.total_price += Product.objects.get(pk = order_item.product_id).price
                     new_order.save()
+                
+                    seller_wallet = Wallet.objects.get(user = seller)
+                    seller_wallet.balance += decimal.Decimal(new_order.total_price)
+                    seller_wallet.save()
                     
                     item.product.stock -= 1
                     item.product.save()
                     item.delete()
                     message.append(order_item)
-                
-                new_order.total_price = float(new_order.shipping) + float(new_order.total_price)
-                new_order.save()
                     
                 order_signals.order_created.send(
                     sender = user,
@@ -658,6 +680,7 @@ def order(request, order_id, new_order=False):
 
     order.client_code = ClientCode.objects.get(order = order) if ClientCode.objects.filter(order = order) else None
     order.updates = [update.timestamp for update in orderUpdateLog.objects.filter(order = order)]
+    order.total_price += decimal.Decimal(order.shipping)
     
     if order.user_id == user.id:
         order_items = OrderItem.objects.filter(order_id = order.id)
@@ -849,3 +872,47 @@ def add_comment(request, product_id):
         comment.save()
     
     return product(request, product_id)
+
+
+@login_required
+def my_wallet(request):
+    context = get_layout_context(request)
+    
+    user = User.objects.get(pk = request.user.id)
+    wallet = Wallet.objects.get(user = user)
+    withdraws_made = Withdraw.objects.filter(user = user)
+    
+    if request.method == "POST":
+        # try:
+        amount = request.POST["amount"]
+        bank = request.POST["bank"]
+        agency = request.POST["agency"]
+        account = request.POST["account"]
+        
+        account, created_account = BankAccount.objects.get_or_create(
+            bank = bank,
+            agency = agency,
+            account = account
+        )
+        if created_account:
+            account.save()
+            
+        withdraw = Withdraw.objects.create(
+            user = user,
+            bank_account = account,
+            wallet = wallet,
+            amount = amount
+        )
+        withdraw.save()
+        
+        wallet.balance -= amount
+        wallet.save()
+        # except:
+        #     pass
+    
+    context.update({
+        "wallet": wallet,
+        "withdraws_made": withdraws_made
+    })
+    
+    return render(request, "account/wallet.html", context)

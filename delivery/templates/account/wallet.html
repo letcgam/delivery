@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block body %}
+
+<div class="container">
+    <div class="bg-black p-3 px-4 rounded-4 mb-3">
+        <span class="d-flex col-8 col-sm-12 justify-content-between align-items-center">
+            <h1>My wallet</h1>
+        </span>
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <div class="p-3 px-4 glass rounded-4 mb-3">
+                <h4 class="d-flex align-items-center justify-content-between">
+                    <span>
+                        Available: R$<span id="balance">{{ wallet.balance }}</span>
+                    </span>
+                    <button class="btn glass ms-3 p-2 py-0 fs-3">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </h4>
+            </div>
+            <div class="p-3 px-4 bg-black rounded-top-4">
+                <h3>Make withdraw</h3>
+            </div>
+            <div class="p-4 glass rounded-bottom-4 mb-3">
+                <form action="{% url 'my_wallet' %}" method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <p class="m-0">Inform the value you would like to withdraw.</p>
+                        <div class="input-group">
+                            <div class="input-group-text bg-dark text-light">R$</div>
+                            <input required id="amount" type="number" step="0.01" name="amount" class="form-control bg-dark text-light " aria-describedby="amount-help">
+                        </div>
+                        <div id="amount-help" class="form-text text-secondary">You can withdraw R${{ wallet.balance }} or less.</div>
+                    </div>
+                    <span class="d-flex w-100 justify-content-center" id="proceed-btn">
+                        <a class="btn btn-theme" data-bs-toggle="collapse" href="#account-collapse" role="button" aria-expanded="false" aria-controls="account-collapse" onclick="document.getElementById('proceed-btn').style.height = 0;document.getElementById('proceed-btn').style.opacity = 0;">Submit</a>
+                    </span>
+                    <div class="collapse row" id="account-collapse">
+                        <p>Inform us the bank account where you would like to receive your balance.</p>
+                        <div class="mb-3 col-12">
+                            <label for="bank" class="form-label m-0 mx-1">Bank</label>
+                            <input required type="text" class="form-control bg-dark text-light" name="bank" placeholder="Example Bank S.A.">
+                        </div>
+                        <div class="mb-3 col-6">
+                            <label for="agency" class="form-label m-0 mx-1">Agency</label>
+                            <input required type="number" class="form-control bg-dark text-light" name="agency" placeholder="XXXX">
+                        </div>
+                        <div class="mb-3 col-6">
+                            <label for="account" class="form-label m-0 mx-1">Account</label>
+                            <input required type="text" class="form-control bg-dark text-light" name="account" placeholder="XXX-XXXX">
+                        </div>
+                        <span class="d-flex w-100 justify-content-center my-3">
+                            <button class="btn btn-theme" type="submit">Withdraw</button>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="p-3 px-4 bg-black rounded-top-4">
+                <h3>Recent withdraws</h3>
+            </div>
+            <div class="p-4 glass rounded-bottom-4 mb-3">
+                {% for withdraw in withdraws %}
+                    {{ withdraw }}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

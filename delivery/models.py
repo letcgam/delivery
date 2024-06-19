@@ -1,4 +1,4 @@
-from itertools import product
+from decimal import Decimal
 from django.db import models
 from django.contrib.auth.models import User as AuthUser
 
@@ -268,7 +268,7 @@ class Order(models.Model):
     seller = models.ForeignKey(AuthUser, on_delete=models.CASCADE, related_name="seller")
     creation_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
-    shipping = models.FloatField()
+    shipping = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     status = models.ForeignKey(OrderStatus, on_delete=models.PROTECT, default=1)
     payment = models.ForeignKey(Payment, on_delete=models.CASCADE)
@@ -342,3 +342,35 @@ class ClientCode(models.Model):
     class Meta:
         db_table = "client_code"
     
+
+class Wallet(models.Model):
+    user = models.OneToOneField(AuthUser, on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0.00))
+
+    class Meta:
+        db_table = "wallet"
+
+
+class BankAccount(models.Model):
+    bank = models.CharField(max_length=255)
+    agency = models.IntegerField()
+    account = models.CharField(max_length=8)
+
+    class Meta:
+        db_table = "bank_account"
+        
+
+class Withdraw(models.Model):
+    user = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
+    bank_account = models.ForeignKey(BankAccount, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0.00))
+    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
+    datetime = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} withdrew {self.amount} on {self.datetime}"
+    
+    class Meta:
+        db_table = "withdraw"
+
+
