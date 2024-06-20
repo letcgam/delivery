@@ -175,7 +175,7 @@ a:hover {
     transition: 0.1s;
 }
 
-.text-theme { 
+.text-theme {
     color: var(--text-color) !important;
 }
 
@@ -198,7 +198,7 @@ a:hover {
     overflow: hidden;
     text-overflow: ellipsis;
     -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical; 
+    -webkit-box-orient: vertical;
 }
 
 .product-card-image {
@@ -399,4 +399,9 @@ a:hover {
       transform: translateX(0);
       opacity: 1;
     }
+}
+
+#balance .hide {
+    background-color: gray;
+    color: gray;
 }

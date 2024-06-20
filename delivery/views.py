@@ -20,10 +20,10 @@ from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment,
 
 def index(request):
     products = Product.objects.all()
-    
+
     context = get_layout_context(request)
     context.update({"products": products})
-    
+
     return render(request, "index.html", context)
 
 
@@ -79,26 +79,27 @@ def register(request):
             user_info.save()
 
             Cart.objects.create(user_id = user.id).save()
+
+            fields = ""
+            for key, value in user_info.fields_values.items():
+                fields += f""" | {key}={value}"""
+            user_signals.user_created.send(
+                sender = user,
+                user = user,
+                fields = fields,
+            )
         except IntegrityError:
             return render(request, "register.html", {
                 "message": "Username already taken."
             })
-        
-        fields = ""
-        for key, value in user_info.fields_values:
-            fields += f""" | {key}={value}"""
-        user_signals.user_created.send(
-            sender = user,
-            user = user,
-            fields = fields,
-        )
-        
+
+
         login(request, user)
         context = get_layout_context(request)
-        
+
         if "deliveryman" in context["type"] or "seller" in context["type"]:
             Wallet.objects.create(user = user)
-        
+
         if context["type"] == "deliveryman applicant":
             return render(request, "account/account.html", context)
         return HttpResponseRedirect(reverse("index"))
@@ -112,7 +113,7 @@ def my_account(request):
     user_info = UserInfo.objects.get(user = user)
     user_info.birth = str(user_info.birth)
     context = get_layout_context(request)
-    
+
     context.update({
         'user': user,
         'user_info': user_info,
@@ -123,8 +124,8 @@ def my_account(request):
         if document != None:
             document.issue_date = str(document.issue_date)
             document.expiration_date = str(document.expiration_date)
-            context.update({'document': document})            
-        
+            context.update({'document': document})
+
         billing_adress = BillingAdress.objects.get(user_id = user.id)
         if billing_adress != None:
             adress = Adress.objects.get(pk = billing_adress.adress_id)
@@ -147,11 +148,11 @@ def my_account(request):
             if "seller" in context["type"] or "deliveryman" in context["type"]:
                 fields += ['doc-number', 'doc-issue-date', 'doc-expiration-date', 'document-type']
             error = []
-            
+
             for field in fields:
                 if request.POST[field] == "":
                     error.append(field)
-                    
+
             if len(error) >= 1:
                 raise FieldError(error)
             else:
@@ -164,7 +165,7 @@ def my_account(request):
                 user.email = new_user_info["email"] = request.POST['email']
                 user_info.phone = new_user_info["phone"] = request.POST['phone-number']
                 user_info.birth = new_user_info["birth"] = request.POST['birth'] if request.POST['birth'] != "" else None
-                
+
                 if "seller" in context["type"] or "deliveryman" in context["type"]:
                     document, created = Document.objects.get_or_create(
                         number = request.POST['doc-number']
@@ -177,7 +178,7 @@ def my_account(request):
                         if created:
                             user_info.document = document
                         context.update({"document": document})
-                    
+
                 user_info.save()
                 user.save()
 
@@ -196,7 +197,7 @@ def my_account(request):
 
                 if "applicant" in user_info.type:
                     update_type(request)
-                    
+
                 context.update({
                     'user': user,
                     'user_info': user_info,
@@ -238,22 +239,22 @@ def categories_filter(request, category_id):
 @login_required
 def seller(request):
     context = get_layout_context(request)
-    
+
     sales = Order.objects.filter(seller = request.user)
-    
+
     sold_categories = {}
     for sale in sales:
         for item in OrderItem.objects.filter(order = sale):
             if item.product.category not in sold_categories.keys():
                 sold_categories.update({(item.product.category): 0})
             sold_categories[item.product.category] += item.quant
-            
+
     sold_categories = sorted(sold_categories.items(), key=lambda x: x[1])
-    
+
     context.update({"sold_categories": sold_categories})
     for cat in sold_categories:
         print(cat[0].name, cat[1])
-            
+
     return render(request, "seller/seller.html", context)
 
 
@@ -272,7 +273,7 @@ def add_product(request):
                 owner_id = request.user.id
             )
             product.save()
-        
+
             user = User.objects.get(pk = request.user.id)
             fields = ""
             for key, value in product.fields_values:
@@ -292,7 +293,7 @@ def add_product(request):
                 "class": "text-success",
                 "text": "Successfully registered product!"
             }
-            
+
     context = get_layout_context(request)
     context.update({"message": message})
 
@@ -305,7 +306,7 @@ def edit_product(request, product_id):
     item = Product.objects.get(pk = product_id)
     old_att = item.fields_values
     new_att = item.fields_values
-    
+
     item.name = new_att["name"] = request.POST["name"]
     item.price = new_att["price"] = request.POST["price"]
     item.description = new_att["description"] = request.POST["description"]
@@ -313,10 +314,10 @@ def edit_product(request, product_id):
     item.stock = new_att["stock"] = request.POST["stock"]
     item.image_url = new_att["image_url"] = request.POST["image_url"] if request.POST["image_url"] != "" else item.image_url
     item.save()
-    
+
     new_att["price"] = decimal.Decimal(new_att["price"])
     new_att["stock"] = int(new_att["stock"])
-    
+
     user = User.objects.get(pk = request.user.id)
     fields = ""
     for key in old_att.keys():
@@ -328,7 +329,7 @@ def edit_product(request, product_id):
             product = item,
             altered_fields = fields,
         )
-    
+
     message = "Successfully edited product."
     # except:
     #     message = "Failed to edit product."
@@ -349,17 +350,17 @@ def my_sales(request):
     context = get_layout_context(request)
     orders = Order.objects.all().order_by("creation_date")
     order_items = OrderItem.objects.all()
-    
+
     for order in orders:
         order.items = []
         for item in order_items:
             if item.order == order and item.product.owner == seller:
                 order.items.append(item)
-    
+
     orders = [order for order in orders if order.items != []]
-    
+
     context.update({"orders": orders})
-    
+
     return render(request, "seller/my-sales.html", context)
 
 
@@ -391,7 +392,7 @@ def product(request, product_id, success=False, message=""):
     same_seller = Product.objects.filter(owner = product.owner).exclude(pk = product.id)
     same_seller.len = len(same_seller)
     same_seller.range = {"3": range(1, ceil(len(same_seller)/3+1)), "5": range(1, ceil(len(same_seller)/5+1))}
-    
+
     same_category = Product.objects.filter(category = product.category).exclude(pk = product.id)
     same_category.len = len(same_category)
     same_category.range = {"3": range(1, ceil(len(same_category)/3+1)), "5": range(1, ceil(len(same_category)/5+1))}
@@ -402,7 +403,7 @@ def product(request, product_id, success=False, message=""):
         for order in complete_orders:
             for item in OrderItem.objects.filter(order = order):
                 bought_items.append(item.product)
-                
+
         already_bought = (product in bought_items)
         already_made_review = len(Rating.objects.filter(user = request.user, product = product)) != 0
 
@@ -410,9 +411,9 @@ def product(request, product_id, success=False, message=""):
 
     ratings = Rating.objects.filter(product = product)
     ratings.average = sum([rating.rating for rating in ratings]) / len(ratings) if len(ratings) > 0 else 0
-    
+
     comments = Comment.objects.filter(product = product)
-        
+
     context.update({
         "main_product": product,
         "wishlist": wishlist,
@@ -423,7 +424,7 @@ def product(request, product_id, success=False, message=""):
         "ratings": ratings,
         "comments": comments
     })
-    
+
     return render(request, "product.html", context)
 
 
@@ -526,7 +527,7 @@ def my_cart(request):
     if request.method == "GET":
         cart = Cart.objects.filter(user_id = user.id).first()
         items = CartItem.objects.filter(cart_id = cart.id)
-        
+
         seller_products = {}
         for item in items:
             seller = item.product.owner
@@ -591,7 +592,7 @@ def new_order(request):
                 raise FieldError(error)
             else:
                 seller = User.objects.get(pk = request.POST["seller-id"])
-                
+
                 recipient, created_recipient = Recipient.objects.get_or_create(
                     first_name = request.POST["first-name"],
                     last_name = request.POST["last-name"],
@@ -648,16 +649,16 @@ def new_order(request):
                     order_item.save()
                     new_order.total_price += Product.objects.get(pk = order_item.product_id).price
                     new_order.save()
-                
+
                     seller_wallet = Wallet.objects.get(user = seller)
                     seller_wallet.balance += decimal.Decimal(new_order.total_price)
                     seller_wallet.save()
-                    
+
                     item.product.stock -= 1
                     item.product.save()
                     item.delete()
                     message.append(order_item)
-                    
+
                 order_signals.order_created.send(
                     sender = user,
                     order = new_order
@@ -681,7 +682,7 @@ def order(request, order_id, new_order=False):
     order.client_code = ClientCode.objects.get(order = order) if ClientCode.objects.filter(order = order) else None
     order.updates = [update.timestamp for update in orderUpdateLog.objects.filter(order = order)]
     order.total_price += decimal.Decimal(order.shipping)
-    
+
     if order.user_id == user.id:
         order_items = OrderItem.objects.filter(order_id = order.id)
         context.update({
@@ -713,25 +714,25 @@ def deliveryman_menu(request, message=""):
     deliveryman = request.user
     driver = Driver.objects.get(deliveryman = deliveryman)
     context = get_layout_context(request)
-    
+
     record = DeliveryRecord.objects.filter(driver = driver).last()
     if record:
         order_in_progress = record.order if record.order.status.description != "Deliver" else None
-    
+
         if order_in_progress:
             order_in_progress.quant = 0
             for item in OrderItem.objects.filter(order = order_in_progress):
                 order_in_progress.quant += item.quant
-                
+
             order_in_progress.seller_adress = BillingAdress.objects.filter(user = order_in_progress.seller).first()
             order_in_progress.seller_code = SellerCode.objects.get(order = order_in_progress) if SellerCode.objects.filter(order = order_in_progress) else None
             order_in_progress.client_code = ClientCode.objects.get(order = order_in_progress) if ClientCode.objects.filter(order = order_in_progress) else None
-            
+
             context.update({"order_in_progress": order_in_progress})
-    
+
     history = [record.order for record in DeliveryRecord.objects.filter(driver = driver)]
     print(history)
-    
+
     orders = Order.objects.all()
     orders_awaiting = [order for order in orders if order.status.description.lower() == "ready for pick up" and not SellerCode.objects.filter(order = order)]
     for order in orders_awaiting:
@@ -740,13 +741,13 @@ def deliveryman_menu(request, message=""):
             quant += item.quant
         order.quant = quant
         order.seller_adress = BillingAdress.objects.filter(user = order.seller).first()
-    
+
     context.update({
         "orders_awaiting": orders_awaiting,
         "history": history,
         "message": message
     })
-    
+
     return render(request, "delivery/deliveryman-menu.html", context)
 
 
@@ -754,25 +755,25 @@ def deliveryman_menu(request, message=""):
 def take_delivery_order(request, order_id):
     deliveryman = Driver.objects.get(deliveryman = request.user)
     order = Order.objects.get(pk = order_id)
-    
+
     try:
         old_status = OrderStatus.objects.get(pk = order.status.id)
         order.status = OrderStatus.objects.get(description = "Awaiting withdraw")
         order.save()
-        
+
         order_signals.order_edited.send(
             sender = request.user,
             order = order,
             old_status = old_status,
             new_status = order.status
         )
-        
+
         record = DeliveryRecord.objects.create(
             driver = deliveryman,
             order = order
         )
         record.save()
-        
+
         if not SellerCode.objects.filter(order = order):
             seller_code = SellerCode.objects.create(
                 order = order,
@@ -783,7 +784,7 @@ def take_delivery_order(request, order_id):
         message = "Order registered"
     except:
         message = "Error registering order"
-    
+
     return deliveryman_menu(request, message)
 
 
@@ -791,20 +792,20 @@ def pick_order_up(request):
     if request.method == 'POST':
         order = Order.objects.get(pk = request.POST['order-id-input'])
         code = request.POST['seller-code-input']
-        
+
         if SellerCode.objects.get(order = order).code == code:
             try:
                 old_status = OrderStatus.objects.get(pk = order.status.id)
                 order.status = OrderStatus.objects.get(description = "On route")
                 order.save()
-                
+
                 order_signals.order_edited.send(
                     sender = request.user,
                     order = order,
                     old_status = old_status,
                     new_status = order.status
                 )
-                
+
                 if not ClientCode.objects.filter(order = order):
                     client_code = ClientCode.objects.create(
                         order = order,
@@ -816,7 +817,7 @@ def pick_order_up(request):
                 message = "Error verifying code"
         else:
             message = "Wrong seller code"
-    
+
         return deliveryman_menu(request, message)
 
 
@@ -824,27 +825,27 @@ def confirm_delivery(request):
     if request.method == 'POST':
         order = Order.objects.get(pk = request.POST['order-id-input'])
         code = request.POST['client-code-input']
-        
+
         if ClientCode.objects.filter(order = order):
             if ClientCode.objects.get(order = order).code == code:
                 try:
                     old_status = OrderStatus.objects.get(pk = order.status.id)
                     order.status = OrderStatus.objects.get(description = "Deliver")
                     order.save()
-                    
+
                     order_signals.order_edited.send(
                         sender = request.user,
                         order = order,
                         old_status = old_status,
                         new_status = order.status
                     )
-                    
+
                     message = "Client code ok"
                 except:
                     message = "Error verifying code"
             else:
                 message = "Wrong client code"
-    
+
         return deliveryman_menu(request, message)
 
 
@@ -857,7 +858,7 @@ def rate_product(request, product_id):
             rating = rating_value
         )
         rating.save()
-    
+
     return product(request, product_id)
 
 
@@ -870,49 +871,51 @@ def add_comment(request, product_id):
             content = text
         )
         comment.save()
-    
+
     return product(request, product_id)
 
 
 @login_required
 def my_wallet(request):
     context = get_layout_context(request)
-    
+
     user = User.objects.get(pk = request.user.id)
     wallet = Wallet.objects.get(user = user)
     withdraws_made = Withdraw.objects.filter(user = user)
-    
+
     if request.method == "POST":
-        # try:
-        amount = request.POST["amount"]
-        bank = request.POST["bank"]
-        agency = request.POST["agency"]
-        account = request.POST["account"]
-        
-        account, created_account = BankAccount.objects.get_or_create(
-            bank = bank,
-            agency = agency,
-            account = account
-        )
-        if created_account:
-            account.save()
-            
-        withdraw = Withdraw.objects.create(
-            user = user,
-            bank_account = account,
-            wallet = wallet,
-            amount = amount
-        )
-        withdraw.save()
-        
-        wallet.balance -= amount
-        wallet.save()
-        # except:
-        #     pass
-    
+        try:
+            amount = request.POST["amount"]
+            bank = request.POST["bank"]
+            agency = request.POST["agency"]
+            account = request.POST["account"]
+
+            account, created_account = BankAccount.objects.get_or_create(
+                bank = bank,
+                agency = agency,
+                account = account
+            )
+            if created_account:
+                account.save()
+
+            withdraw = Withdraw.objects.create(
+                user = user,
+                bank_account = account,
+                wallet = wallet,
+                amount = amount
+            )
+            withdraw.save()
+
+            wallet.balance -= decimal.Decimal(amount)
+            wallet.save()
+
+            context.update({"message": 1})
+        except:
+            pass
+
     context.update({
         "wallet": wallet,
         "withdraws_made": withdraws_made
     })
-    
+
     return render(request, "account/wallet.html", context)

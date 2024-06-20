@@ -12,12 +12,11 @@
         <div class="col-12 col-md-6">
             <div class="p-3 px-4 glass rounded-4 mb-3">
                 <h4 class="d-flex align-items-center justify-content-between">
-                    <span>
-                        Available: R$<span id="balance">{{ wallet.balance }}</span>
+                    <span class="d-flex align-items-center">
+                        <span>Available: R$</span>
+                        <div id="balance" class="hide rounded-pill p-1 pt-0 mt-1">{{ wallet.balance }}</div>
                     </span>
-                    <button class="btn glass ms-3 p-2 py-0 fs-3">
-                        <i class="bi bi-eye"></i>
-                    </button>
+                    <i id="see-balance-btn" class="bi bi-eye-slash btn glass ms-3 p-2 py-0 fs-3 text-light"></i>
                 </h4>
             </div>
             <div class="p-3 px-4 bg-black rounded-top-4">
@@ -35,7 +34,7 @@
                         <div id="amount-help" class="form-text text-secondary">You can withdraw R${{ wallet.balance }} or less.</div>
                     </div>
                     <span class="d-flex w-100 justify-content-center" id="proceed-btn">
-                        <a class="btn btn-theme" data-bs-toggle="collapse" href="#account-collapse" role="button" aria-expanded="false" aria-controls="account-collapse" onclick="document.getElementById('proceed-btn').style.height = 0;document.getElementById('proceed-btn').style.opacity = 0;">Submit</a>
+                        <a class="btn btn-theme rounded-pill" data-bs-toggle="collapse" href="#account-collapse" role="button" aria-expanded="false" aria-controls="account-collapse" onclick="document.getElementById('proceed-btn').style.height = 0;document.getElementById('proceed-btn').style.opacity = 0;">Submit</a>
                     </span>
                     <div class="collapse row" id="account-collapse">
                         <p>Inform us the bank account where you would like to receive your balance.</p>
@@ -52,23 +51,53 @@
                             <input required type="text" class="form-control bg-dark text-light" name="account" placeholder="XXX-XXXX">
                         </div>
                         <span class="d-flex w-100 justify-content-center my-3">
-                            <button class="btn btn-theme" type="submit">Withdraw</button>
+                            <button class="btn btn-theme rounded-pill" type="submit">Withdraw</button>
                         </span>
                     </div>
                 </form>
             </div>
         </div>
         <div class="col-12 col-md-6">
-            <div class="p-3 px-4 bg-black rounded-top-4">
+            <div class="p-3 px-4 bg-black rounded-top-4 d-flex justify-content-between">
                 <h3>Recent withdraws</h3>
+                <button class="btn btn-theme rounded-pill" id="see-more-btn">See more</button>
             </div>
             <div class="p-4 glass rounded-bottom-4 mb-3">
-                {% for withdraw in withdraws %}
-                    {{ withdraw }}
-                {% endfor %}
+                <table class="table full-glass text-light">
+                    <thead>
+                        <tr class="full-glass text-light">
+                            <th class="full-glass text-light">
+                                Date
+                            </th>
+                            <th class="full-glass text-light">
+                                Amount
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="some-withdraws">
+                        {% for withdraw in withdraws_made|slice:":5" %}
+                            <tr>
+                                <td class="full-glass text-light">{{ withdraw.datetime }}</td>
+                                <td class="full-glass text-light">R${{ withdraw.amount }}</td>
+                            </tr>
+                            <p></p>
+                        {% endfor %}
+                    </tbody>
+                    <tbody id="all-withdraws" hidden>
+                        {% for withdraw in withdraws_made %}
+                            <tr>
+                                <td class="full-glass text-light">{{ withdraw.datetime }}</td>
+                                <td class="full-glass text-light">R${{ withdraw.amount }}</td>
+                            </tr>
+                            <p></p>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
+
+<script src="{% static 'account/wallet.js' %}"></script>
 
 {% endblock %}
