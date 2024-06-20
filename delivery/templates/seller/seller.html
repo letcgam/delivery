@@ -10,41 +10,40 @@
             <h4 class="mx-2 text-secondary">&bull; {{ user }}</h4>
         </span>
     </div>
-    <div class="row w-100 justify-content-center">
-        <div class="col-8 col-sm-6 col-md-4 col-lg-3 mb-3">
-            <div class="d-flex flex-column gap-3 glass rounded-4 p-3 py-4">
-                <a href="{% url 'my_products' %}" class="btn btn-theme rounded-pill">My products</a>
-                <a href="{% url 'my_sales' %}" class="btn btn-theme rounded-pill">My sales</a>
-                <a href="{% url 'add_product' %}" class="btn btn-theme rounded-pill">Add new product</a>
-                <a href="{% url 'my_wallet' %}" class="btn btn-theme rounded-pill">My wallet</a>
+    <div class="col-12 mb-3">
+        <div class="glass rounded-4 p-3 py-4 w-100">
+            <div class="row">
+                <span class="col-6 col-lg-3 my-1">
+                    <a href="{% url 'my_products' %}" class="btn btn-theme rounded-pill w-100">My products</a>
+                </span>
+                <span class="col-6 col-lg-3 my-1">
+                    <a href="{% url 'my_sales' %}" class="btn btn-theme rounded-pill w-100">My sales</a>
+                </span>
+                <span class="col-6 col-lg-3 my-1">
+                    <a href="{% url 'add_product' %}" class="btn btn-theme rounded-pill w-100">Add new product</a>
+                </span>
+                <span class="col-6 col-lg-3 my-1">
+                    <a href="{% url 'my_wallet' %}" class="btn btn-theme rounded-pill w-100">My wallet</a>
+                </span>
             </div>
         </div>
-        <div class="col-8 col-sm-6 col-md-4 col-lg-3 mb-3">
-            <div class="glass rounded-4 p-4">
-                a
-            </div>
-        </div>
-        <div class="col-8 col-sm-6 col-md-4 col-lg-3 mb-3">
-            <div class="glass rounded-4 p-4">
-                algum grafico
-            </div>
-        </div>
-        <div class="col-12 mb-3">
-            <div class="glass rounded-4 p-4">
-                {% for category, quant in sold_categories reversed %}
-                    <div class="bar-container row my-2">
-                        <div class="col">
-                            <span>{{ category.name }}</span>
-                        </div>
-                        <div class="col">
-                            <div class="bar text-end">
-                                <div name="bar" class="progress-bar"></div>
-                                <input value="{{ quant }}" hidden>
-                            </div>
+    </div>
+    <div class="col-12 mb-3">
+        <div class="glass rounded-4 p-4">
+        <h3>Most sold categories</h3>
+            {% for category, quant in sold_categories|slice:"0:3" %}
+                <div class="bar-container row my-2">
+                    <div class="col">
+                        <span>{{ category.name }}</span>
+                    </div>
+                    <div class="col">
+                        <div class="bar text-end">
+                            <div name="bar" class="progress-bar"></div>
+                            <input value="{{ quant }}" hidden>
                         </div>
                     </div>
-                {% endfor %}
-            </div>
+                </div>
+            {% endfor %}
         </div>
     </div>
 </div>

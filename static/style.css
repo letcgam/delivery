@@ -401,7 +401,13 @@ a:hover {
     }
 }
 
-#balance .hide {
-    background-color: gray;
-    color: gray;
+#balance {
+    transition: .1s ease-in-out;
+}
+
+.hide {
+    background-color: #101010;
+    color: #101010;
+    user-select: none;
+    transition: .1s ease-in-out;
 }

@@ -18,9 +18,13 @@ seeBtn.addEventListener("click", () => {
 
 balanceBtn.addEventListener("click", () => {
     if (balanceBtn.classList.contains("bi-eye-slash")) {
+        balance.classList.remove("hide");
+
         balanceBtn.classList.remove("bi-eye-slash");
         balanceBtn.classList.add("bi-eye");
     } else {
+        balance.classList.add("hide");
+
         balanceBtn.classList.remove("bi-eye");
         balanceBtn.classList.add("bi-eye-slash");
     }

@@ -1,5 +1,4 @@
 import decimal
-from multiprocessing import context
 import secrets
 import string
 from math import ceil
@@ -19,7 +18,7 @@ from .models import BillingAdress, Card, Order, OrderItem, OrderStatus, Payment,
 
 
 def index(request):
-    products = Product.objects.all()
+    products = (Product.objects.order_by('?'))
 
     context = get_layout_context(request)
     context.update({"products": products})
@@ -249,7 +248,7 @@ def seller(request):
                 sold_categories.update({(item.product.category): 0})
             sold_categories[item.product.category] += item.quant
 
-    sold_categories = sorted(sold_categories.items(), key=lambda x: x[1])
+    sold_categories = sorted(sold_categories.items(), key=lambda x: -x[1])
 
     context.update({"sold_categories": sold_categories})
     for cat in sold_categories:
@@ -731,7 +730,15 @@ def deliveryman_menu(request, message=""):
             context.update({"order_in_progress": order_in_progress})
 
     history = [record.order for record in DeliveryRecord.objects.filter(driver = driver)]
-    print(history)
+    for order in history:
+        order.pickup = orderUpdateLog.objects.get(
+            order = order,
+            new_status = OrderStatus.objects.get(description="On route")
+        )
+        order.delivery = orderUpdateLog.objects.get(
+            order = order,
+            new_status = OrderStatus.objects.get(description="Deliver")
+        )
 
     orders = Order.objects.all()
     orders_awaiting = [order for order in orders if order.status.description.lower() == "ready for pick up" and not SellerCode.objects.filter(order = order)]
@@ -839,6 +846,10 @@ def confirm_delivery(request):
                         old_status = old_status,
                         new_status = order.status
                     )
+
+                    wallet = Wallet.objects.get(user = request.user)
+                    wallet.balance += decimal.Decimal(new_order.shipping)
+                    wallet.save()
 
                     message = "Client code ok"
                 except:

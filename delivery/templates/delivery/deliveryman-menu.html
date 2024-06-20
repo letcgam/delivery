@@ -3,25 +3,7 @@
 
 
 {% block body %}
-<div class="container col-12 col-lg-8 col-xl-6 p-0">
-
-        <div class="accordion rounded-4 overflow-hidden" id="history-accordion">
-            {% for order in history %}
-                <div class="accordion-item border-0 bg-dark">
-                    <h2 class="accordion-header border-0">
-                        <button class="accordion-button bg-black text-light border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ order.id }}" aria-expanded="true" aria-controls="collapse-{{ order.id }}">
-                            {{ order }}
-                        </button>
-                    </h2>
-                    <div id="collapse-{{ order.id }}" class="accordion-collapse collapse border-0" data-bs-parent="#history-accordion">
-                        <div class="accordion-body border-0">
-                            text
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-
+<div class="container col-12 col-lg-8 col-xl-6 p-0" id="main">
     <div class="row">
         <div class="p-0 m-0 col-12 col-md-6 p-3">
             <span class="d-flex bg-black rounded-top-4 pb-2 pt-3 px-4">
@@ -105,12 +87,9 @@
                 {% endif %}
             </div>
 
-            <button id="access-history-btn" class="btn bg-black rounded-4 mt-4 p-3 w-100 text-light">
+            <button id="see-history-btn" class="btn bg-black rounded-4 mt-4 p-3 w-100 text-light">
                 See my delivery history
             </button>
-
-            
-
         </div>
 
         <!-- Code modal -->
@@ -236,6 +215,67 @@
         </div>
     </div>
 {% endfor %}
+
+<div class="container col-12 col-lg-8 col-xl-6" id="history" hidden>
+    <button id="see-main-btn" class="btn bg-black fs-3 rounded-pill p-0 px-5 mb-3">
+        <i class="bi bi-arrow-left"></i>
+    </button>
+    <span class="d-flex bg-black rounded-4 pb-2 pt-3 px-4 mb-3">
+        <h3>My history</h3>
+    </span>
+
+    <div class="accordion rounded-4 overflow-hidden" id="history-accordion">
+        {% for order in history %}
+            <div class="accordion-item border-0 glass">
+                <h2 class="accordion-header border-0">
+                    <button class="accordion-button bg-black text-light border-0 d-flex justify-content-between w-100 border" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ order.id }}" aria-expanded="true" aria-controls="collapse-{{ order.id }}">
+                        <span class="w-50 m-2">
+                            <span class="me-1">Order</span>
+                            <span name="order-id">{{ order.id }}</span>
+                        </span>
+                        <span class="w-50 m-2 me-4 text-end">
+                            {{ order.delivery.timestamp.date }}
+                        </span>
+                    </button>
+                </h2>
+                <div id="collapse-{{ order.id }}" class="accordion-collapse collapse border-0" data-bs-parent="#history-accordion">
+                    <div class="accordion-body border-0">
+                        <table class="table full-glass border-secondary">
+                            <tbody>
+                                <tr class="full-glass">
+                                    <td class="px-0 py-2 full-glass text-light">Shipping</td>
+                                    <td class="px-0 py-2 full-glass text-light">R${{ order.shipping }}</td>
+                                </tr>
+                                <tr class="full-glass">
+                                    <td class="px-0 py-2 full-glass text-light">Delivered at</td>
+                                    <td class="px-0 py-2 full-glass text-light">{{ order.delivery.timestamp }}</td>
+                                </tr>
+                                <tr class="full-glass">
+                                    <td class="px-0 py-2 full-glass text-light">Picked up at</td>
+                                    <td class="px-0 py-2 full-glass text-light">{{ order.pickup.timestamp }}</td>
+                                </tr>
+                                <tr class="full-glass">
+                                    <td class="px-0 py-2 full-glass text-light">Delivered to</td>
+                                    <td class="px-0 py-2 full-glass text-light">
+                                        {{ order.recipient }}
+                                        <hr class="m-0 my-2">
+                                        {{ order.delivery_adress }}
+                                    </td>
+                                </tr>
+                                <tr class="full-glass">
+                                    <td class="px-0 py-2 full-glass text-light">From</td>
+                                    <td class="px-0 py-2 full-glass text-light">
+                                        {{ order.seller }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="{% static 'delivery/deliverymanMenu.js' %}"></script>

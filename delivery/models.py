@@ -18,7 +18,7 @@ class Document(models.Model):
 
     class Meta:
         db_table = "document"
-    
+
     def fields_values(self):
         fields = [field.name for field in self._meta.get_fields()]
         values = []
@@ -76,10 +76,10 @@ class DriversLicense(models.Model):
 
     def __str__(self):
         return self.number
-    
+
     class Meta:
         db_table = "license"
-    
+
     def fields_values(self):
         fields = [field.name for field in self._meta.get_fields()]
         values = []
@@ -98,7 +98,7 @@ class Driver(models.Model):
 
     class Meta:
         db_table = "driver"
-    
+
     def fields_values(self):
         fields = [field.name for field in self._meta.get_fields()]
         values = []
@@ -167,10 +167,10 @@ class Adress(models.Model):
 
     class Meta:
         db_table = "adress"
-    
+
     def __str__(self):
         return str(self.street + ", " + self.city + ", " + self.state + " - " + self.postal_code)
-    
+
     def fields_values(self):
         fields = [field.name for field in self._meta.get_fields()]
         values = []
@@ -249,6 +249,9 @@ class Recipient(models.Model):
     last_name = models.CharField(max_length=255)
     email = models.CharField(max_length=255)
     phone = models.CharField(max_length=20, blank=True, null=True)
+
+    def __str__(self):
+        return self.first_name + " " + self.last_name
 
     class Meta:
         db_table = "recipient"
@@ -341,7 +344,7 @@ class ClientCode(models.Model):
 
     class Meta:
         db_table = "client_code"
-    
+
 
 class Wallet(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.CASCADE)
@@ -358,7 +361,7 @@ class BankAccount(models.Model):
 
     class Meta:
         db_table = "bank_account"
-        
+
 
 class Withdraw(models.Model):
     user = models.ForeignKey(AuthUser, on_delete=models.CASCADE)
@@ -369,7 +372,7 @@ class Withdraw(models.Model):
 
     def __str__(self):
         return f"{self.user.username} withdrew {self.amount} on {self.datetime}"
-    
+
     class Meta:
         db_table = "withdraw"
 
